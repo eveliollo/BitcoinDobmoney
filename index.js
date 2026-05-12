@@ -1,23 +1,21 @@
-
-app.use(cors());
-app.use(express.json());
-
-// Generador de billeteras Bitcoin
-app.get('/crear', (req, res) => {
-  const keyPair = bitcoin.ECPair.makeRandom();
-  const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
-  const privateKey = keyPair.toWIF();
-
-  res.json({
-    direccion_bitcoin: address,
-    clave_privada: privateKey
-  });
-});
-
-app.get('/', (req, res) => {
-  res.send('✅ BitcoinDobmoney FUNCIONANDO | Ve a /crear para generar tu billetera');
-});
-
-app.listen(port, () => {
-  console.log(`✅ Servidor activo en puerto ${port}`);
-});
+{
+  "name": "bitcoindobmoney",
+  "version": "2.0.0",
+  "description": "BitcoinDobmoney IA Wallet",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "EVELIO",
+  "license": "MIT",
+  "dependencies": {
+    "bitcoinjs-lib": "^6.1.5",
+    "cors": "^2.8.5",
+    "ecpair": "^2.1.0",
+    "express": "^4.21.0",
+    "tiny-secp256k1": "^2.2.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
