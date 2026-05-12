@@ -1,44 +1,105 @@
 const express = require('express');
 const bitcoin = require('bitcoinjs-lib');
-const ECPair = require('ecpair');
 const tinysecp = require('tiny-secp256k1');
-const cors = require('cors');
+const ECPairFactory = require('ecpair').ECPairFactory;
 const crypto = require('crypto');
+const cors = require('cors');
 
 bitcoin.initEccLib(tinysecp);
-const { ECPairFactory } = ECPair;
-const ECPairLib = ECPairFactory(tinysecp);
-
+const ECPair = ECPairFactory(tinysecp);
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-app.get('/crear', (req, res) => {
-  try {
-    const clavePrivada = crypto.randomBytes(32);
-    const parClaves = ECPairLib.fromPrivateKey(clavePrivada);
-    const { address } = bitcoin.payments.p2pkh({ pubkey: parClaves.publicKey });
-
-    res.json({
-      exito: true,
-      direccion_bitcoin: address,
-      clave_privada_wif: parClaves.toWIF()
+function crearWallet() {
+    const keyPair = ECPair.makeRandom();
+    const { address } = bitcoin.payments.p2pkh({
+        pubkey: Buffer.from(keyPair.publicKey)
     });
-  } catch (err) {
-    res.status(500).json({ exito: false, error: err.message });
-  }
-});
+    return {
+        direccion: address,
+        publicKey: Buffer.from(keyPair.publicKey).toString('hex'),
+        privateKey: keyPair.toWIF()
+    };
+}
+
+const wallet = crearWallet();
+console.log("Wallet creada:", wallet.direccion);
+
+async function getBalance(address) {
+    const res = await fetch(`https://blockstream.info/api/address/${address}`);
+    const data = await res.json();
+    const satoshis = data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum;
+    return satoshis / 100000000;
+}
+
+async function getTransacciones(address) {
+    const res = await fetch(`https://blockstream.info/api/address/${address}/txs`);
+    return await res.json();
+}
 
 app.get('/', (req, res) => {
-  res.send(`
-    <h1>✅ Bitcoin Dobmoney IA - ACTIVO</h1>
-    <p>Creado por EVELIO</p>
-    <p>👉 Ve a <a href="/crear">/crear</a></p>
-  `);
+    res.json({
+        nombre: "BitcoinDobmoney IA",
+        creador: "EVELIO",
+        estado: "ACTIVA",
+        wallet: wallet.direccion,
+        rutas: ["/wallet", "/balance", "/transacciones"]
+    });
 });
 
+app.get('/wallet', (req, res) => {
+    res.json({
+        direccion: wallet.direccion,
+        publicKey: wallet.publicKey
+    });
+});
+
+app.get('/balance', async (req, res) => {
+    try {
+        const balance = await getBalance(wallet.direccion);
+        res.json({
+            direccion: wallet.direccion,
+            balanceBTC: balance,
+            fuente: "blockstream.info"
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/transacciones', async (req, res) => {
+    try {
+        const txs = await getTransacciones(wallet.direccion);
+        res.json({
+            direccion: wallet.direccion,
+            total: txs.length,
+            transacciones: txs.slice(0, 5)
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/analizar/:address', async (req, res) => {
+    try {
+        const address = req.params.address;
+        const balance = await getBalance(address);
+        const txs = await getTransacciones(address);
+        res.json({
+            IA: "BitcoinDobmoney",
+            wallet: address,
+            balance: balance,
+            transacciones: txs.length,
+            analisis: balance > 0 ? "Wallet activa con fondos" : "Wallet sin fondos aún"
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log('✅ Servidor BitcoinDobmoney activo en puerto ' + PORT);
+    console.log(`BitcoinDobmoney IA corriendo en puerto ${PORT}`);
+    console.log(`Wallet: ${wallet.direccion}`);
 });
