@@ -4,8 +4,16 @@
   "description": "BitcoinDobmoney IA Wallet",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "node index.js"
   },
+  "keywords": [
+    "bitcoin",
+    "wallet",
+    "crypto",
+    "blockchain",
+    "ia"
+  ],
   "author": "EVELIO",
   "license": "MIT",
   "dependencies": {
@@ -16,6 +24,11 @@
     "tiny-secp256k1": "^2.2.3"
   },
   "engines": {
-    "node": "18.x"
-  }
+    "node": "18.x",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "private": false
 }
