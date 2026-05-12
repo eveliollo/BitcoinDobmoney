@@ -1,15 +1,27 @@
 {
   "name": "bitcoindobmoney",
   "version": "2.0.0",
+  "description": "Billetera BitcoinDobmoney IA",
   "main": "index.js",
-  "description": "Billetera Bitcoin Dobmoney",
-  "author": "EVELIO - RUT 26214080-6",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": [
+    "bitcoin",
+    "wallet",
+    "crypto",
+    "blockchain",
+    "ia"
+  ],
+  "author": "EVELIO",
+  "license": "MIT",
   "dependencies": {
     "bitcoinjs-lib": "^6.1.5",
-    "express": "^4.21.0",
     "cors": "^2.8.5",
-    "crypto": "^1.0.1"
+    "express": "^4.21.0"
   },
   "engines": {
-    "node": "18.x"
+    "node": ">=18.0.0"
   }
+}
