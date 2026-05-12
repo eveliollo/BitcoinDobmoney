@@ -1,10 +1,15 @@
 {
   "name": "bitcoindobmoney",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "index.js",
+  "description": "Billetera Bitcoin Dobmoney",
+  "author": "EVELIO - RUT 26214080-6",
   "dependencies": {
     "bitcoinjs-lib": "^6.1.5",
-    "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1"
+  },
+  "engines": {
+    "node": "18.x"
   }
-}
