@@ -1,39 +1,4 @@
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BitcoinDobmoney</title>
-<script src="/socket.io/socket.io.js"></script>
-<style>
-:root{--gold:#F7B731;--dark:#0A0A0F;--dark2:#13131A;--dark3:#1C1C26;--muted:#888;--green:#2ecc71;--red:#e74c3c;--blue:#0088CC}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--dark);color:#fff;font-family:sans-serif;height:100vh;overflow:hidden}
-#login{position:fixed;inset:0;background:var(--dark);display:flex;align-items:center;justify-content:center;z-index:100}
-.box{background:var(--dark2);border:1px solid #222;border-radius:16px;padding:28px;width:90%;max-width:360px;text-align:center}
-.logo-icon{font-size:44px;margin-bottom:6px}
-.box h1{font-size:20px;margin-bottom:4px}.box h1 span{color:var(--gold)}
-.box p{font-size:11px;color:var(--muted);margin-bottom:20px;letter-spacing:2px}
-input,select{width:100%;background:#0A0A0F;border:1px solid #333;border-radius:8px;padding:12px;color:#fff;font-size:15px;margin-bottom:10px;outline:none}
-.btn{width:100%;background:linear-gradient(90deg,#F7B731,#e6a800);border:none;border-radius:8px;padding:13px;color:#000;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:8px}
-#app{display:none;flex-direction:column;height:100vh}
-.header{padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222;flex-shrink:0;background:var(--dark2)}
-.header-logo{font-weight:800;font-size:14px}.header-logo span{color:var(--gold)}
-.hinfo{font-size:11px;color:var(--muted)}
-.tabs{display:flex;border-bottom:1px solid #222;flex-shrink:0;overflow-x:auto;background:var(--dark2)}
-.tab{flex:1;min-width:55px;padding:10px 2px;text-align:center;font-size:10px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
-.tab.active{color:var(--gold);border-bottom:2px solid var(--gold)}
-.panel{display:none;flex:1;flex-direction:column;overflow-y:auto;overflow-x:hidden}
-.panel.active{display:flex}
-
-/* WALLET */
-.balance-card{margin:14px;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #2a2a4a;border-radius:16px;padding:20px;text-align:center}
-.bal-label{font-size:11px;color:var(--muted)}
-.bal-total{font-size:30px;font-weight:700;color:var(--gold);margin:4px 0}
-.bal-sub{font-size:12px;color:var(--muted)}
-.action-row{display:flex;gap:8px;margin:0 14px 14px}
-.abtn{flex:1;padding:11px 4px;border:none;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer}
 .abtn.s{background:var(--red);color:#fff}
 .abtn.r{background:var(--green);color:#fff}
 .abtn.sw{background:var(--dark3);color:var(--gold);border:1px solid var(--gold)}
