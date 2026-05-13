@@ -1,0 +1,189 @@
+
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const compression = require("compression");
+const crypto = require("crypto");
+
+const bitcoin = require("bitcoinjs-lib");
+const ecc = require("tiny-secp256k1");
+const { ECPairFactory } = require("ecpair");
+
+bitcoin.initEccLib(ecc);
+
+const ECPair = ECPairFactory(ecc);
+
+const app = express();
+
+app.use(express.json());
+app.use(cors());
+app.use(helmet());
+app.use(compression());
+
+const PORT = process.env.PORT || 10000;
+
+// ===============================
+// HOME
+// ===============================
+
+app.get("/", (req, res) => {
+  res.json({
+    name: "BitcoinDobmoney IA",
+    status: "ONLINE",
+    blockchain: "BITCOIN",
+    network: "testnet",
+    version: "2.0.0",
+    security: "AES-256 + SHA256",
+    api: true
+  });
+});
+
+// ===============================
+// CREAR WALLET
+// ===============================
+
+app.get("/api/create-wallet", async (req, res) => {
+  try {
+    const network = bitcoin.networks.testnet;
+
+    const keyPair = ECPair.makeRandom({
+      network
+    });
+
+    const { address } = bitcoin.payments.p2wpkh({
+      pubkey: Buffer.from(keyPair.publicKey),
+      network
+    });
+
+    const privateKey = keyPair.toWIF();
+
+    const encrypted = crypto
+      .createHash("sha256")
+      .update(privateKey)
+      .digest("hex");
+
+    res.json({
+      success: true,
+      wallet: {
+        address,
+        privateKey,
+        encryptedKey: encrypted,
+        network: "testnet"
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ===============================
+// IA ANALIZA TRANSACCIÓN
+// ===============================
+
+app.post("/api/ia/analyze", (req, res) => {
+
+  const { amount, country, risk } = req.body;
+
+  let level = "LOW";
+  let message = "Transacción segura";
+
+  if (amount > 5000) {
+    level = "MEDIUM";
+    message = "Monto elevado detectado";
+  }
+
+  if (risk === true) {
+    level = "HIGH";
+    message = "Posible actividad sospechosa";
+  }
+
+  res.json({
+    success: true,
+    analysis: {
+      level,
+      message,
+      amount,
+      country,
+      timestamp: new Date()
+    }
+  });
+});
+
+// ===============================
+// BALANCE FAKE TESTNET
+// ===============================
+
+app.get("/api/balance/:address", (req, res) => {
+
+  const address = req.params.address;
+
+  res.json({
+    success: true,
+    address,
+    balanceBTC: "0.00000000",
+    network: "testnet"
+  });
+});
+
+// ===============================
+// GENERAR HASH
+// ===============================
+
+app.post("/api/hash", (req, res) => {
+
+  const { data } = req.body;
+
+  const hash = crypto
+    .createHash("sha256")
+    .update(data)
+    .digest("hex");
+
+  res.json({
+    success: true,
+    original: data,
+    sha256: hash
+  });
+});
+
+// ===============================
+// ESTADO SERVIDOR
+// ===============================
+
+app.get("/api/status", (req, res) => {
+  res.json({
+    online: true,
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    timestamp: new Date()
+  });
+});
+
+// ===============================
+// ERROR 404
+// ===============================
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: "Ruta no encontrada"
+  });
+});
+
+// ===============================
+// START
+// ===============================
+
+app.listen(PORT, () => {
+  console.log(`
+========================================
+🚀 BitcoinDobmoney IA ONLINE
+🌐 Puerto: ${PORT}
+🟢 Estado: ACTIVO
+⛓️ Blockchain: Bitcoin Testnet
+========================================
+  `);
+});
