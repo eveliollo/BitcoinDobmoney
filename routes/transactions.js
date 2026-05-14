@@ -1,0 +1,218 @@
+const express = require('express');
+const router = express.Router();
+const auth = require('../middleware/auth');
+const Transaction = require('../models/Transaction');
+const User = require('../models/User');
+const { analyzeTransactionRisk } = require('../services/aiAssistantService');
+const { calculateExchangeRate } = require('../services/exchangeRateService');
+const { verifyTransaction } = require('../services/cryptoService');
+
+// Create transaction
+router.post('/', auth, async (req, res) => {
+  try {
+    const { toUserId, amount, fromCurrency, toCurrency, message } = req.body;
+
+    const toUser = await User.findById(toUserId);
+    if (!toUser) {
+      return res.status(404).json({ error: 'Usuario destinatario no encontrado' });
+    }
+
+    // Calculate exchange rate and fee
+    const exchangeData = await calculateExchangeRate(fromCurrency, toCurrency, amount);
+    if (!exchangeData) {
+      return res.status(400).json({ error: 'No se pudo calcular la tasa de cambio' });
+    }
+
+    // Analyze risk
+    const transaction = {
+      amount,
+      fromCurrency,
+      toCurrency,
+      fromUser: { _id: req.user.id, country: req.user.country },
+      toUser: { _id: toUserId, country: toUser.country },
+      type: 'p2p'
+    };
+
+    const riskAnalysis = await analyzeTransactionRisk(transaction);
+
+    if (riskAnalysis.riskLevel === 'alto') {
+      return res.status(403).json({
+        error: 'Transacción rechazada por análisis de riesgo',
+        reason: riskAnalysis.reason
+      });
+    }
+
+    // Create transaction
+    const newTransaction = new Transaction({
+      fromUser: req.user.id,
+      toUser: toUserId,
+      amount,
+      fromCurrency,
+      toCurrency,
+      receivedAmount: exchangeData.receivedAmount,
+      exchangeRate: exchangeData.exchangeRate,
+      fee: 0.5, // 0.5% fee
+      status: 'pending',
+      message,
+      riskLevel: riskAnalysis.riskLevel
+    });
+
+    await newTransaction.save();
+    
+    res.status(201).json({
+      success: true,
+      transaction: newTransaction,
+      riskAnalysis
+    });
+  } catch (error) {
+    console.error('Error creating transaction:', error);
+    res.status(500).json({ error: 'Error creando transacción' });
+  }
+});
+
+// Get user transactions
+router.get('/', auth, async (req, res) => {
+  try {
+    const transactions = await Transaction.find({
+      $or: [
+        { fromUser: req.user.id },
+        { toUser: req.user.id }
+      ]
+    })
+    .populate('fromUser', 'name email avatar')
+    .populate('toUser', 'name email avatar')
+    .sort('-createdAt')
+    .limit(50);
+
+    res.json(transactions);
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ error: 'Error obteniendo transacciones' });
+  }
+});
+
+// Get transaction details
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const transaction = await Transaction.findById(req.params.id)
+      .populate('fromUser', 'name email avatar country')
+      .populate('toUser', 'name email avatar country');
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transacción no encontrada' });
+    }
+
+    // Check authorization
+    if (transaction.fromUser._id.toString() !== req.user.id && transaction.toUser._id.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    res.json(transaction);
+  } catch (error) {
+    console.error('Error fetching transaction:', error);
+    res.status(500).json({ error: 'Error obteniendo transacción' });
+  }
+});
+
+// Accept transaction
+router.post('/:id/accept', auth, async (req, res) => {
+  try {
+    const transaction = await Transaction.findById(req.params.id);
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transacción no encontrada' });
+    }
+
+    if (transaction.toUser.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    transaction.status = 'accepted';
+    transaction.acceptedAt = new Date();
+    await transaction.save();
+
+    res.json({
+      success: true,
+      message: 'Transacción aceptada',
+      transaction
+    });
+  } catch (error) {
+    console.error('Error accepting transaction:', error);
+    res.status(500).json({ error: 'Error aceptando transacción' });
+  }
+});
+
+// Confirm payment
+router.post('/:id/confirm', auth, async (req, res) => {
+  try {
+    const { txHash, network } = req.body;
+    const transaction = await Transaction.findById(req.params.id);
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transacción no encontrada' });
+    }
+
+    if (transaction.fromUser.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    // Verify transaction on blockchain
+    const verification = await verifyTransaction(txHash, network);
+
+    if (verification.confirmed) {
+      transaction.status = 'confirmed';
+      transaction.txHash = txHash;
+      transaction.confirmations = verification.confirmations;
+      transaction.completedAt = new Date();
+    } else {
+      transaction.status = 'pending_confirmation';
+      transaction.txHash = txHash;
+    }
+
+    await transaction.save();
+
+    res.json({
+      success: true,
+      message: verification.confirmed ? 'Pago confirmado' : 'Esperando confirmación en blockchain',
+      transaction,
+      verification
+    });
+  } catch (error) {
+    console.error('Error confirming payment:', error);
+    res.status(500).json({ error: 'Error confirmando pago' });
+  }
+});
+
+// Cancel transaction
+router.post('/:id/cancel', auth, async (req, res) => {
+  try {
+    const transaction = await Transaction.findById(req.params.id);
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transacción no encontrada' });
+    }
+
+    if (transaction.fromUser.toString() !== req.user.id && transaction.toUser.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    if (!['pending', 'accepted'].includes(transaction.status)) {
+      return res.status(400).json({ error: 'No se puede cancelar transacción en este estado' });
+    }
+
+    transaction.status = 'cancelled';
+    transaction.cancelledAt = new Date();
+    await transaction.save();
+
+    res.json({
+      success: true,
+      message: 'Transacción cancelada',
+      transaction
+    });
+  } catch (error) {
+    console.error('Error cancelling transaction:', error);
+    res.status(500).json({ error: 'Error cancelando transacción' });
+  }
+});
+
+module.exports = router;
