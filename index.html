@@ -2,490 +2,119 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BitcoinDobmoney | dApp Solana Oficial</title>
-    
-    <meta name="theme-color" content="#050508">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="icon" type="image/png" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/453/453118.png">
-
-    <!-- 🎨 ESTILOS - DISEÑO EXACTO QUE QUERÍAS -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Definitiva - Solana</title>
+    <!-- LIBRERÍA DIRECTA Y LIMPIA -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/dist/index.iife.min.js"></script>
     <style>
-        :root {
-            --dark-bg: #050508;
-            --card-bg: #0F0F1A;
-            --purple-main: #5C27FE;
-            --blue-btn: #165DFF;
-            --orange-btn: #FF5D00;
-            --text-white: #FFFFFF;
-            --text-gray: #888899;
-            --text-red: #FF4D4F;
-            --text-green: #28C76F;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'DM Sans', sans-serif;
-        }
-
         body {
-            background: var(--dark-bg);
-            color: var(--text-white);
-            min-height: 100vh;
-            padding: 40px 20px;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(92, 39, 254, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(22, 93, 255, 0.05) 0%, transparent 40%);
-        }
-
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-        }
-
-        /* 🟡 AVISO DE RED */
-        .aviso-red {
-            background: rgba(22, 93, 255, 0.1);
-            border: 1px solid rgba(22, 93, 255, 0.2);
-            color: #4080FF;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 13px;
+            font-family: Arial, sans-serif;
+            background-color: #0a0a12;
+            color: white;
+            padding: 50px 20px;
             text-align: center;
-            margin-bottom: 25px;
         }
-
-        /* ⚪ BOTÓN SUPERIOR BLANCO */
-        .btn-conectar-blanco {
-            width: 100%;
-            background: var(--text-white);
-            color: var(--dark-bg);
-            border: none;
-            border-radius: 20px;
-            padding: 18px 24px;
-            font-size: 18px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 25px;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
-        }
-        .btn-conectar-blanco:hover { transform: translateY(-2px); }
-        .btn-conectar-blanco.conectado { background: var(--text-green); color: white; }
-
-        .btn-conectar-blanco .izq {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        /* 🟣 BOTÓN PURPLE CONNECT */
-        .btn-connect-purple {
-            width: 100%;
-            background: var(--purple-main);
+        h1 { color: #9945FF; margin-bottom: 40px; }
+        #boton {
+            background: linear-gradient(90deg, #5C27FE, #9945FF);
             color: white;
             border: none;
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 20px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(92, 39, 254, 0.3);
-            transition: all 0.3s ease;
-        }
-        .btn-connect-purple:hover { opacity: 0.9; }
-
-        /* 🔴 CAJA DE ERROR / MENSAJES */
-        .caja-mensaje {
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.5;
-            text-align: center;
-            margin-bottom: 10px;
-            font-weight: 500;
-            display: none;
-        }
-        .caja-mensaje.error {
-            background: rgba(255, 77, 79, 0.08);
-            border: 1px solid rgba(255, 77, 79, 0.2);
-            color: var(--text-red);
-            display: block; /* Siempre visible como en tu diseño */
-        }
-        .caja-mensaje.exito {
-            background: rgba(40, 199, 111, 0.08);
-            border: 1px solid rgba(40, 199, 111, 0.2);
-            color: var(--text-green);
-        }
-
-        .texto-ayuda {
-            color: var(--text-gray);
-            font-size: 13px;
-            text-align: center;
-            margin-bottom: 40px;
-            line-height: 1.4;
-        }
-
-        /* 🔵 BOTÓN AZUL */
-        .btn-azul {
-            width: 100%;
-            background: rgba(22, 93, 255, 0.15);
-            color: #4080FF;
-            border: 1px solid rgba(22, 93, 255, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 40px;
-            cursor: pointer;
-        }
-        .btn-azul p {
-            font-size: 12px;
-            opacity: 0.7;
-            font-weight: 400;
-        }
-
-        /* 🟠 PANEL DE CONTROL - TU NOMBRE */
-        .panel-control {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 93, 0, 0.2);
-            border-radius: 16px;
-            padding: 24px 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(255, 93, 0, 0.08);
-        }
-
-        .titulo-panel {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: #FF9500;
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-naranja {
-            width: 100%;
-            background: linear-gradient(135deg, #FF7A00 0%, #FF3D00 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 14px;
+            padding: 20px 40px;
             font-size: 18px;
-            font-weight: 900;
-            letter-spacing: 1px;
+            font-weight: bold;
+            border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 93, 0, 0.3);
-            margin-bottom: 10px;
+            transition: 0.2s;
         }
-
-        .sub-texto {
-            color: var(--text-gray);
-            font-size: 11px;
-        }
-
-        .texto-final {
-            color: var(--text-gray);
-            font-size: 12px;
-            text-align: center;
+        #boton:hover { transform: scale(1.05); }
+        #estado {
             margin-top: 30px;
-            line-height: 1.5;
+            padding: 20px;
+            border-radius: 8px;
+            background: #13131F;
+            display: inline-block;
+            min-width: 300px;
         }
-
-        /* 📄 CAJA DE DATOS CUANDO CONECTA */
-        .caja-datos {
-            background: var(--card-bg);
-            border: 1px solid var(--purple-main);
-            border-radius: 12px;
-            padding: 15px;
-            margin: 15px 0;
-            display: none;
-            word-break: break-all;
-        }
-        .caja-datos h4 { color: var(--text-green); margin-bottom: 8px; }
-        .direccion { font-size: 13px; color: var(--text-gray); margin-bottom: 5px; }
-        .saldo { font-size: 16px; font-weight: bold; color: var(--purple-main); }
+        .ok { color: #28C76F; }
+        .error { color: #FF4D4F; }
     </style>
-
-    <!-- 📚 LIBRERÍA OFICIAL DE SOLANA (EL PUENTE) - CARGA CORRECTA PARA GITHUB -->
-    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.98.0/lib/index.iife.min.js"></script>
 </head>
 <body>
 
-    <div class="container">
+    <h1>🚀 CONEXIÓN SOLANA - VERSIÓN LIMPIA</h1>
 
-        <!-- ℹ️ AVISO DE RED ACTUAL -->
-        <div class="aviso-red">
-            🔧 TRABAJANDO EN RED DE PRUEBAS (DEVNET) - SEGURO Y SIMULADO
-        </div>
+    <!-- EL BOTÓN QUE SÍ FUNCIONA -->
+    <button id="boton">🔗 CONECTAR PHANTOM</button>
 
-        <!-- ⚪ BOTÓN BLANCO SUPERIOR -->
-        <button id="btnBlanco" class="btn-conectar-blanco">
-            <div class="izq">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 7H4C2.9 7 2 7.9 2 9V15C2 16.1 2.9 17 4 17H20C21.1 17 22 16.1 22 15V9C22 7.9 21.1 7 20 7ZM20 15H4V9H20V15Z" fill="black"/>
-                    <path d="M18 12C18 13.1 17.1 14 16 14C14.9 14 14 13.1 14 12C14 10.9 14.9 10 16 10C17.1 10 18 10.9 18 12Z" fill="black"/>
-                </svg>
-                <span id="textoBtnBlanco">CONECTAR PHANTOM WALLET</span>
-            </div>
-            <span>→</span>
-        </button>
-
-        <!-- 🟣 BOTÓN PURPLE CONNECT -->
-        <button id="btnPurple" class="btn-connect-purple">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0C5.373 0 0 5.373 0 12C0 18.627 5.373 24 12 24C18.627 24 24 18.627 24 12C24 5.373 18.627 0 12 0ZM12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22Z" fill="white"/>
-                <path d="M17 8.5L10.5 15L7 11.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Connect
-        </button>
-
-        <!-- 📄 CAJA DE DATOS (SOLO APARECE SI CONECTA) -->
-        <div id="cajaDatos" class="caja-datos">
-            <h4>✅ CONECTADO EXITOSAMENTE</h4>
-            <div id="direccionPublica" class="direccion"></div>
-            <div id="saldoCuenta" class="saldo">Cargando saldo...</div>
-        </div>
-
-        <!-- 🔴 CAJA DE ERROR (TAL CUAL TU DISEÑO) -->
-        <div id="cajaError" class="caja-mensaje error">
-            ERROR EN ACCESO RESERVADO: FIREBASE: ERROR (AUTH/API-KEY-NOT-VALID.-PLEASE-PASS-A-VALID-API-KEY.).
-        </div>
-
-        <p class="texto-ayuda">
-            SI EL ERROR PERSISTE, INTENTA ABRIR LA APLICACIÓN EN UNA PESTAÑA NUEVA O DESACTIVA LAS RESTRICCIONES DE RED LOCAL EN TU NAVEGADOR.
-        </p>
-
-        <!-- 🔵 BOTÓN AZUL -->
-        <button class="btn-azul" onclick="window.open(window.location.href, '_blank')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 3H4C2.9 3 2 3.9 2 5V17C2 18.1 2.9 19 4 19H10V21H8V23H16V21H14V19H20C21.1 19 22 18.1 22 17V5C22 3.9 21.1 3 20 3ZM20 17H4V5H20V17Z" fill="#4080FF"/>
-            </svg>
-            <div>
-                <div>ABRIR EN PESTAÑA NUEVA</div>
-                <p>RECOMENDADO PARA CONECTAR PHANTOM</p>
-            </div>
-        </button>
-
-        <!-- 🟠 TU PANEL DE CONTROL -->
-        <div class="panel-control">
-            <div class="tit
-        }
-
-        /* 📄 CAJA DE DATOS CUANDO CONECTA */
-        .caja-datos {
-            background: var(--card-bg);
-            border: 1px solid var(--purple-main);
-            border-radius: 12px;
-            padding: 15px;
-            margin: 15px 0;
-            display: none;
-            word-break: break-all;
-        }
-        .caja-datos h4 { color: var(--text-green); margin-bottom: 8px; }
-        .direccion { font-size: 13px; color: var(--text-gray); margin-bottom: 5px; }
-        .saldo { font-size: 16px; font-weight: bold; color: var(--purple-main); }
-    </style>
-
-    <!-- 📚 LIBRERÍA OFICIAL DE SOLANA - CARGA SEGURA -->
-    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.98.0/lib/index.iife.min.js"></script>
-</head>
-<body>
-
-    <div class="container">
-
-        <!-- ℹ️ AVISO DE RED ACTUAL -->
-        <div class="aviso-red">
-            🔧 TRABAJANDO EN RED DE PRUEBAS (DEVNET) - SEGURO Y SIMULADO
-        </div>
-
-        <!-- ⚪ BOTÓN BLANCO SUPERIOR -->
-        <button id="btnBlanco" class="btn-conectar-blanco">
-            <div class="izq">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 7H4C2.9 7 2 7.9 2 9V15C2 16.1 2.9 17 4 17H20C21.1 17 22 16.1 22 15V9C22 7.9 21.1 7 20 7ZM20 15H4V9H20V15Z" fill="black"/>
-                    <path d="M18 12C18 13.1 17.1 14 16 14C14.9 14 14 13.1 14 12C14 10.9 14.9 10 16 10C17.1 10 18 10.9 18 12Z" fill="black"/>
-                </svg>
-                <span id="textoBtnBlanco">CONECTAR PHANTOM WALLET</span>
-            </div>
-            <span>→</span>
-        </button>
-
-        <!-- 🟣 BOTÓN PURPLE CONNECT -->
-        <button id="btnPurple" class="btn-connect-purple">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0C5.373 0 0 5.373 0 12C0 18.627 5.373 24 12 24C18.627 24 24 18.627 24 12C24 5.373 18.627 0 12 0ZM12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22Z" fill="white"/>
-                <path d="M17 8.5L10.5 15L7 11.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Connect
-        </button>
-
-        <!-- 📄 CAJA DE DATOS (SOLO APARECE SI CONECTA) -->
-        <div id="cajaDatos" class="caja-datos">
-            <h4>✅ CONECTADO EXITOSAMENTE</h4>
-            <div id="direccionPublica" class="direccion"></div>
-            <div id="saldoCuenta" class="saldo">Cargando saldo...</div>
-        </div>
-
-        <!-- 🔴 CAJA DE ERROR (TAL CUAL TU DISEÑO) -->
-        <div id="cajaError" class="caja-mensaje error">
-            ERROR EN ACCESO RESERVADO: FIREBASE: ERROR (AUTH/API-KEY-NOT-VALID.-PLEASE-PASS-A-VALID-API-KEY.).
-        </div>
-
-        <p class="texto-ayuda">
-            SI EL ERROR PERSISTE, INTENTA ABRIR LA APLICACIÓN EN UNA PESTAÑA NUEVA O DESACTIVA LAS RESTRICCIONES DE RED LOCAL EN TU NAVEGADOR.
-        </p>
-
-        <!-- 🔵 BOTÓN AZUL -->
-        <button class="btn-azul" onclick="window.open(window.location.href, '_blank')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 3H4C2.9 3 2 3.9 2 5V17C2 18.1 2.9 19 4 19H10V21H8V23H16V21H14V19H20C21.1 19 22 18.1 22 17V5C22 3.9 21.1 3 20 3ZM20 17H4V5H20V17Z" fill="#4080FF"/>
-            </svg>
-            <div>
-                <div>ABRIR EN PESTAÑA NUEVA</div>
-                <p>RECOMENDADO PARA CONECTAR PHANTOM</p>
-            </div>
-        </button>
-
-        <!-- 🟠 TU PANEL DE CONTROL COMPLETO -->
-        <div class="panel-control">
-            <div class="titulo-panel">
-                ⚡ PANEL DE CONTROL EVELIO LLOVERA
-            </div>
-            <button class="btn-naranja">
-                ACCESO DIRECTO CREADOR
-            </button>
-            <p class="sub-texto">BYPASS DE SEGURIDAD PARA DESARROLLO V2.4</p>
-        </div>
-
-        <p class="texto-final">
-            SI PHANTOM FALLA POR "ERROR DE RED", USA EL BOTÓN AZUL DE ARRIBA PARA ABRIR EN PESTAÑA NUEVA.
-        </p>
-
-    </div>
+    <div id="estado">Esperando acción...</div>
 
     <script>
-        // ==============================================
-        // ⚙️ CONFIGURACIÓN DE LA RED
-        // ==============================================
-        // Devnet = Pruebas (seguro) | Mainnet = Dinero real
-        const RED_SOLANA = solanaWeb3.clusterApiUrl('devnet');
-        const conexion = new solanaWeb3.Connection(RED_SOLANA, 'confirmed');
+        // 🔌 CONEXIÓN DIRECTA A LA RED PRINCIPAL
+        const conexion = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com", "confirmed");
 
-        // Variables globales
-        let proveedorPhantom;
-        let clavePublicaUsuario;
+        // ELEMENTOS
+        const boton = document.getElementById('boton');
+        const estado = document.getElementById('estado');
+        let wallet;
 
-        // Elementos del DOM
-        const btnBlanco = document.getElementById('btnBlanco');
-        const btnPurple = document.getElementById('btnPurple');
-        const textoBtnBlanco = document.getElementById('textoBtnBlanco');
-        const cajaDatos = document.getElementById('cajaDatos');
-        const direccionPublica = document.getElementById('direccionPublica');
-        const saldoCuenta = document.getElementById('saldoCuenta');
-        const cajaError = document.getElementById('cajaError');
-
-        // ==============================================
-        // 🔍 DETECCIÓN DE PHANTOM AL CARGAR
-        // ==============================================
-        window.addEventListener('load', () => {
-            if (window.phantom?.solana?.isPhantom) {
-                proveedorPhantom = window.phantom.solana;
-                console.log("✅ Phantom detectado");
-                cajaError.textContent = "✅ Sistema listo. Haz clic para conectar.";
-                cajaError.className = "caja-mensaje exito";
+        // ⚡ AL CARGAR LA PÁGINA
+        window.onload = () => {
+            // DETECTAR PHANTOM
+            if (window.phantom?.solana) {
+                estado.textContent = "✅ Phantom DETECTADO. Haz clic en el botón.";
+                estado.className = "ok";
+                wallet = window.phantom.solana;
             } else {
-                cajaError.textContent = "❌ Phantom NO detectado. Instálalo para continuar.";
+                estado.textContent = "❌ Phantom NO INSTALADO. Descárgalo en phantom.app";
+                estado.className = "error";
+                boton.textContent = "⬇️ INSTALAR PHANTOM";
+                boton.onclick = () => window.open('https://phantom.app/download','_blank');
             }
-        });
+        };
 
-        // ==============================================
-        // 🚀 FUNCIÓN CONECTAR - BOTÓN BLANCO
-        // ==============================================
-        btnBlanco.addEventListener('click', async () => {
-            if (!proveedorPhantom) return window.open('https://phantom.app/download', '_blank');
-            
-            if (clavePublicaUsuario) return desconectar();
+        // 🎯 FUNCIÓN DEL BOTÓN
+        boton.onclick = async () => {
+            if (!wallet) return;
 
             try {
-                const resp = await proveedorPhantom.connect();
-                clavePublicaUsuario = resp.publicKey;
+                // 👇 AQUÍ ES DONDE SE ABRE LA VENTANA
+                const respuesta = await wallet.connect();
+                const direccion = respuesta.publicKey.toString();
 
-                // Actualizar interfaz
-                direccionPublica.textContent = clavePublicaUsuario.toString();
-                textoBtnBlanco.textContent = "DESCONECTAR";
-                btnBlanco.classList.add('conectado');
-                cajaDatos.style.display = 'block';
-                cajaError.style.display = 'none';
+                // SI LLEGA AQUÍ, ES QUE FUNCIONÓ
+                estado.innerHTML = `
+                    ✅ <b>CONECTADO!</b><br>
+                    Dirección: ${direccion}<br>
+                    <small>(Leyendo saldo...)</small>
+                `;
+                estado.className = "ok";
+                boton.textContent = "🔌 DESCONECTAR";
 
-                // Obtener saldo real
-                const saldoLamports = await conexion.getBalance(clavePublicaUsuario);
-                const saldoSol = saldoLamports / solanaWeb3.LAMPORTS_PER_SOL;
-                saldoCuenta.textContent = saldoSol.toFixed(4) + " SOL";
+                // LEER SALDO DE VERDAD
+                const saldo = await conexion.getBalance(respuesta.publicKey);
+                const saldoSOL = (saldo / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
+                
+                estado.innerHTML = `
+                    ✅ <b>CONECTADO CORRECTAMENTE</b><br>
+                    Dirección: <small>${direccion}</small><br>
+                    💰 Saldo: <b>${saldoSOL} SOL</b>
+                `;
 
-            } catch (err) {
-                if (err.code === 4001) {
-                    cajaError.textContent = "⚠️ Conexión rechazada por el usuario";
-                } else {
-                    cajaError.textContent = "❌ Error: " + err.message;
-                }
-                cajaError.className = "caja-mensaje error";
+                // FUNCIÓN PARA DESCONECTAR
+                boton.onclick = async () => {
+                    await wallet.disconnect();
+                    estado.textContent = "🔌 Desconectado. Listo para volver a conectar.";
+                    estado.className = "";
+                    boton.textContent = "🔗 CONECTAR PHANTOM";
+                    boton.onclick = arguments.callee;
+                };
+
+            } catch (e) {
+                estado.textContent = "❌ ERROR: " + e.message;
+                estado.className = "error";
             }
-        });
-
-        // ==============================================
-        // 🟣 FUNCIÓN CONECTAR - BOTÓN PURPLE
-        // ==============================================
-        btnPurple.addEventListener('click', async () => {
-            if (!proveedorPhantom) return window.open('https://phantom.app/download', '_blank');
-            
-            try {
-                const resp = await proveedorPhantom.connect();
-                alert("✅ Wallet Conectada Correctamente");
-            } catch (err) {
-                alert("❌ Conexión Fallida");
-            }
-        });
-
-        // ==============================================
-        // 🔌 FUNCIÓN DESCONECTAR
-        // ==============================================
-        async function desconectar() {
-            if (proveedorPhantom) await proveedorPhantom.disconnect();
-            clavePublicaUsuario = null;
-            
-            // Restaurar todo
-            textoBtnBlanco.textContent = "CONECTAR PHANTOM WALLET";
-            btnBlanco.classList.remove('conectado');
-            cajaDatos.style.display = 'none';
-            cajaError.style.display = 'block';
-            cajaError.textContent = "🔌 Desconectado correctamente";
-            cajaError.className = "caja-mensaje exito";
-        }
+        };
     </script>
 
 </body>
 </html>
-w
