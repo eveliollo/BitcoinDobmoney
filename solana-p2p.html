@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexTrade P2P — Solana</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
+<style>
+  :root {
+    --bg: #050508;
+    --surface: #0d0d14;
+    --surface2: #13131e;
+    --border: rgba(130,100,255,0.18);
+    --accent: #7c3aed;
+    --accent2: #06d6a0;
+    --accent3: #f59e0b;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #ef4444;
+    --success: #10b981;
+    --glow: 0 0 30px rgba(124,58,237,0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,0.12), transparent),
+                radial-gradient(ellipse 60% 40% at 90% 80%, rgba(6,214,160,0.06), transparent);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    background: rgba(5,5,8,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent2); }
+  .net-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; padding: 4px 10px;
+    border-radius: 20px; border: 1px solid var(--accent2);
+    color: var(--accent2); background: rgba(6,214,160,0.08);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .net-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--accent2); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  #wallet-btn {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    padding: 8px 18px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--accent); background: rgba(124,58,237,0.15);
+    color: var(--text); transition: all 0.2s;
+  }
+  #wallet-btn:hover { background: var(--accent); box-shadow: var(--glow); }
+  #wallet-info { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--accent2); display:none; }
+
+  /* ── MAIN LAYOUT ── */
+  .app { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 0; }
+
+  /* ── ROOMS / VIDEO GRID ── */
+  .section-title {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase;
+    padding: 18px 24px 10px;
+  }
+
+  #room-controls {
+    display: flex; gap: 10px; padding: 0 24px 14px; flex-wrap: wrap;
+  }
+  .btn {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.78rem;
+    padding: 9px 18px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text); transition: all 0.18s; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); background: rgba(124,58,237,0.12); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); }
+  .btn.primary:hover { box-shadow: var(--glow); filter: brightness(1.1); }
+  .btn.success { background: rgba(6,214,160,0.15); border-color: var(--accent2); color: var(--accent2); }
+  .btn.danger { background: rgba(239,68,68,0.1); border-color: var(--danger); color: var(--danger); }
+
+  #video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px; padding: 0 24px;
+    min-height: 200px;
+  }
+  .video-tile {
+    position: relative; border-radius: 12px; overflow: hidden;
+    background: var(--surface2); border: 1px solid var(--border);
+    aspect-ratio: 16/9; transition: border-color 0.2s;
+  }
+  .video-tile:hover { border-color: var(--accent); }
+  .video-tile video { width:100%; height:100%; object-fit:cover; display:block; }
+  .video-tile .tile-label {
+    position: absolute; bottom: 8px; left: 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    background: rgba(0,0,0,0.7); color: var(--accent2);
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .video-tile .tile-status {
+    position: absolute; top: 8px; right: 8px;
+    width: 10px; height: 10px; border-radius: 50%; background: var(--danger);
+  }
+  .video-tile .tile-status.live { background: var(--accent2); animation: pulse 1.5s infinite; }
+  .local-video { border-color: var(--accent) !important; }
+
+  /* ── SPLIT: CHAT + AI + TX ── */
+  .bottom-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; padding: 18px 24px 24px;
+    margin-top: 16px;
+  }
+  @media(max-width:900px) {
+    .bottom-panel { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; display: flex; flex-direction: column;
+    overflow: hidden; height: 420px;
+  }
+  .panel-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-title .dot { width:7px; height:7px; border-radius:50%; }
+  .panel-body { flex: 1; overflow-y: auto; padding: 12px 14px; display:flex; flex-direction:column; gap:8px; }
+  .panel-body::-webkit-scrollbar { width: 4px; }
+  .panel-body::-webkit-scrollbar-track { background: transparent; }
+  .panel-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .panel-footer { padding: 10px 12px; border-top: 1px solid var(--border); display:flex; gap:8px; }
+  .panel-footer input {
+    flex: 1; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px; color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; outline: none;
+  }
+  .panel-footer input:focus { border-color: var(--accent); }
+  .panel-footer button {
+    background: var(--accent); border: none; border-radius: 8px;
+    padding: 8px 14px; color: white; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75rem;
+    transition: all 0.18s;
+  }
+  .panel-footer button:hover { filter: brightness(1.15); box-shadow: var(--glow); }
+
+  /* Chat messages */
+  .msg { display:flex; flex-direction:column; gap:2px; }
+  .msg-meta { font-family:'JetBrains Mono',monospace; font-size:0.62rem; color:var(--muted); }
+  .msg-bubble {
+    background: var(--surface2); border-radius: 8px; padding: 7px 10px;
+    font-size: 0.78rem; line-height: 1.4; border: 1px solid var(--border);
+    max-width: 100%; word-break: break-word;
+  }
+  .msg.self .msg-bubble { background: rgba(124,58,237,0.18); border-color: rgba(124,58,237,0.3); }
+  .msg.ai .msg-bubble { background: rgba(6,214,160,0.08); border-color: rgba(6,214,160,0.2); color: var(--accent2); }
+  .msg.system .msg-bubble { color: var(--accent3); border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.06); font-size:0.72rem; }
+
+  /* AI Panel */
+  .ai-status {
+    display:flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono',monospace; font-size:0.68rem;
+    color: var(--accent2);
+  }
+  .ai-thinking { display:flex; gap:3px; }
+  .ai-thinking span {
+    width:5px; height:5px; border-radius:50%; background:var(--accent2);
+    animation: bounce 1.2s infinite;
+  }
+  .ai-thinking span:nth-child(2) { animation-delay:0.2s; }
+  .ai-thinking span:nth-child(3) { animation-delay:0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+  .negotiation-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px;
+  }
+  .neg-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .neg-label { font-size:0.68rem; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .neg-value { font-size:0.82rem; font-weight:700; font-family:'JetBrains Mono',monospace; }
+  .neg-value.up { color:var(--success); }
+  .neg-value.down { color:var(--danger); }
+  .neg-value.neutral { color:var(--accent3); }
+  .neg-bar { height:4px; background:var(--surface); border-radius:2px; overflow:hidden; margin:8px 0; }
+  .neg-bar-fill { height:100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius:2px; transition:width 0.5s; }
+  .neg-actions { display:flex; gap:6px; margin-top:10px; }
+  .neg-actions button {
+    flex:1; padding:7px; border-radius:7px; font-family:'Syne',sans-serif;
+    font-weight:700; font-size:0.72rem; cursor:pointer; border:1px solid;
+    transition:all 0.18s;
+  }
+  .neg-accept { background:rgba(6,214,160,0.1); border-color:var(--accent2); color:var(--accent2); }
+  .neg-accept:hover { background:var(--accent2); color:var(--bg); }
+  .neg-counter { background:rgba(124,58,237,0.1); border-color:var(--accent); color:var(--accent); }
+  .neg-counter:hover { background:var(--accent); color:white; }
+  .neg-reject { background:rgba(239,68,68,0.08); border-color:var(--danger); color:var(--danger); }
+  .neg-reject:hover { background:var(--danger); color:white; }
+
+  /* TX Panel */
+  .tx-item {
+    background: var(--surface2); border-radius: 10px; padding: 10px 12px;
+    border: 1px solid var(--border); font-family:'JetBrains Mono',monospace;
+  }
+  .tx-hash { font-size:0.62rem; color:var(--accent); margin-bottom:4px; word-break:break-all; cursor:pointer; }
+  .tx-hash:hover { text-decoration:underline; }
+  .tx-details { display:flex; justify-content:space-between; align-items:center; }
+  .tx-amount { font-size:0.82rem; font-weight:600; }
+  .tx-amount.sol { color: #9945ff; }
+  .tx-amount.spl { color: var(--accent2); }
+  .tx-amount.nft { color: var(--accent3); }
+  .tx-status {
+    font-size:0.62rem; padding:2px 8px; border-radius:4px;
+  }
+  .tx-status.confirmed { background:rgba(16,185,129,0.15); color:var(--success); }
+  .tx-status.pending { background:rgba(245,158,11,0.12); color:var(--accent3); animation:pulse 1.5s infinite; }
+  .tx-status.failed { background:rgba(239,68,68,0.1); color:var(--danger); }
+  .tx-time { font-size:0.6rem; color:var(--muted); margin-top:3px; }
+
+  /* Send TX Form */
+  .tx-form {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px; display:flex; flex-direction:column; gap:8px;
+  }
+  .tx-form label { font-size:0.65rem; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .tx-form input, .tx-form select {
+    width:100%; background:var(--surface); border:1px solid var(--border);
+    border-radius:6px; padding:7px 10px; color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:0.72rem; outline:none;
+  }
+  .tx-form input:focus, .tx-form select:focus { border-color:var(--accent); }
+  .tx-form select option { background:var(--surface2); }
+
+  /* Toast */
+  #toast {
+    position:fixed; bottom:24px; right:24px; z-index:999;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; padding:12px 18px;
+    font-family:'JetBrains Mono',monospace; font-size:0.75rem;
+    transform:translateY(80px); opacity:0; transition:all 0.3s;
+    max-width:300px;
+  }
+  #toast.show { transform:translateY(0); opacity:1; }
+  #toast.success { border-color:var(--success); color:var(--success); }
+  #toast.error { border-color:var(--danger); color:var(--danger); }
+  #toast.info { border-color:var(--accent); color:var(--accent); }
+
+  /* Stat bar */
+  .stats-bar {
+    display:flex; gap:0; border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+    overflow-x:auto; padding:0 24px; background:rgba(13,13,20,0.5);
+  }
+  .stat {
+    padding:10px 20px; border-right:1px solid var(--border);
+    display:flex; flex-direction:column; gap:2px; min-width:120px; flex-shrink:0;
+  }
+  .stat-label { font-size:0.6rem; color:var(--muted); font-family:'JetBrains Mono',monospace; letter-spacing:1px; text-transform:uppercase; }
+  .stat-value { font-size:0.9rem; font-weight:700; font-family:'JetBrains Mono',monospace; }
+  .stat-value.green { color:var(--accent2); }
+  .stat-value.purple { color:var(--accent); }
+  .stat-value.amber { color:var(--accent3); }
+
+  /* Peer ID input modal */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200;
+    display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(4px);
+  }
+  .modal {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:28px; max-width:420px; width:90%;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .modal h2 { font-size:1.1rem; font-weight:800; }
+  .modal p { font-size:0.78rem; color:var(--muted); line-height:1.5; }
+  .modal input {
+    width:100%; background:var(--surface2); border:1px solid var(--border);
+    border-radius:8px; padding:10px 14px; color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:0.8rem; outline:none;
+  }
+  .modal input:focus { border-color:var(--accent); }
+  .modal-actions { display:flex; gap:10px; }
+
+  /* NFT mini card */
+  .nft-row { display:flex; align-items:center; gap:10px; }
+  .nft-thumb {
+    width:40px; height:40px; border-radius:6px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display:flex; align-items:center; justify-content:center; font-size:1.2rem;
+    flex-shrink:0;
+  }
+  .nft-info { display:flex; flex-direction:column; gap:2px; }
+  .nft-name { font-size:0.75rem; font-weight:700; }
+  .nft-floor { font-size:0.65rem; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- CONNECT MODAL -->
+<div class="modal-overlay" id="connect-modal">
+  <div class="modal">
+    <h2>🚀 NexTrade P2P</h2>
+    <p>Plataforma P2P con video multicámara, negociación IA y transacciones Solana en tiempo real.</p>
+    <div>
+      <label style="font-size:0.65rem;color:var(--muted);display:block;margin-bottom:6px;font-family:'JetBrains Mono',monospace;">TU ALIAS</label>
+      <input id="alias-input" placeholder="trader_007" maxlength="20" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn primary" id="start-btn" style="flex:1;font-size:0.85rem;padding:12px;">Conectar Phantom →</button>
+    </div>
+    <p style="font-size:0.65rem;text-align:center;color:var(--muted);">Red Solana Mainnet • Sin custodia • Código abierto</p>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Nex<span>Trade</span></div>
+  <div class="net-badge">MAINNET</div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div id="wallet-info"></div>
+    <button id="wallet-btn">Conectar Wallet</button>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-label">Peers Activos</span>
+      <span class="stat-value green" id="stat-peers">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">SOL Balance</span>
+      <span class="stat-value purple" id="stat-sol">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">TX Hoy</span>
+      <span class="stat-value amber" id="stat-tx">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Negociaciones</span>
+      <span class="stat-value green" id="stat-neg">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Precio IA</span>
+      <span class="stat-value purple" id="stat-ai-price">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Red</span>
+      <span class="stat-value green">RPC OK</span>
+    </div>
+  </div>
+
+  <!-- VIDEO SECTION -->
+  <div class="section-title">▸ SALAS DE VIDEO P2P</div>
+  <div id="room-controls">
+    <button class="btn primary" id="start-cam-btn">📷 Activar Cámara</button>
+    <button class="btn success" id="create-room-btn" disabled>＋ Nueva Sala</button>
+    <button class="btn" id="join-room-btn" disabled>⇥ Unirse a Sala</button>
+    <button class="btn danger" id="leave-room-btn" style="display:none;">✕ Salir</button>
+    <span id="room-id-display" style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--muted);align-self:center;"></span>
+  </div>
+
+  <div id="video-grid">
+    <div class="video-tile local-video" id="local-tile" style="display:none;">
+      <video id="local-video" autoplay muted playsinline></video>
+      <div class="tile-label" id="local-label">Tú • Local</div>
+      <div class="tile-status live" id="local-status"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM PANELS -->
+  <div class="bottom-panel">
+
+    <!-- CHAT P2P -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <div class="dot" style="background:var(--accent2)"></div>
+          Chat P2P
+        </div>
+        <span id="online-count" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--muted);">0 en línea</span>
+      </div>
+      <div class="panel-body" id="chat-body"></div>
+      <div class="panel-footer">
+        <input id="chat-input" placeholder="Mensaje..." maxlength="200" />
+        <button id="chat-send">↑</button>
+      </div>
+    </div>
+
+    <!-- IA NEGOCIACIÓN -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <div class="dot" style="background:var(--accent3)"></div>
+          IA Negociación
+        </div>
+        <div class="ai-status" id="ai-status-indicator">
+          <div class="ai-thinking"><span></span><span></span><span></span></div>
+          Analizando
+        </div>
+      </div>
+      <div class="panel-body" id="ai-body">
+        <div class="msg system">
+          <div class="msg-bubble">🤖 IA lista. Inicia una negociación enviando una oferta en el chat o usando el formulario de TX.</div>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <input id="ai-input" placeholder="Ej: quiero comprar 2 SOL a 180 USDC" />
+        <button id="ai-send">→</button>
+      </div>
+    </div>
+
+    <!-- TRANSACCIONES SOLANA -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <div class="dot" style="background:#9945ff)"></div>
+          Transacciones Solana
+        </div>
+        <button class="btn" style="padding:4px 10px;font-size:0.65rem;" id="refresh-bal-btn">↻ Balance</button>
+      </div>
+      <div class="panel-body" id="tx-body">
+        <!-- TX form -->
+        <div class="tx-form">
+          <div>
+            <label>TIPO</label>
+            <select id="tx-type">
+              <option value="sol">SOL Transfer</option>
+              <option value="spl">SPL Token (USDC)</option>
+              <option value="nft">NFT Transfer</option>
+            </select>
+          </div>
+          <div>
+            <label>DESTINATARIO (wallet address)</label>
+            <input id="tx-to" placeholder="5xKt...abc" />
+          </div>
+          <div>
+            <label>CANTIDAD</label>
+            <input id="tx-amount" type="number" placeholder="0.01" step="0.001" min="0" />
+          </div>
+          <button class="btn primary" id="send-tx-btn" style="width:100%;padding:10px;" disabled>
+            🔐 Enviar vía Phantom
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- JOIN MODAL -->
+<div class="modal-overlay" id="join-modal" style="display:none;">
+  <div class="modal">
+    <h2>Unirse a Sala</h2>
+    <p>Ingresa el ID de sala que te compartió el otro participante.</p>
+    <input id="room-id-input" placeholder="room_abc123" />
+    <div class="modal-actions">
+      <button class="btn" id="join-cancel-btn" style="flex:1;">Cancelar</button>
+      <button class="btn primary" id="join-confirm-btn" style="flex:1;">Unirse</button>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTER MODAL -->
+<div class="modal-overlay" id="counter-modal" style="display:none;">
+  <div class="modal">
+    <h2>Contraoferta</h2>
+    <p>Propón un precio diferente. La IA lo evaluará.</p>
+    <input id="counter-input" placeholder="Ej: 1.5 SOL" />
+    <div class="modal-actions">
+      <button class="btn" id="counter-cancel" style="flex:1;">Cancelar</button>
+      <button class="btn primary" id="counter-confirm" style="flex:1;">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  NexTrade P2P — Core App
+// ══════════════════════════════════════════════════
+
+const STATE = {
+  alias: 'Trader',
+  wallet: null,
+  balance: null,
+  connection: null,
+  localStream: null,
+  peers: {}, // peerId -> { pc, stream, tile }
+  roomId: null,
+  signalingWs: null,
+  myPeerId: 'peer_' + Math.random().toString(36).substr(2,8),
+  txCount: 0,
+  negCount: 0,
+  currentNeg: null,
+  chatLog: [],
+  aiConversation: [],
+};
+
+// ── RPC Connection ──
+function initSolana() {
+  try {
+    STATE.connection = new solanaWeb3.Connection(
+      'https://api.mainnet-beta.solana.com',
+      'confirmed'
+    );
+    showToast('Solana RPC conectado', 'success');
+  } catch(e) {
+    showToast('RPC error: ' + e.message, 'error');
+  }
+}
+
+// ── Wallet ──
+async function connectWallet() {
+  const provider = window.solana;
+  if (!provider || !provider.isPhantom) {
+    showToast('Instala Phantom Wallet', 'error');
+    window.open('https://phantom.app/', '_blank');
+    return;
+  }
+  try {
+    const resp = await provider.connect();
+    STATE.wallet = resp.publicKey.toString();
+    document.getElementById('wallet-btn').textContent = STATE.wallet.slice(0,4)+'...'+STATE.wallet.slice(-4);
+    document.getElementById('wallet-info').style.display = 'flex';
+    document.getElementById('wallet-info').textContent = '';
+    document.getElementById('send-tx-btn').disabled = false;
+    await fetchBalance();
+    showToast('Wallet conectada ✓', 'success');
+    addChatMsg('sistema', '🔗 Wallet conectada: ' + STATE.wallet.slice(0,8)+'...', 'system');
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+async function fetchBalance() {
+  if (!STATE.wallet || !STATE.connection) return;
+  try {
+    const pk = new solanaWeb3.PublicKey(STATE.wallet);
+    const bal = await STATE.connection.getBalance(pk);
+    STATE.balance = (bal / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
+    document.getElementById('stat-sol').textContent = STATE.balance + ' SOL';
+  } catch(e) {
+    document.getElementById('stat-sol').textContent = 'error';
+  }
+}
+
+// ── Camera ──
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    STATE.localStream = stream;
+    const tile = document.getElementById('local-tile');
+    const vid = document.getElementById('local-video');
+    vid.srcObject = stream;
+    tile.style.display = 'block';
+    document.getElementById('local-label').textContent = STATE.alias + ' • Local';
+    document.getElementById('local-status').className = 'tile-status live';
+    document.getElementById('create-room-btn').disabled = false;
+    document.getElementById('join-room-btn').disabled = false;
+    document.getElementById('start-cam-btn').textContent = '✓ Cámara activa';
+    document.getElementById('start-cam-btn').disabled = true;
+    showToast('Cámara activada', 'success');
+  } catch(e) {
+    showToast('Error cámara: ' + e.message, 'error');
+  }
+}
+
+// ── Signaling (simulated via BroadcastChannel for same-origin demo) ──
+// In production: replace with WebSocket server or PeerJS
+function setupSignaling(roomId) {
+  STATE.roomId = roomId;
+  // Use BroadcastChannel as local signaling bus (same browser/tabs)
+  // For real P2P across devices: use a WebSocket signaling server
+  const channel = new BroadcastChannel('nextrade_' + roomId);
+  STATE.signalingChannel = channel;
+
+  channel.onmessage = async (evt) => {
+    const msg = evt.data;
+    if (msg.from === STATE.myPeerId) return;
+
+    if (msg.type === 'join') {
+      addChatMsg('sistema', '👥 ' + (msg.alias||msg.from) + ' se unió a la sala', 'system');
+      updatePeerCount();
+      if (STATE.localStream) initiateCall(msg.from, msg.alias);
+    }
+    if (msg.type === 'offer') await handleOffer(msg);
+    if (msg.type === 'answer') await handleAnswer(msg);
+    if (msg.type === 'ice') await handleIce(msg);
+    if (msg.type === 'chat') addChatMsg(msg.alias||msg.from, msg.text, 'remote');
+    if (msg.type === 'leave') handlePeerLeave(msg.from);
+    if (msg.type === 'neg_offer') handleNegOffer(msg);
+    if (msg.type === 'neg_response') handleNegResponse(msg);
+  };
+
+  // Announce presence
+  channel.postMessage({ type:'join', from:STATE.myPeerId, alias:STATE.alias });
+  document.getElementById('room-id-display').textContent = 'Sala: ' + roomId;
+  document.getElementById('leave-room-btn').style.display = 'inline-flex';
+  showToast('Sala ' + roomId + ' activa', 'info');
+}
+
+function signal(msg) {
+  if (STATE.signalingChannel) {
+    STATE.signalingChannel.postMessage({ ...msg, from: STATE.myPeerId, alias: STATE.alias });
+  }
+}
+
+// ── WebRTC ──
+const ICE_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+];
+
+function createPeerConnection(peerId) {
+  const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+
+  if (STATE.localStream) {
+    STATE.localStream.getTracks().forEach(t => pc.addTrack(t, STATE.localStream));
+  }
+
+  pc.onicecandidate = (e) => {
+    if (e.candidate) signal({ type:'ice', to:peerId, candidate:e.candidate });
+  };
+
+  pc.ontrack = (e) => {
+    if (!STATE.peers[peerId]) STATE.peers[peerId] = {};
+    STATE.peers[peerId].stream = e.streams[0];
+    renderPeerTile(peerId, e.streams[0]);
+    updatePeerCount();
+  };
+
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+      handlePeerLeave(peerId);
+    }
+  };
+
+  if (!STATE.peers[peerId]) STATE.peers[peerId] = {};
+  STATE.peers[peerId].pc = pc;
+  return pc;
+}
+
+async function initiateCall(peerId, alias) {
+  const pc = createPeerConnection(peerId);
+  if (alias) STATE.peers[peerId].alias = alias;
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  signal({ type:'offer', to:peerId, sdp: pc.localDescription });
+}
+
+async function handleOffer(msg) {
+  const pc = createPeerConnection(msg.from);
+  if (msg.alias) STATE.peers[msg.from].alias = msg.alias;
+  await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  signal({ type:'answer', to:msg.from, sdp: pc.localDescription });
+}
+
+async function handleAnswer(msg) {
+  const pc = STATE.peers[msg.from]?.pc;
+  if (pc) await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+}
+
+async function handleIce(msg) {
+  const pc = STATE.peers[msg.from]?.pc;
+  if (pc && msg.candidate) {
+    try { await pc.addIceCandidate(new RTCIceCandidate(msg.candidate)); } catch(e) {}
+  }
+}
+
+function renderPeerTile(peerId, stream) {
+  let tile = document.getElementById('tile_' + peerId);
+  if (!tile) {
+    tile = document.createElement('div');
+    tile.className = 'video-tile';
+    tile.id = 'tile_' + peerId;
+    const vid = document.createElement('video');
+    vid.autoplay = true; vid.playsinline = true;
+    const label = document.createElement('div');
+    label.className = 'tile-label';
+    label.id = 'label_' + peerId;
+    label.textContent = (STATE.peers[peerId]?.alias || peerId.slice(0,10)) + ' • P2P';
+    const status = document.createElement('div');
+    status.className = 'tile-status live';
+    tile.appendChild(vid);
+    tile.appendChild(label);
+    tile.appendChild(status);
+    document.getElementById('video-grid').appendChild(tile);
+    STATE.peers[peerId].tile = tile;
+  }
+  tile.querySelector('video').srcObject = stream;
+}
+
+function handlePeerLeave(peerId) {
+  const tile = document.getElementById('tile_' + peerId);
+  if (tile) tile.remove();
+  if (STATE.peers[peerId]?.pc) STATE.peers[peerId].pc.close();
+  delete STATE.peers[peerId];
+  updatePeerCount();
+  addChatMsg('sistema', '👋 Peer desconectado', 'system');
+}
+
+function updatePeerCount() {
+  const count = Object.keys(STATE.peers).length;
+  document.getElementById('stat-peers').textContent = count;
+  document.getElementById('online-count').textContent = count + ' en línea';
+}
+
+function leaveRoom() {
+  signal({ type:'leave' });
+  Object.keys(STATE.peers).forEach(p => handlePeerLeave(p));
+  if (STATE.signalingChannel) STATE.signalingChannel.close();
+  STATE.roomId = null;
+  document.getElementById('room-id-display').textContent = '';
+  document.getElementById('leave-room-btn').style.display = 'none';
+  showToast('Saliste de la sala', 'info');
+}
+
+// ── Chat ──
+function addChatMsg(alias, text, type='remote') {
+  const body = document.getElementById('chat-body');
+  const div = document.createElement('div');
+  div.className = 'msg ' + (type==='self'?'self': type==='system'?'system':'');
+  const now = new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+  if (type !== 'system') {
+    const meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    meta.textContent = alias + ' · ' + now;
+    div.appendChild(meta);
+  }
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = text;
+  div.appendChild(bubble);
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  addChatMsg(STATE.alias, text, 'self');
+  signal({ type:'chat', text });
+  input.value = '';
+  // Check if it's a trade offer
+  checkTradeIntent(text);
+}
+
+// ── AI Negotiation ──
+async function askAI(userMsg) {
+  const aiBody = document.getElementById('ai-body');
+
+  // Add user message to AI panel
+  const userDiv = document.createElement('div');
+  userDiv.className = 'msg self';
+  userDiv.innerHTML = `<div class="msg-meta">${STATE.alias} · ahora</div><div class="msg-bubble">${userMsg}</div>`;
+  aiBody.appendChild(userDiv);
+
+  // Add thinking indicator
+  const thinkDiv = document.createElement('div');
+  thinkDiv.className = 'msg ai';
+  thinkDiv.innerHTML = `<div class="msg-bubble"><div class="ai-thinking" style="display:inline-flex"><span></span><span></span><span></span></div> Analizando mercado...</div>`;
+  aiBody.appendChild(thinkDiv);
+  aiBody.scrollTop = aiBody.scrollHeight;
+
+  STATE.aiConversation.push({ role: 'user', content: userMsg });
+
+  try {
+    const systemPrompt = `Eres un agente de negociación P2P experto en criptomonedas en la red Solana. 
+Tu trabajo es:
+1. Analizar ofertas de compra/venta de SOL, tokens SPL (USDC, etc.) y NFTs
+2. Proponer un precio justo basado en condiciones de mercado simuladas
+3. Negociar entre partes para llegar a un acuerdo
+4. Al final de una negociación exitosa, generar los parámetros de transacción
+
+CONTEXTO ACTUAL:
+- Red: Solana Mainnet
+- SOL precio estimado: ~$180 USD
+- Wallet conectada: ${STATE.wallet || 'no conectada'}
+- Balance: ${STATE.balance || 'desconocido'} SOL
+
+INSTRUCCIONES:
+- Sé conciso (máx 3 oraciones)  
+- Si hay una oferta concreta, evalúala y propón ajuste si es necesario
+- Cuando llegues a acuerdo, responde con JSON al final: {"acuerdo":true,"tipo":"sol|spl|nft","cantidad":X,"precio_usdc":X,"destinatario":"..."}
+- Si no hay acuerdo aún, sigue negociando
+- Habla en español`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: STATE.aiConversation
+      })
+    });
+
+    const data = await response.json();
+    const aiText = data.content?.map(c => c.text || '').join('') || 'Sin respuesta';
+    STATE.aiConversation.push({ role: 'assistant', content: aiText });
+
+    // Replace thinking with real response
+    thinkDiv.querySelector('.msg-bubble').textContent = aiText;
+
+    STATE.negCount++;
+    document.getElementById('stat-neg').textContent = STATE.negCount;
+
+    // Check for deal JSON in response
+    const jsonMatch = aiText.match(/\{[\s\S]*"acuerdo"\s*:\s*true[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const deal = JSON.parse(jsonMatch[0]);
+        showNegotiationCard(deal, aiText);
+      } catch(e) {}
+    } else {
+      // Show negotiation card for ongoing negotiation
+      const priceMatch = aiText.match(/(\d+(?:\.\d+)?)\s*(?:SOL|USDC|USD)/i);
+      if (priceMatch) {
+        document.getElementById('stat-ai-price').textContent = priceMatch[0];
+        showOngoingNegCard(aiText);
+      }
+    }
+
+  } catch(e) {
+    thinkDiv.querySelector('.msg-bubble').textContent = '❌ Error IA: ' + e.message;
+  }
+
+  aiBody.scrollTop = aiBody.scrollHeight;
+}
+
+function showNegotiationCard(deal, context) {
+  STATE.currentNeg = deal;
+  const aiBody = document.getElementById('ai-body');
+  const card = document.createElement('div');
+  card.className = 'negotiation-card';
+  card.innerHTML = `
+    <div class="neg-row">
+      <span class="neg-label">✅ ACUERDO PROPUESTO</span>
+      <span class="neg-value neutral">IA</span>
+    </div>
+    <div class="neg-row">
+      <span class="neg-label">Tipo</span>
+      <span class="neg-value">${deal.tipo?.toUpperCase() || 'SOL'}</span>
+    </div>
+    <div class="neg-row">
+      <span class="neg-label">Cantidad</span>
+      <span class="neg-value up">${deal.cantidad || '?'} ${deal.tipo?.toUpperCase() || 'SOL'}</span>
+    </div>
+    <div class="neg-row">
+      <span class="neg-label">Precio USDC</span>
+      <span class="neg-value neutral">${deal.precio_usdc || '?'} USDC</span>
+    </div>
+    <div class="neg-bar"><div class="neg-bar-fill" style="width:75%"></div></div>
+    <div class="neg-actions">
+      <button class="neg-accept" onclick="acceptDeal()">✓ Aceptar</button>
+      <button class="neg-counter" onclick="openCounterModal()">↔ Contra</button>
+      <button class="neg-reject" onclick="rejectDeal()">✕ Rechazar</button>
+    </div>
+  `;
+  aiBody.appendChild(card);
+  aiBody.scrollTop = aiBody.scrollHeight;
+}
+
+function showOngoingNegCard(context) {
+  // Just update price in stats
+}
+
+function acceptDeal() {
+  if (!STATE.currentNeg) return;
+  const d = STATE.currentNeg;
+  // Pre-fill TX form
+  document.getElementById('tx-type').value = d.tipo || 'sol';
+  if (d.destinatario) document.getElementById('tx-to').value = d.destinatario;
+  document.getElementById('tx-amount').value = d.cantidad || '';
+  addAiMsg('🎉 Acuerdo aceptado. Formulario de TX pre-cargado. Revisa y confirma en Phantom.');
+  signal({ type:'neg_response', status:'accepted', deal: d });
+  addChatMsg('sistema', '✅ Acuerdo aceptado por IA — ' + (d.cantidad||'?') + ' ' + (d.tipo||'SOL').toUpperCase(), 'system');
+}
+
+function rejectDeal() {
+  STATE.currentNeg = null;
+  addAiMsg('❌ Oferta rechazada. Puedes proponer nuevas condiciones.');
+  signal({ type:'neg_response', status:'rejected' });
+}
+
+function openCounterModal() {
+  document.getElementById('counter-modal').style.display = 'flex';
+}
+
+function addAiMsg(text) {
+  const aiBody = document.getElementById('ai-body');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.innerHTML = `<div class="msg-bubble">🤖 ${text}</div>`;
+  aiBody.appendChild(div);
+  aiBody.scrollTop = aiBody.scrollHeight;
+}
+
+function checkTradeIntent(text) {
+  const keywords = ['comprar','vender','cambiar','swap','transfer','sol','usdc','nft','ofrezco','quiero','precio'];
+  const lower = text.toLowerCase();
+  if (keywords.some(k => lower.includes(k))) {
+    setTimeout(() => askAI('Mensaje del trader: "' + text + '". Evalúa si es una oferta de trading y responde apropiadamente.'), 500);
+  }
+}
+
+function handleNegOffer(msg) {
+  addChatMsg('sistema', '💬 ' + msg.alias + ' envió oferta: ' + msg.offer, 'system');
+  askAI('El peer "' + msg.alias + '" propone: "' + msg.offer + '". ¿Es justa esta oferta? Negociamos.');
+}
+
+function handleNegResponse(msg) {
+  addChatMsg('sistema', msg.status === 'accepted' ? '✅ Peer aceptó el acuerdo' : '❌ Peer rechazó la oferta', 'system');
+}
+
+// ── Transactions ──
+async function sendTransaction() {
+  if (!STATE.wallet) { showToast('Conecta tu wallet primero', 'error'); return; }
+  if (!window.solana?.isPhantom) { showToast('Phantom no disponible', 'error'); return; }
+
+  const type = document.getElementById('tx-type').value;
+  const to = document.getElementById('tx-to').value.trim();
+  const amount = parseFloat(document.getElementById('tx-amount').value);
+
+  if (!to || isNaN(amount) || amount <= 0) {
+    showToast('Completa todos los campos', 'error'); return;
+  }
+
+  // Validate address
+  try { new solanaWeb3.PublicKey(to); } catch(e) {
+    showToast('Dirección inválida', 'error'); return;
+  }
+
+  const btn = document.getElementById('send-tx-btn');
+  btn.textContent = '⏳ Procesando...'; btn.disabled = true;
+
+  try {
+    let txSig;
+
+    if (type === 'sol') {
+      txSig = await sendSOL(to, amount);
+    } else if (type === 'spl') {
+      txSig = await sendSPLSimulated(to, amount);
+    } else if (type === 'nft') {
+      txSig = await sendNFTSimulated(to);
+    }
+
+    if (txSig) {
+      STATE.txCount++;
+      document.getElementById('stat-tx').textContent = STATE.txCount;
+      addTxRecord(txSig, type, amount, to, 'confirmed');
+      showToast('TX enviada: ' + txSig.slice(0,12)+'...', 'success');
+      addChatMsg('sistema', '💸 TX ' + type.toUpperCase() + ' → ' + to.slice(0,8)+'... | '+txSig.slice(0,10)+'...', 'system');
+      await fetchBalance();
+    }
+  } catch(e) {
+    addTxRecord('error_'+ Date.now(), type, amount, to, 'failed');
+    showToast('Error TX: ' + (e.message||e), 'error');
+  }
+
+  btn.textContent = '🔐 Enviar vía Phantom'; btn.disabled = false;
+}
+
+async function sendSOL(to, amount) {
+  const connection = STATE.connection;
+  const sender = new solanaWeb3.PublicKey(STATE.wallet);
+  const recipient = new solanaWeb3.PublicKey(to);
+  const lamports = Math.round(amount * solanaWeb3.LAMPORTS_PER_SOL);
+
+  const transaction = new solanaWeb3.Transaction().add(
+    solanaWeb3.SystemProgram.transfer({ fromPubkey: sender, toPubkey: recipient, lamports })
+  );
+
+  const { blockhash } = await connection.getRecentBlockhash();
+  transaction.recentBlockhash = blockhash;
+  transaction.feePayer = sender;
+
+  const signed = await window.solana.signAndSendTransaction(transaction);
+  return signed.signature;
+}
+
+async function sendSPLSimulated(to, amount) {
+  // For full SPL: use @solana/spl-token. Here we simulate the TX object for demo.
+  const transaction = new solanaWeb3.Transaction();
+  const { blockhash } = await STATE.connection.getRecentBlockhash();
+  transaction.recentBlockhash = blockhash;
+  transaction.feePayer = new solanaWeb3.PublicKey(STATE.wallet);
+  // In production: add SPL token transfer instruction
+  const signed = await window.solana.signTransaction(transaction);
+  // Simulate sending (real: connection.sendRawTransaction)
+  return 'spl_sim_' + Math.random().toString(36).substr(2,20);
+}
+
+async function sendNFTSimulated(to) {
+  // In production: use Metaplex SDK for NFT transfers
+  const transaction = new solanaWeb3.Transaction();
+  const { blockhash } = await STATE.connection.getRecentBlockhash();
+  transaction.recentBlockhash = blockhash;
+  transaction.feePayer = new solanaWeb3.PublicKey(STATE.wallet);
+  const signed = await window.solana.signTransaction(transaction);
+  return 'nft_sim_' + Math.random().toString(36).substr(2,20);
+}
+
+function addTxRecord(sig, type, amount, to, status) {
+  const txBody = document.getElementById('tx-body');
+  // Insert after form
+  const form = txBody.querySelector('.tx-form');
+  const div = document.createElement('div');
+  div.className = 'tx-item';
+  const typeColor = type==='sol'?'sol': type==='spl'?'spl':'nft';
+  const explorer = 'https://explorer.solana.com/tx/' + sig;
+  div.innerHTML = `
+    <div class="tx-hash" onclick="window.open('${explorer}','_blank')">${sig.slice(0,28)}... ↗</div>
+    <div class="tx-details">
+      <span class="tx-amount ${typeColor}">${amount} ${type.toUpperCase()}</span>
+      <span class="tx-status ${status}">${status.toUpperCase()}</span>
+    </div>
+    <div class="tx-time">${new Date().toLocaleString('es')} → ${to.slice(0,8)}...</div>
+  `;
+  if (form && form.nextSibling) {
+    txBody.insertBefore(div, form.nextSibling);
+  } else {
+    txBody.appendChild(div);
+  }
+}
+
+// ── Toast ──
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+}
+
+// ── UI Events ──
+document.getElementById('start-btn').onclick = async () => {
+  const alias = document.getElementById('alias-input').value.trim();
+  if (alias) STATE.alias = alias;
+  document.getElementById('connect-modal').style.display = 'none';
+  initSolana();
+  await connectWallet();
+};
+
+document.getElementById('wallet-btn').onclick = connectWallet;
+document.getElementById('start-cam-btn').onclick = startCamera;
+document.getElementById('refresh-bal-btn').onclick = fetchBalance;
+
+document.getElementById('create-room-btn').onclick = () => {
+  const roomId = 'room_' + Math.random().toString(36).substr(2,8);
+  setupSignaling(roomId);
+};
+
+document.getElementById('join-room-btn').onclick = () => {
+  document.getElementById('join-modal').style.display = 'flex';
+};
+
+document.getElementById('join-cancel-btn').onclick = () => {
+  document.getElementById('join-modal').style.display = 'none';
+};
+
+document.getElementById('join-confirm-btn').onclick = () => {
+  const roomId = document.getElementById('room-id-input').value.trim();
+  if (!roomId) return;
+  document.getElementById('join-modal').style.display = 'none';
+  setupSignaling(roomId);
+};
+
+document.getElementById('leave-room-btn').onclick = leaveRoom;
+
+document.getElementById('chat-send').onclick = sendChat;
+document.getElementById('chat-input').onkeydown = (e) => { if (e.key==='Enter') sendChat(); };
+
+document.getElementById('ai-send').onclick = () => {
+  const text = document.getElementById('ai-input').value.trim();
+  if (text) { askAI(text); document.getElementById('ai-input').value = ''; }
+};
+document.getElementById('ai-input').onkeydown = (e) => {
+  if (e.key==='Enter') {
+    const text = document.getElementById('ai-input').value.trim();
+    if (text) { askAI(text); document.getElementById('ai-input').value = ''; }
+  }
+};
+
+document.getElementById('send-tx-btn').onclick = sendTransaction;
+
+document.getElementById('counter-cancel').onclick = () => {
+  document.getElementById('counter-modal').style.display = 'none';
+};
+document.getElementById('counter-confirm').onclick = () => {
+  const val = document.getElementById('counter-input').value.trim();
+  if (val) {
+    document.getElementById('counter-modal').style.display = 'none';
+    signal({ type:'neg_offer', offer: val });
+    askAI('Envié contraoferta: "' + val + '". ¿Cómo evalúas esto?');
+    document.getElementById('counter-input').value = '';
+  }
+};
+
+// ── Auto-init ──
+window.onload = () => {
+  // Show connect modal, rest inits on button click
+  document.getElementById('alias-input').focus();
+};
+</script>
+</body>
+</html>
