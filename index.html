@@ -2,116 +2,316 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prueba Definitiva - Solana</title>
-    <!-- LIBRERÍA DIRECTA Y LIMPIA -->
-    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/dist/index.iife.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BitcoinDobmoney | Solana Móvil</title>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.91.4/dist/index.iife.min.js"></script>
     <style>
+        * {margin:0;padding:0;box-sizing:border-box;font-family: 'Arial', sans-serif;}
         body {
-            font-family: Arial, sans-serif;
             background-color: #0a0a12;
-            color: white;
-            padding: 50px 20px;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 60px 20px;
             text-align: center;
         }
-        h1 { color: #9945FF; margin-bottom: 40px; }
+        h1 {
+            font-size: 32px;
+            color: #9945FF;
+            margin-bottom: 60px;
+            font-weight: 900;
+        }
+        .sub {
+            color: #aaa;
+            margin-bottom: 50px;
+            font-size: 16px;
+        }
+        /* BOTÓN QUE SÍ FUNCIONA EN CELULAR */
         #boton {
-            background: linear-gradient(90deg, #5C27FE, #9945FF);
-            color: white;
+            width: 100%;
+            padding: 22px 20px;
+            background: linear-gradient(135deg, #5C27FE 0%, #9945FF 100%);
             border: none;
-            padding: 20px 40px;
-            font-size: 18px;
+            border-radius: 16px;
+            color: white;
+            font-size: 20px;
             font-weight: bold;
-            border-radius: 12px;
             cursor: pointer;
-            transition: 0.2s;
+            box-shadow: 0 0 25px rgba(153, 69, 255, 0.3);
+            margin-bottom: 30px;
+            transition: transform 0.2s;
         }
-        #boton:hover { transform: scale(1.05); }
-        #estado {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 8px;
+        #boton:active { transform: scale(0.96); }
+        #boton.conectado { background: linear-gradient(135deg, #218852 0%, #28a745 100%); }
+
+        .caja-info {
             background: #13131F;
-            display: inline-block;
-            min-width: 300px;
+            border: 1px solid #9945FF44;
+            border-radius: 12px;
+            padding: 20px;
+            display: none;
+            text-align: left;
         }
-        .ok { color: #28C76F; }
-        .error { color: #FF4D4F; }
+        .dir {
+            font-size: 13px;
+            background: #0a0a12;
+            padding: 10px;
+            border-radius: 6px;
+            word-break: break-all;
+            color: #5C7CFA;
+            margin: 10px 0;
+        }
+        .saldo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28C76F;
+        }
+        .aviso {
+            color: #ffcc00;
+            font-size: 14px;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ffcc0055;
+            border-radius: 8px;
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-    <h1>🚀 CONEXIÓN SOLANA - VERSIÓN LIMPIA</h1>
+    <h1>🚀 CONEXIÓN SOLANA</h1>
+    <p class="sub">Versión optimizada para Móvil / GitHub Pages</p>
 
-    <!-- EL BOTÓN QUE SÍ FUNCIONA -->
-    <button id="boton">🔗 CONECTAR PHANTOM</button>
+    <!-- AVISO POR SI NO ABRE -->
+    <div id="aviso" class="aviso">
+        💡 Si no abre, mantén presionado el botón o usa el navegador interno de Phantom.
+    </div>
 
-    <div id="estado">Esperando acción...</div>
+    <!-- EL BOTÓN -->
+    <button id="boton">🟣 CONECTAR PHANTOM</button>
+
+    <!-- CAJA DE DATOS -->
+    <div id="caja" class="caja-info">
+        <h3>✅ BILLETERA CONECTADA</h3>
+        <div id="dir" class="dir"></div>
+        <p>Saldo disponible:</p>
+        <div id="saldo" class="saldo">0.0000 SOL</div>
+    </div>
 
     <script>
-        // 🔌 CONEXIÓN DIRECTA A LA RED PRINCIPAL
-        const conexion = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com", "confirmed");
-
-        // ELEMENTOS
+        // CONEXIÓN DIRECTA A LA RED PRINCIPAL
+        const conexion = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com");
         const boton = document.getElementById('boton');
-        const estado = document.getElementById('estado');
+        const caja = document.getElementById('caja');
+        const dirEl = document.getElementById('dir');
+        const saldoEl = document.getElementById('saldo');
+        const aviso = document.getElementById('aviso');
         let wallet;
 
-        // ⚡ AL CARGAR LA PÁGINA
+        // 🚀 TRUCO PARA QUE FUNCIONE EN CUALQUIER LADO
+        // Usamos el protocolo "phantom://" que fuerza la apertura de la app
         window.onload = () => {
-            // DETECTAR PHANTOM
+            // Intentamos detectar, PERO AUNQUE NO LO DETECTE, EL BOTÓN FUNCIONARÁ
             if (window.phantom?.solana) {
-                estado.textContent = "✅ Phantom DETECTADO. Haz clic en el botón.";
-                estado.className = "ok";
                 wallet = window.phantom.solana;
+                console.log("✅ Detectado normal");
             } else {
-                estado.textContent = "❌ Phantom NO INSTALADO. Descárgalo en phantom.app";
-                estado.className = "error";
-                boton.textContent = "⬇️ INSTALAR PHANTOM";
-                boton.onclick = () => window.open('https://phantom.app/download','_blank');
+                // SI NO LO DETECTA, USAMOS EL MÉTODO DE ENLACE DIRECTO
+                aviso.style.display = 'block';
+                boton.onclick = () => {
+                    // ESTE ENLACE ES EL QUE FUERZA ABRIR LA APP
+                    window.location.href = "phantom://connect?appUrl=" + encodeURIComponent(window.location.origin) + "&redirectUrl=" + encodeURIComponent(window.location.href);
+                };
             }
         };
 
-        // 🎯 FUNCIÓN DEL BOTÓN
+        // FUNCIÓN NORMAL SI LO DETECTA
         boton.onclick = async () => {
             if (!wallet) return;
 
             try {
-                // 👇 AQUÍ ES DONDE SE ABRE LA VENTANA
-                const respuesta = await wallet.connect();
-                const direccion = respuesta.publicKey.toString();
+                // 👇 AQUÍ SE ABRE
+                const resp = await wallet.connect();
+                const pubKey = resp.publicKey;
 
-                // SI LLEGA AQUÍ, ES QUE FUNCIONÓ
-                estado.innerHTML = `
-                    ✅ <b>CONECTADO!</b><br>
-                    Dirección: ${direccion}<br>
-                    <small>(Leyendo saldo...)</small>
-                `;
-                estado.className = "ok";
-                boton.textContent = "🔌 DESCONECTAR";
+                // MOSTRAR DATOS
+                dirEl.innerText = pubKey.toBase58();
+                boton.innerText = "🔌 DESCONECTAR";
+                boton.classList.add('conectado');
+                caja.style.display = 'block';
+                aviso.style.display = 'none';
 
-                // LEER SALDO DE VERDAD
-                const saldo = await conexion.getBalance(respuesta.publicKey);
-                const saldoSOL = (saldo / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
-                
-                estado.innerHTML = `
-                    ✅ <b>CONECTADO CORRECTAMENTE</b><br>
-                    Dirección: <small>${direccion}</small><br>
-                    💰 Saldo: <b>${saldoSOL} SOL</b>
-                `;
+                // OBTENER SALDO
+                const bal = await conexion.getBalance(pubKey);
+                saldoEl.innerText = (bal / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4) + " SOL";
 
-                // FUNCIÓN PARA DESCONECTAR
+                // DESCONECTAR
                 boton.onclick = async () => {
                     await wallet.disconnect();
-                    estado.textContent = "🔌 Desconectado. Listo para volver a conectar.";
-                    estado.className = "";
-                    boton.textContent = "🔗 CONECTAR PHANTOM";
-                    boton.onclick = arguments.callee;
+                    location.reload(); // Recarga limpia
                 };
 
-            } catch (e) {
-                estado.textContent = "❌ ERROR: " + e.message;
-                estado.className = "error";
+            } catch (error) {
+                alert("Error: " + error.message + " | Usa el navegador de Phantom");
+            }
+        };
+    </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BitcoinDobmoney | Solana Móvil</title>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.91.4/dist/index.iife.min.js"></script>
+    <style>
+        * {margin:0;padding:0;box-sizing:border-box;font-family: 'Arial', sans-serif;}
+        body {
+            background-color: #0a0a12;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 32px;
+            color: #9945FF;
+            margin-bottom: 60px;
+            font-weight: 900;
+        }
+        .sub {
+            color: #aaa;
+            margin-bottom: 50px;
+            font-size: 16px;
+        }
+        /* BOTÓN QUE SÍ FUNCIONA EN CELULAR */
+        #boton {
+            width: 100%;
+            padding: 22px 20px;
+            background: linear-gradient(135deg, #5C27FE 0%, #9945FF 100%);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(153, 69, 255, 0.3);
+            margin-bottom: 30px;
+            transition: transform 0.2s;
+        }
+        #boton:active { transform: scale(0.96); }
+        #boton.conectado { background: linear-gradient(135deg, #218852 0%, #28a745 100%); }
+
+        .caja-info {
+            background: #13131F;
+            border: 1px solid #9945FF44;
+            border-radius: 12px;
+            padding: 20px;
+            display: none;
+            text-align: left;
+        }
+        .dir {
+            font-size: 13px;
+            background: #0a0a12;
+            padding: 10px;
+            border-radius: 6px;
+            word-break: break-all;
+            color: #5C7CFA;
+            margin: 10px 0;
+        }
+        .saldo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28C76F;
+        }
+        .aviso {
+            color: #ffcc00;
+            font-size: 14px;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ffcc0055;
+            border-radius: 8px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 CONEXIÓN SOLANA</h1>
+    <p class="sub">Versión optimizada para Móvil / GitHub Pages</p>
+
+    <!-- AVISO POR SI NO ABRE -->
+    <div id="aviso" class="aviso">
+        💡 Si no abre, mantén presionado el botón o usa el navegador interno de Phantom.
+    </div>
+
+    <!-- EL BOTÓN -->
+    <button id="boton">🟣 CONECTAR PHANTOM</button>
+
+    <!-- CAJA DE DATOS -->
+    <div id="caja" class="caja-info">
+        <h3>✅ BILLETERA CONECTADA</h3>
+        <div id="dir" class="dir"></div>
+        <p>Saldo disponible:</p>
+        <div id="saldo" class="saldo">0.0000 SOL</div>
+    </div>
+
+    <script>
+        // CONEXIÓN DIRECTA A LA RED PRINCIPAL
+        const conexion = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com");
+        const boton = document.getElementById('boton');
+        const caja = document.getElementById('caja');
+        const dirEl = document.getElementById('dir');
+        const saldoEl = document.getElementById('saldo');
+        const aviso = document.getElementById('aviso');
+        let wallet;
+
+        // 🚀 TRUCO PARA QUE FUNCIONE EN CUALQUIER LADO
+        // Usamos el protocolo "phantom://" que fuerza la apertura de la app
+        window.onload = () => {
+            // Intentamos detectar, PERO AUNQUE NO LO DETECTE, EL BOTÓN FUNCIONARÁ
+            if (window.phantom?.solana) {
+                wallet = window.phantom.solana;
+                console.log("✅ Detectado normal");
+            } else {
+                // SI NO LO DETECTA, USAMOS EL MÉTODO DE ENLACE DIRECTO
+                aviso.style.display = 'block';
+                boton.onclick = () => {
+                    // ESTE ENLACE ES EL QUE FUERZA ABRIR LA APP
+                    window.location.href = "phantom://connect?appUrl=" + encodeURIComponent(window.location.origin) + "&redirectUrl=" + encodeURIComponent(window.location.href);
+                };
+            }
+        };
+
+        // FUNCIÓN NORMAL SI LO DETECTA
+        boton.onclick = async () => {
+            if (!wallet) return;
+
+            try {
+                // 👇 AQUÍ SE ABRE
+                const resp = await wallet.connect();
+                const pubKey = resp.publicKey;
+
+                // MOSTRAR DATOS
+                dirEl.innerText = pubKey.toBase58();
+                boton.innerText = "🔌 DESCONECTAR";
+                boton.classList.add('conectado');
+                caja.style.display = 'block';
+                aviso.style.display = 'none';
+
+                // OBTENER SALDO
+                const bal = await conexion.getBalance(pubKey);
+                saldoEl.innerText = (bal / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4) + " SOL";
+
+                // DESCONECTAR
+                boton.onclick = async () => {
+                    await wallet.disconnect();
+                    location.reload(); // Recarga limpia
+                };
+
+            } catch (error) {
+                alert("Error: " + error.message + " | Usa el navegador de Phantom");
             }
         };
     </script>
