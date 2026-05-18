@@ -396,3 +396,15 @@
 
         function desconectarTodo() {
             panelCuenta.classList.remove('
+        function desconectarTodo() {
+            panelCuenta.classList.remove('mostrar');
+            botonPhantom.textContent = "🦊 CONECTAR A PHANTOM";
+            botonPhantom.classList.remove('conectado');
+            botonDesconectar.style.display = 'none';
+            direccionWallet.textContent = "";
+            saldoCuenta.textContent = "0.0000 ◎ SOL";
+        }
+    </script>
+
+</body>
+</html>
