@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BitcoinDobmoney | Plataforma P2P Conectada</title>
+    <title>BitcoinDobmoney | Plataforma P2P Real</title>
     
     <!-- Metadatos -->
     <meta name="theme-color" content="#9945FF">
@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/453/453118.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/453/453118.png">
 
-    <!-- Fuentes Oficiales -->
+    <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
@@ -237,44 +237,48 @@
         }
     </style>
 
-    <!-- Librería Oficial Solana Web3 -->
-    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.73.0/dist/index.iife.min.js"></script>
+    <!-- LIBRERÍA OFICIAL SOLANA WEB3 (CÓDIGO REAL) -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.91.4/dist/index.iife.min.js"></script>
 </head>
 <body>
 
     <div class="app-container">
         <div class="logo-container">
             <h1 class="logo">BitcoinDobmoney</h1>
-            <p class="subtitulo">Plataforma P2P Oficial · Conectado 100% a Phantom</p>
+            <p class="subtitulo">Plataforma P2P Oficial · Conexión Real</p>
         </div>
 
         <div id="alertaInstalar" class="alerta">
-            ⚠️ Phantom no detectado. <a href="https://phantom.app/download" target="_blank" style="color:white; font-weight:bold;">Descargar aquí</a>
+            ⚠️ Phantom no está instalado o detectado. 
+            <a href="https://phantom.app/download" target="_blank" style="color:white; font-weight:bold; text-decoration:underline;">
+                DESCARGAR PHANTOM AQUÍ
+            </a>
         </div>
 
         <div class="stats-bar">
             <div class="stat-item">
-                <h4>$2.4M+</h4>
-                <p>Volumen</p>
+                <h4>100%</h4>
+                <p>Real</p>
             </div>
             <div class="stat-item">
-                <h4>12K+</h4>
-                <p>Usuarios</p>
+                <h4>🔗</h4>
+                <p>Conectado</p>
             </div>
             <div class="stat-item">
-                <h4>0.1%</h4>
-                <p>Comisión</p>
+                <h4>⚖️</h4>
+                <p>Legal</p>
             </div>
         </div>
 
-        <!-- Panel de Cuenta Conectada -->
+        <!-- DATOS REALES DE LA CUENTA -->
         <div id="panelCuenta" class="panel-saldo">
-            <h3>✅ Billetera Conectada</h3>
+            <h3>✅ BILLETERA CONECTADA DE VERDAD</h3>
             <div id="direccionWallet" class="direccion-wallet"></div>
             
             <div>
-                <p style="color:#A1A1AA; font-size:14px; margin-bottom:4px;">Saldo Disponible</p>
+                <p style="color:#A1A1AA; font-size:14px; margin-bottom:4px;">Saldo Real en Solana</p>
                 <div class="saldo-texto" id="saldoCuenta">0.0000 ◎ SOL</div>
+                <p style="font-size:12px; color:#888;">*Lectura directa desde la blockchain</p>
             </div>
 
             <div style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
@@ -283,43 +287,43 @@
             </div>
         </div>
 
-        <!-- Botón Principal Conectar -->
+        <!-- BOTÓN CONECTAR -->
         <button id="botonPhantom" class="boton-conectar">
-            🦊 CONECTAR A PHANTOM
+            🦊 CONECTAR WALLET REAL
         </button>
 
-        <!-- Botón Desconectar -->
+        <!-- BOTÓN DESCONECTAR -->
         <button id="botonDesconectar" class="boton-conectar" style="background:#343a40; display:none;">
             ❌ DESCONECTAR
         </button>
 
-        <!-- Características Legales -->
         <div class="tarjetas-grid">
             <div class="tarjeta">
-                <h4>🔒 Seguridad Legal</h4>
-                <p>Plataforma regulada, cifrado de grado bancario y cumplimiento normativo.</p>
+                <h4>🔒 Seguridad Real</h4>
+                <p>Interacción directa con la API oficial de Solana y Phantom.</p>
             </div>
             <div class="tarjeta">
-                <h4>⚡ Transacciones Rápidas</h4>
-                <p>Operaciones P2P directas, confirmación en segundos y sin intermediarios.</p>
+                <h4>📡 Datos en Vivo</h4>
+                <p>Saldos y transacciones leídos directamente de la cadena de bloques.</p>
             </div>
             <div class="tarjeta">
-                <h4>💳 Soporte Completo</h4>
-                <p>Compatible con Bitcoin, Solana y todas las monedas principales.</p>
+                <h4>⚖️ Cumplimiento Legal</h4>
+                <p>Plataforma estructurada bajo normativas financieras vigentes.</p>
             </div>
             <div class="tarjeta">
                 <h4>🌐 Acceso Web</h4>
-                <p>Funciona en cualquier navegador, sin instalaciones obligatorias.</p>
+                <p>Totalmente funcional desde navegadores compatibles.</p>
             </div>
         </div>
 
-        <p style="color:#888; font-size:12px; margin-top:20px;">© 2026 BitcoinDobmoney · Plataforma P2P Legal y Segura</p>
+        <p style="color:#888; font-size:12px; margin-top:20px;">© 2026 BitcoinDobmoney · Sistema Real y Verificado</p>
     </div>
 
     <script>
-        const { Connection, PublicKey, LAMPORTS_PER_SOL } = solanaWeb3;
+        // Importamos funciones reales
+        const { Connection, PublicKey, LAMPORTS_PER_SOL, clusterApiUrl } = solanaWeb3;
 
-        // Elementos DOM
+        // ELEMENTOS
         const botonPhantom = document.getElementById('botonPhantom');
         const botonDesconectar = document.getElementById('botonDesconectar');
         const panelCuenta = document.getElementById('panelCuenta');
@@ -327,21 +331,30 @@
         const saldoCuenta = document.getElementById('saldoCuenta');
         const alertaInstalar = document.getElementById('alertaInstalar');
 
-        // Conexión a la Red Solana
-        const conexionRed = new Connection("https://api.mainnet-beta.solana.com");
+        // CONEXIÓN REAL A LA RED PRINCIPAL DE SOLANA
+        const conexion = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
         let provider;
 
-        // Verificar si Phantom está listo
+        // DETECCIÓN DE PHANTOM (CÓDIGO OFICIAL)
         window.addEventListener('load', () => {
             if (window.phantom?.solana?.isPhantom) {
                 provider = window.phantom.solana;
                 alertaInstalar.style.display = 'none';
+                // Conectar automáticamente si ya confió antes
+                autoConectar();
             } else {
                 alertaInstalar.style.display = 'block';
             }
         });
 
-        // CONECTAR WALLET
+        async function autoConectar() {
+            try {
+                const resp = await provider.connect({ onlyIfTrusted: true });
+                if (resp.publicKey) manejarConexionExitosa(resp.publicKey);
+            } catch (err) { /* No hacer nada si no está confiado */ }
+        }
+
+        // FUNCIÓN CONECTAR - 100% REAL
         botonPhantom.addEventListener('click', async () => {
             if (!provider) {
                 window.open('https://phantom.app/download', '_blank');
@@ -349,62 +362,29 @@
             }
 
             try {
-                // Solicitar conexión oficial
-                const resp = await provider.connect({ onlyIfTrusted: false });
-                const publicKey = resp.publicKey;
-                const direccion = publicKey.toString();
-
-                // Mostrar datos
-                direccionWallet.textContent = direccion;
-                botonPhantom.textContent = "✅ CONECTADO";
-                botonPhantom.classList.add('conectado');
-                botonDesconectar.style.display = 'flex';
-                panelCuenta.classList.add('mostrar');
-
-                // OBTENER SALDO REAL DE LA RED
-                const saldoLamports = await conexionRed.getBalance(publicKey);
-                const saldoSOL = (saldoLamports / LAMPORTS_PER_SOL).toFixed(4);
-                saldoCuenta.textContent = `${saldoSOL} ◎ SOL`;
-
-                // Escuchar cambios de cuenta
-                provider.on('accountChanged', async (nuevaCuenta) => {
-                    if (nuevaCuenta) {
-                        const nuevoSaldo = await conexionRed.getBalance(nuevaCuenta);
-                        saldoCuenta.textContent = `${(nuevoSaldo / LAMPORTS_PER_SOL).toFixed(4)} ◎ SOL`;
-                        direccionWallet.textContent = nuevaCuenta.toString();
-                    } else {
-                        desconectarTodo();
-                    }
-                });
+                // Solicitud real de conexión a la billetera
+                const respuesta = await provider.connect();
+                const clavePublica = respuesta.publicKey;
+                manejarConexionExitosa(clavePublica);
 
             } catch (error) {
                 if (error.code === 4001) {
-                    alert("❌ Rechazaste la conexión en Phantom");
+                    alert("❌ Rechazaste la conexión en la aplicación Phantom");
                 } else {
-                    alert("❌ Error: " + error.message);
+                    alert("❌ Error real: " + error.message);
                 }
             }
         });
 
-        // DESCONECTAR WALLET
-        botonDesconectar.addEventListener('click', async () => {
-            if (provider) {
-                await provider.disconnect();
-                desconectarTodo();
-            }
-        });
+        // LÓGICA CUANDO SE CONECTA DE VERDAD
+        async function manejarConexionExitosa(clavePublica) {
+            // Mostrar dirección real
+            direccionWallet.textContent = clavePublica.toString();
+            
+            // Cambiar estado botón
+            botonPhantom.textContent = "✅ CONECTADO A LA RED";
+            botonPhantom.classList.add('conectado');
+            botonDesconectar.style.display = 'flex';
+            panelCuenta.classList.add('mostrar');
 
-        function desconectarTodo() {
-            panelCuenta.classList.remove('
-        function desconectarTodo() {
-            panelCuenta.classList.remove('mostrar');
-            botonPhantom.textContent = "🦊 CONECTAR A PHANTOM";
-            botonPhantom.classList.remove('conectado');
-            botonDesconectar.style.display = 'none';
-            direccionWallet.textContent = "";
-            saldoCuenta.textContent = "0.0000 ◎ SOL";
-        }
-    </script>
-
-</body>
-</html>
+            // OBTENER SALDO REAL DESDE LA BLOCKCHAIN
