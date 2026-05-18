@@ -3,17 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BitcoinDobmoney | Plataforma P2P Real</title>
+    <title>BitcoinDobmoney | Plataforma Real</title>
     
-    <!-- Metadatos -->
     <meta name="theme-color" content="#9945FF">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" type="image/png" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/453/453118.png">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/453/453118.png">
 
-    <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
@@ -23,12 +18,10 @@
             --phantom-purple: #9945FF;
             --phantom-blue: #5C7CFA;
             --dark-bg: #0A0A12;
-            --darker: #050508;
             --card-bg: #13131F;
             --text-light: #FFFFFF;
             --text-gray: #A1A1AA;
-            --gradient: linear-gradient(135deg, var(--phantom-purple) 0%, var(--phantom-blue) 100%);
-            --shadow-glow: 0 0 25px rgba(153, 69, 255, 0.2);
+            --gradient: linear-gradient(90deg, var(--phantom-purple) 0%, var(--phantom-blue) 100%);
         }
 
         * {
@@ -36,140 +29,158 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'DM Sans', sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background: var(--dark-bg);
             color: var(--text-light);
             min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
+            padding: 24px 16px;
             background-image: 
                 radial-gradient(circle at 20% 30%, rgba(153, 69, 255, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(92, 124, 250, 0.08) 0%, transparent 40%);
-            padding: 20px 16px;
+                radial-gradient(circle at 80% 70%, rgba(92, 124, 250, 0.05) 0%, transparent 40%);
         }
 
-        h1, h2, h3 {
-            font-family: 'Syne', sans-serif;
-            font-weight: 700;
-        }
-
-        .app-container {
-            max-width: 480px;
-            margin: 0 auto;
-            text-align: center;
-            padding-top: 60px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .logo-container {
-            margin-bottom: 50px;
-            animation: fadeIn 1s ease;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
         }
 
         .logo {
-            font-size: 46px;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 12px;
+            font-size: 28px;
+            color: var(--phantom-purple);
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-family: 'Syne', sans-serif;
+            gap: 8px;
         }
 
         .logo::before {
             content: "₿";
-            font-size: 50px;
-            -webkit-text-fill-color: var(--phantom-purple);
-            filter: drop-shadow(0 0 10px rgba(153, 69, 255, 0.5));
+            font-size: 32px;
+        }
+
+        .mainnet-badge {
+            background: rgba(153, 69, 255, 0.1);
+            color: var(--phantom-purple);
+            border: 1px solid rgba(153, 69, 255, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mainnet-badge::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            display: inline-block;
         }
 
         .subtitulo {
             color: var(--text-gray);
             font-size: 17px;
-            line-height: 1.6;
-            opacity: 0.9;
-        }
-
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 40px;
-            backdrop-filter: blur(10px);
-        }
-
-        .stat-item h4 {
-            color: var(--phantom-purple);
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .stat-item p {
-            color: var(--text-gray);
-            font-size: 12px;
+            text-align: center;
+            margin-bottom: 50px;
+            line-height: 1.5;
         }
 
         .boton-conectar {
             width: 100%;
-            padding: 20px 24px;
+            padding: 22px 24px;
             background: var(--gradient);
             border: none;
             border-radius: 16px;
             color: white;
-            font-size: 19px;
-            font-weight: 600;
+            font-size: 20px;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow-glow);
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(153, 69, 255, 0.25);
             transition: all 0.3s ease;
-            animation: scaleIn 0.6s ease;
         }
 
-        .boton-conectar:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(153, 69, 255, 0.4);
+        .boton-conectar::before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.9;
+        }
+
+        .boton-conectar:active {
+            transform: scale(0.98);
         }
 
         .boton-conectar.conectado {
-            background: linear-gradient(135deg, #218852 0%, #28a745 100%);
-            box-shadow: 0 0 25px rgba(40, 167, 69, 0.2);
+            background: linear-gradient(90deg, #218852 0%, #28a745 100%);
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.25);
         }
 
-        .panel-saldo {
+        .tarjetas-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .tarjeta {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px 16px;
+            text-align: left;
+            transition: border-color 0.3s ease;
+        }
+
+        .tarjeta:hover {
+            border-color: var(--phantom-purple);
+        }
+
+        .tarjeta .icono {
+            font-size: 26px;
+            margin-bottom: 12px;
+        }
+
+        .tarjeta h4 {
+            color: var(--phantom-purple);
+            font-size: 18px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .tarjeta p {
+            color: var(--text-gray);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .panel-cuenta {
             background: var(--card-bg);
             border: 1px solid rgba(153, 69, 255, 0.2);
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 30px;
             display: none;
-            backdrop-filter: blur(8px);
             text-align: left;
         }
 
-        .panel-saldo.mostrar {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .direccion-wallet {
+        .direccion {
             font-family: monospace;
             background: rgba(255,255,255,0.05);
-            padding: 8px 12px;
+            padding: 10px;
             border-radius: 8px;
             font-size: 14px;
             color: var(--phantom-blue);
@@ -177,207 +188,104 @@
             word-break: break-all;
         }
 
-        .saldo-texto {
+        .saldo {
             font-size: 32px;
             font-weight: 700;
             color: #fff;
             margin-bottom: 5px;
         }
-
-        .tarjetas-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 40px;
-        }
-
-        .tarjeta {
-            background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 18px 12px;
-            transition: all 0.3s ease;
-        }
-
-        .tarjeta:hover {
-            border-color: var(--phantom-purple);
-            transform: translateY(-2px);
-        }
-
-        .tarjeta h4 {
-            color: var(--phantom-purple);
-            font-size: 15px;
-            margin-bottom: 6px;
-        }
-
-        .tarjeta p {
-            color: var(--text-gray);
-            font-size: 12px;
-        }
-
-        .alerta {
-            background: rgba(255, 193, 7, 0.1);
-            border: 1px solid rgba(255, 193, 7, 0.3);
-            color: #ffc107;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
     </style>
 
-    <!-- LIBRERÍA OFICIAL DE SOLANA - CÓDIGO 100% REAL -->
+    <!-- ✅ LIBRERÍA OFICIAL CORRECTA -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.91.4/dist/index.iife.min.js"></script>
 </head>
 <body>
 
-    <div class="app-container">
-        <div class="logo-container">
-            <h1 class="logo">BitcoinDobmoney</h1>
-            <p class="subtitulo">Plataforma P2P Oficial · Conexión Real a Blockchain</p>
+    <div class="header">
+        <div class="logo">BitcoinDobmoney</div>
+        <div class="mainnet-badge">Mainnet</div>
+    </div>
+
+    <p class="subtitulo">Conecta Phantom y opera cripto en tiempo real,<br>sin intermediarios.</p>
+
+    <button id="botonPhantom" class="boton-conectar">
+        Conectar Phantom Wallet
+    </button>
+
+    <div id="panelCuenta" class="panel-cuenta">
+        <h3>✅ BILLETERA CONECTADA</h3>
+        <div id="direccionWallet" class="direccion"></div>
+        <p style="color:#A1A1AA; font-size:14px;">Saldo Real (Solana):</p>
+        <div id="saldoCuenta" class="saldo">0.0000 ◎ SOL</div>
+    </div>
+
+    <div class="tarjetas-grid">
+        <div class="tarjeta">
+            <div class="icono">🔐</div>
+            <h4>Seguridad</h4>
+            <p>Tu clave privada nunca sale de tu dispositivo.</p>
         </div>
-
-        <div id="alertaInstalar" class="alerta">
-            ⚠️ Phantom no detectado. Para usar la plataforma, instala la billetera oficial: 
-            <a href="https://phantom.app/download" target="_blank" style="color:white; font-weight:bold; text-decoration:underline;">
-                DESCARGAR AHORA
-            </a>
+        <div class="tarjeta">
+            <div class="icono">⚡</div>
+            <h4>Velocidad</h4>
+            <p>Confirmaciones en menos de 1 segundo con Solana.</p>
         </div>
-
-        <div class="stats-bar">
-            <div class="stat-item">
-                <h4>100%</h4>
-                <p>Real</p>
-            </div>
-            <div class="stat-item">
-                <h4>🔗</h4>
-                <p>Conectado</p>
-            </div>
-            <div class="stat-item">
-                <h4>⚖️</h4>
-                <p>Legal</p>
-            </div>
+        <div class="tarjeta">
+            <div class="icono">🌐</div>
+            <h4>Descentralizado</h4>
+            <p>Sin custodios. Tus fondos siempre están bajo tu control.</p>
         </div>
-
-        <!-- SECCIÓN DE CUENTA CONECTADA -->
-        <div id="panelCuenta" class="panel-saldo">
-            <h3>✅ BILLETERA CONECTADA EXITOSAMENTE</h3>
-            <div id="direccionWallet" class="direccion-wallet"></div>
-            
-            <div>
-                <p style="color:#A1A1AA; font-size:14px; margin-bottom:4px;">Saldo Disponible (Lectura Real)</p>
-                <div class="saldo-texto" id="saldoCuenta">0.0000 ◎ SOL</div>
-                <p style="font-size:12px; color:#888;">*Datos obtenidos directamente de la red Solana</p>
-            </div>
-
-            <div style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <button style="background:#9945FF; border:none; padding:10px; border-radius:8px; color:white; font-weight:600;">Enviar</button>
-                <button style="background:#5C7CFA; border:none; padding:10px; border-radius:8px; color:white; font-weight:600;">Recibir</button>
-            </div>
+        <div class="tarjeta">
+            <div class="icono">📊</div>
+            <h4>Saldo real</h4>
+            <p>Balance en vivo directo desde la cadena de bloques.</p>
         </div>
-
-        <!-- BOTÓN PRINCIPAL -->
-        <button id="botonPhantom" class="boton-conectar">
-            🦊 CONECTAR A PHANTOM
-        </button>
-
-        <!-- BOTÓN DESCONECTAR -->
-        <button id="botonDesconectar" class="boton-conectar" style="background:#343a40; display:none;">
-            ❌ DESCONECTAR
-        </button>
-
-        <div class="tarjetas-grid">
-            <div class="tarjeta">
-                <h4>🔒 Seguridad</h4>
-                <p>Acceso directo a API oficial, sin intermediarios, cifrado total.</p>
-            </div>
-            <div class="tarjeta">
-                <h4>⚡ Velocidad</h4>
-                <p>Transacciones en tiempo real, confirmación instantánea.</p>
-            </div>
-            <div class="tarjeta">
-                <h4>🌐 Compatibilidad</h4>
-                <p>Funciona con todas las billeteras Solana estándar.</p>
-            </div>
-            <div class="tarjeta">
-                <h4>📜 Cumplimiento</h4>
-                <p>Normativa financiera aplicable, auditoría de código abierto.</p>
-            </div>
-        </div>
-
-        <p style="color:#888; font-size:12px; margin-top:20px;">© 2026 BitcoinDobmoney · Todos los derechos reservados</p>
     </div>
 
     <script>
-        // Importamos funciones oficiales
-        const { Connection, PublicKey, LAMPORTS_PER_SOL, clusterApiUrl } = solanaWeb3;
+        const { Connection, clusterApiUrl, LAMPORTS_PER_SOL } = solanaWeb3;
 
-        // Elementos de la interfaz
         const botonPhantom = document.getElementById('botonPhantom');
-        const botonDesconectar = document.getElementById('botonDesconectar');
         const panelCuenta = document.getElementById('panelCuenta');
         const direccionWallet = document.getElementById('direccionWallet');
         const saldoCuenta = document.getElementById('saldoCuenta');
-        const alertaInstalar = document.getElementById('alertaInstalar');
 
-        // CONEXIÓN REAL A LA RED PRINCIPAL DE SOLANA
-        const conexionRed = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
-        let proveedor;
+        const conexion = new Connection(clusterApiUrl('mainnet-beta'));
+        let provider;
 
-        // DETECCIÓN AUTOMÁTICA DE LA BILLETERA
         window.addEventListener('load', () => {
             if (window.phantom?.solana?.isPhantom) {
-                proveedor = window.phantom.solana;
-                alertaInstalar.style.display = 'none';
-                // Intento de reconexión automática si ya se confió antes
-                intentarReconexion();
-            } else {
-                alertaInstalar.style.display = 'block';
+                provider = window.phantom.solana;
             }
         });
 
-        async function intentarReconexion() {
-            try {
-                const resp = await proveedor.connect({ onlyIfTrusted: true });
-                if (resp.publicKey) procesarConexion(resp.publicKey);
-            } catch (err) {
-                // No hacer nada, esperar clic del usuario
-            }
-        }
-
-        // FUNCIÓN DE CONEXIÓN 100% REAL
         botonPhantom.addEventListener('click', async () => {
-            if (!proveedor) {
-                // Si no existe, lleva a descargar
+            if (!provider) {
                 window.open('https://phantom.app/download', '_blank');
                 return;
             }
 
             try {
-                // Solicitud real a la billetera instalada
-                const respuesta = await proveedor.connect();
-                const clavePublica = respuesta.publicKey;
-                procesarConexion(clavePublica);
+                const resp = await provider.connect();
+                const publicKey = resp.publicKey;
 
-            } catch (error) {
-                if (error.code === 4001) {
-                    alert("❌ Operación cancelada por el usuario en Phantom");
+                direccionWallet.textContent = publicKey.toString();
+                botonPhantom.textContent = "✅ CONECTADO";
+                botonPhantom.classList.add('conectado');
+                panelCuenta.style.display = 'block';
+
+                const saldo = await conexion.getBalance(publicKey);
+                saldoCuenta.textContent = (saldo / LAMPORTS_PER_SOL).toFixed(4) + " ◎ SOL";
+
+            } catch (err) {
+                if (err.code === 4001) {
+                    alert("❌ Conexión cancelada");
                 } else {
-                    alert("❌ Error de conexión: " + error.message);
+                    alert("❌ Error: Instala Phantom primero");
                 }
             }
         });
+    </script>
 
-        // LÓGICA AL CONECTARSE CORRECTAMENTE
-        async function procesarConexion
+</body>
+</html>
