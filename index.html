@@ -3,33 +3,338 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BitcoinDobmoney | App Oficial</title>
+    <title>BitcoinDobmoney | Plataforma P2P Oficial</title>
     
-    <!-- Metadatos para que se comporte como una aplicación real -->
-    <meta name="theme-color" content="#f7931a">
+    <!-- Metadatos para comportamiento de App -->
+    <meta name="theme-color" content="#9945FF">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" type="image/png" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/453/453118.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/453/453118.png">
-    
-    <!-- Archivo de configuración de la aplicación -->
     <link rel="manifest" href="manifest.json">
+
+    <!-- Fuentes estilo Phantom -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary: #f7931a;
-            --secondary: #218852;
-            --dark: #0a0e17;
-            --bg-gradient: linear-gradient(135deg, #0a0e17 0%, #121a29 100%);
-            --glass: rgba(255, 255, 255, 0.05);
-            --size-btn: 58px;
-            --espacio: 20px;
+            --phantom-purple: #9945FF;
+            --phantom-blue: #5C7CFA;
+            --dark-bg: #0A0A12;
+            --darker: #050508;
+            --card-bg: #13131F;
+            --text-light: #FFFFFF;
+            --text-gray: #A1A1AA;
+            --gradient: linear-gradient(135deg, var(--phantom-purple) 0%, var(--phantom-blue) 100%);
+            --shadow-glow: 0 0 25px rgba(153, 69, 255, 0.2);
         }
 
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'DM Sans', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(153, 69, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(92, 124, 250, 0.08) 0%, transparent 40%);
+            padding: 20px 16px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            text-align: center;
+            padding-top: 60px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-container {
+            margin-bottom: 50px;
+            animation: fadeIn 1s ease;
+        }
+
+        .logo {
+            font-size: 46px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: 'Syne', sans-serif;
+        }
+
+        .logo::before {
+            content: "₿";
+            font-size: 50px;
+            -webkit-text-fill-color: var(--phantom-purple);
+            filter: drop-shadow(0 0 10px rgba(153, 69, 255, 0.5));
+        }
+
+        .subtitulo {
+            color: var(--text-gray);
+            font-size: 17px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item h4 {
+            color: var(--phantom-purple);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-item p {
+            color: var(--text-gray);
+            font-size: 12px;
+        }
+
+        .boton-conectar {
+            width: 100%;
+            padding: 20px 24px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 19px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+            animation: scaleIn 0.6s ease;
+        }
+
+        .boton-conectar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(153, 69, 255, 0.4);
+        }
+
+        .boton-conectar::before {
+            content: "";
+            width: 26px;
+            height: 26px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM15.88 9.29L12 13.17L8.12 9.29C7.73 8.9 7.1 8.9 6.71 9.29C6.32 9.68 6.32 10.31 6.71 10.7L11.3 15.29C11.69 15.68 12.32 15.68 12.71 15.29L17.3 10.7C17.69 10.31 17.69 9.68 17.3 9.29C16.91 8.9 16.27 8.9 15.88 9.29Z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .panel-saldo {
+            background: var(--card-bg);
+            border: 1px solid rgba(153, 69, 255, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            display: none;
+            backdrop-filter: blur(8px);
+        }
+
+        .panel-saldo.mostrar {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .direccion-wallet {
+            font-family: monospace;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--phantom-blue);
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+
+        .saldo-texto {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .tarjetas-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .tarjeta {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 18px 12px;
+            transition: all 0.3s ease;
+        }
+
+        .tarjeta:hover {
+            border-color: var(--phantom-purple);
+            transform: translateY(-2px);
+        }
+
+        .tarjeta h4 {
+            color: var(--phantom-purple);
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .tarjeta p {
+            color: var(--text-gray);
+            font-size: 12px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="logo-container">
+            <h1 class="logo">BitcoinDobmoney</h1>
+            <p class="subtitulo">Plataforma de Trading P2P Segura, Legal y Fácil de Usar</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <h4>$2.4M+</h4>
+                <p>Volumen</p>
+            </div>
+            <div class="stat-item">
+                <h4>12K+</h4>
+                <p>Usuarios</p>
+            </div>
+            <div class="stat-item">
+                <h4>0.1%</h4>
+                <p>Comisión</p>
+            </div>
+        </div>
+
+        <!-- Panel de Saldo (aparece al conectar) -->
+        <div id="panelSaldo" class="panel-saldo">
+            <h3>✅ Billetera Conectada Correctamente</h3>
+            <div id="direccionWallet" class="direccion-wallet"></div>
+            <div class="saldo-texto" id="saldoCuenta">0.0000 SOL</div>
+            <p style="color:#A1A1AA; font-size:13px;">Saldo disponible en la red Solana</p>
+        </div>
+
+        <!-- Botón Principal -->
+        <button id="botonConectar" class="boton-conectar">
+            🦊 Conectar Phantom Wallet
+        </button>
+
+        <!-- Botones Adicionales -->
+        <button class="boton-conectar" style="background: #1a1a2e; box-shadow: none; border: 1px solid #9945FF40;">
+            📱 Agregar a Pantalla Principal
+        </button>
+
+        <button class="boton-conectar" style="background: #1a1a2e; box-shadow: none; border: 1px solid #5C7CFA40;">
+            🔗 Abrir en Nueva Pestaña
+        </button>
+
+        <!-- Características -->
+        <div class="tarjetas-grid">
+            <div class="tarjeta">
+                <h4>🔒 Seguridad Total</h4>
+                <p>Tus transacciones y datos protegidos con estándares legales y cifrado de alta gama.</p>
+            </div>
+            <div class="tarjeta">
+                <h4>⚡ Rápida y Sencilla</h4>
+                <p>Interfaz diseñada para usarla sin complicaciones, desde cualquier lugar.</p>
+            </div>
+            <div class="tarjeta">
+                <h4>💸 Comisiones Bajas</h4>
+                <p>Tarifas transparentes y competitivas, para que obtengas más ganancias.</p>
+            </div>
+            <div class="tarjeta">
+                <h4>🤝 P2P Confiable</h4>
+                <p>Intercambios directos entre usuarios, regulados y verificados.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LÓGICA DE CONEXIÓN PHANTOM -->
+    <script>
+        const botonConectar = document.getElementById('botonConectar');
+        const panelSaldo = document.getElementById('panelSaldo');
+        const direccionWallet = document.getElementById('direccionWallet');
+        const saldoCuenta = document.getElementById('saldoCuenta');
+
+        botonConectar.addEventListener('click', async () => {
+            // Verifica si Phantom está instalado
+            const provider = window.phantom?.solana;
+
+            if (!provider) {
+                // Si no está instalado, redirige a la página oficial
+                window.open('https://phantom.app/', '_blank');
+                return;
+            }
+
+            try {
+                // Solicita conexión a la billetera
+                const resp = await provider.connect();
+                const publicKey = resp.publicKey.toString();
+
+                // Muestra la dirección abreviada
+                direccionWallet.textContent = publicKey.slice(0, 6) + '...' + publicKey.slice(-4);
+                
+                // Simulación de saldo (aquí conectarías tu lógica real P2P)
+                saldoCuenta.textContent = '12.4567 SOL';
+
+                // Muestra el panel
+                panelSaldo.classList.add('mostrar');
+                botonConectar.textContent = '✅ Billetera Conectada';
+                botonConectar.style.background = 'linear-gradient(135deg, #218852 0%, #28a745 100%)';
+
+            } catch (err) {
+                alert('Error al conectar: ' + err.message);
+            }
+        });
+    </script>
+
+</body>
+</html>
