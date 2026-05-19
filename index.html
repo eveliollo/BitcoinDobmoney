@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Dob Money | Solana DApp</title>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+
+        <header class="main-header">
+            <div class="logo">
+                <span class="b-logo">₿</span>
+                <span class="bitcoin-text">Bitcoin</span>
+                <span class="dob-text">Dob</span>
+                <span class="money-text">money</span>
+            </div>
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="dot"></span>
+                    ⚡ MAINNET
+                </div>
+                <button id="connectBtn" class="btn-conectar">Conectar</button>
+            </div>
+        </header>
+
+        <section class="hero">
+            <div class="hero-badges">
+                <span class="badge">⚡ SOLANA</span>
+                <span class="badge">• SIN CUSTODIA</span>
+                <span class="badge">• P2P</span>
+            </div>
+            <h1 class="hero-title">
+                Opera cripto<br>
+                <span class="gradient-text">en tiempo real</span>
+            </h1>
+            <p class="hero-subtitle">
+                Conecta Phantom y opera SOL, tokens SPL y NFTs<br>
+                directamente, sin intermediarios.
+            </p>
+        </section>
+
+        <section class="card phantom-card">
+            <div class="card-header">
+                <img src="https://phantom.app/favicon.ico" alt="Phantom" class="phantom-icon">
+                <h2>Phantom Wallet</h2>
+            </div>
+            <button id="phantomActionBtn" class="btn-phantom">CONECTAR PHANTOM</button>
+        </section>
+
+        <section class="card balance-card">
+            <p class="card-label">SOL BALANCE</p>
+            <div id="balanceDisplay" class="balance-value">--</div>
+        </section>
+
+        <section class="card network-card">
+            <p class="card-label">RED</p>
+            <div class="rpc-status">
+                <span class="rpc-label">MAINNET</span>
+                <span id="rpcText" class="rpc-ok">RPC OK</span>
+            </div>
+            <div id="rpcError" class="error-box" style="display:none;">Error conectando a RPC</div>
+        </section>
+
+        <section class="card security-card">
+            <span class="lock-icon">🔒</span>
+            <p class="security-text">CONEXIÓN SEGURA • SIN CUSTODIA</p>
+        </section>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
