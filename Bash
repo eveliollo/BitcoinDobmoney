@@ -1,6 +1,5 @@
-# Opción A: GitHub CLI
-gh repo create nextalk-p2p --public --clone
-cd nextalk-p2p
-
-# Opción B: Desde github.com
-# Crea un repo nuevo → público → clónalo
+# Copia index.html a la raíz del repo
+cp index.html ./
+git add index.html
+git commit -m "🚀 NexTalk P2P launch"
+git push
