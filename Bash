@@ -1,4 +1,3 @@
-
 # Opción A: GitHub CLI
 gh repo create nextalk-p2p --public --clone
 cd nextalk-p2p
