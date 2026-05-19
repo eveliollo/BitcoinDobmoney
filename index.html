@@ -3,311 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BitcoinDobmoney • Solana</title>
+    <title>BitcoinDobmor • P2P Live</title>
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.6/lib/index.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
         }
 
         :root {
-            --fondo-principal: #000000;
-            --fondo-tarjeta: #0A0A12;
-            --borde-color: #2D2D44;
-            --color-morado: #9945FF;
-            --color-verde: #14F195;
-            --color-naranja: #FF9500;
-            --color-amarillo: #E6E200;
-            --color-texto: #FFFFFF;
-            --color-texto-suave: #8A8A9E;
-            --color-enlace: #FF9500;
+            --bg-principal: #050510;
+            --bg-tarjeta: #0d0d22;
+            --borde: rgba(153, 69, 255, 0.3);
+            --borde-verde: rgba(20, 241, 149, 0.25);
+            --texto: #e8e8ff;
+            --texto-suave: #7070a0;
+            --sol-morado: #9945FF;
+            --sol-verde: #14F195;
+            --sol-azul: #00C2FF;
+            --rojo: #ff4d6d;
+            --gris-oscuro: #1a1a2e;
         }
 
         body {
-            background-color: var(--fondo-principal);
-            color: var(--color-texto);
+            background: var(--bg-principal);
+            color: var(--texto);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px 16px;
-            background-image: 
-                linear-gradient(rgba(153, 69, 255, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(153, 69, 255, 0.04) 1px, transparent 1px);
-            background-size: 32px 32px;
-        }
-
-        .contenedor-principal {
-            width: 100%;
-            max-width: 420px;
-            background-color: var(--fondo-tarjeta);
-            border: 2px solid var(--borde-color);
-            border-radius: 28px;
-            padding: 40px 28px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.6);
-            text-align: center;
+            padding: 24px 16px;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
-        .contenedor-principal::before {
+        body::before {
             content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(153, 69, 255, 0.08) 0%, transparent 70%);
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(153,69,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(153,69,255,0.04) 1px, transparent 1px);
+            background-size: 36px 36px;
             pointer-events: none;
+            z-index: 0;
         }
 
-        /* LOGO Y NOMBRE */
-        .icono-cohete {
-            font-size: 55px;
-            display: block;
-            margin-bottom: 15px;
-            animation: flotar 3s ease-in-out infinite;
+        .contenedor {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(13, 13, 34, 0.85);
+            border: 1px solid var(--borde);
+            border-radius: 28px;
+            padding: 36px 28px;
+            backdrop-filter: blur(24px);
+            box-shadow: 0 0 60px rgba(153, 69, 255, 0.1);
             position: relative;
             z-index: 2;
         }
 
+        /* LOGO */
+        .seccion-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .icono-cohete {
+            font-size: 3.5rem;
+            display: block;
+            margin-bottom: 12px;
+            animation: flotar 3s ease-in-out infinite;
+        }
         @keyframes flotar {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
-
         .nombre-logo {
-            font-size: 42px;
-            font-weight: 900;
+            font-size: 2rem;
+            font-weight: 800;
             letter-spacing: -1px;
-            background: linear-gradient(90deg, var(--color-naranja), var(--color-amarillo), var(--color-verde));
+            background: linear-gradient(135deg, var(--sol-morado), var(--sol-azul), var(--sol-verde));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 2;
+            margin-bottom: 8px;
+        }
+        .sub-logo {
+            font-size: 0.85rem;
+            color: var(--texto-suave);
+            letter-spacing: 0.5px;
         }
 
-        .subtitulo {
-            font-size: 16px;
-            color: var(--color-texto-suave);
-            margin-bottom: 30px;
-            line-height: 1.5;
-            position: relative;
-            z-index: 2;
-        }
-
-        /* ETIQUETA DE RED */
+        /* ESTADO DE RED */
         .etiqueta-red {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            background-color: #0F172A;
-            border: 1px solid var(--color-verde);
-            border-radius: 25px;
-            padding: 10px 20px;
-            font-size: 18px;
-            color: var(--color-verde);
-            font-weight: 600;
-            margin-bottom: 35px;
-            position: relative;
-            z-index: 2;
+            gap: 8px;
+            background: rgba(20, 241, 149, 0.08);
+            border: 1px solid var(--borde-verde);
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-size: 0.85rem;
+            color: var(--sol-verde);
+            margin-bottom: 24px;
+            width: 100%;
         }
-
-        .punto-verde {
-            width: 12px;
-            height: 12px;
-            background-color: var(--color-verde);
+        .punto-activo {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            animation: parpadeo 1.5s ease-in-out infinite;
+            background: var(--sol-verde);
+            animation: parpadeo 1.5s ease infinite;
         }
-
         @keyframes parpadeo {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .icono-check {
-            color: var(--color-verde);
-            font-weight: bold;
-            font-size: 20px;
+            50% { opacity: 0.3; }
         }
 
         /* BOTON CONECTAR */
         .boton-conectar {
             width: 100%;
-            background: linear-gradient(135deg, var(--color-morado), #7b2fff);
-            color: white;
+            padding: 18px;
+            border-radius: 14px;
             border: none;
-            border-radius: 18px;
-            padding: 22px;
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
             cursor: pointer;
-            box-shadow: 0 0 30px rgba(153, 69, 255, 0.4);
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--sol-morado), #7b2fff);
+            color: white;
+            box-shadow: 0 4px 24px rgba(153, 69, 255, 0.45);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 2;
+            gap: 12px;
+            margin-bottom: 24px;
         }
-
-        .boton-conectar:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 40px rgba(153, 69, 255, 0.6);
+        .boton-conectar.conectado {
+            background: linear-gradient(135deg, #0a8f5a, var(--sol-verde));
+            box-shadow: 0 4px 24px rgba(20, 241, 149, 0.35);
         }
-
         .circulo-boton {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            background-color: var(--color-morado);
+            background: var(--sol-morado);
             border: 2px solid white;
         }
+        .boton-conectar.conectado .circulo-boton { background: var(--sol-verde); }
 
-        /* CÓDIGO QR */
-        .contenedor-qr {
-            background-color: #0F172A;
-            border: 1px solid var(--borde-color);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 2;
+        /* INFO BILLETERA */
+        .info-billetera {
+            display: none;
+            background: rgba(20, 241, 149, 0.05);
+            border: 1px solid var(--borde-verde);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 20px;
+            animation: aparecer 0.4s ease;
         }
+        .info-billetera.mostrar { display: block; }
+        @keyframes aparecer { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .etiqueta-dato { font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--texto-suave); margin-bottom: 8px; font-weight: 600; }
+        .direccion-campo { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px; margin-bottom: 20px; }
+        .direccion-texto { font-family: monospace; font-size: 0.8rem; color: var(--sol-azul); word-break: break-all; }
+        .boton-copiar { background: none; border: none; color: var(--texto-suave); font-size: 1.2rem; cursor: pointer; }
+        .boton-copiar:hover { color: var(--sol-verde); }
+        .saldo-numero { font-size: 2rem; font-weight: 800; background: linear-gradient(90deg, var(--sol-verde), var(--sol-azul)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .titulo-qr {
-            font-size: 18px;
-            color: var(--color-verde);
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
+        /* SECCION P2P */
+        .seccion-p2p { background: rgba(0,0,0,0.2); border: 1px solid var(--borde); border-radius: 14px; padding: 20px; margin-bottom: 20px; display: none; }
+        .seccion-p2p.mostrar { display: block; }
+        .titulo-p2p { text-align: center; margin-bottom: 15px; color: var(--sol-verde); }
+        .input-codigo { width: 100%; padding: 12px; background: var(--gris-oscuro); border: 1px solid var(--borde); border-radius: 8px; color: white; margin-bottom: 10px; font-size: 0.9rem; }
+        .fila-botones { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn-p2p { flex:1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-crear { background: var(--sol-morado); color: white; }
+        .btn-unir { background: var(--sol-azul); color: white; }
+        .btn-p2p:hover { transform: translateY(-2px); }
 
-        .area-qr {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 10px;
-            padding: 10px;
-        }
+        /* VIDEOS */
+        .contenedor-videos { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .contenedor-videos.activo { display: grid; }
+        .video-box { background: black; border-radius: 10px; overflow: hidden; aspect-ratio: 16/9; border: 2px solid var(--sol-verde); }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .video-titulo { font-size: 0.7rem; text-align: center; margin-top: 4px; color: var(--texto-suave); }
 
-        /* BOTON DE DESCARGA */
-        .boton-descargar {
-            width: 100%;
-            background: linear-gradient(135deg, var(--color-verde), #00cc88);
-            color: black;
-            border: none;
-            border-radius: 18px;
-            padding: 16px;
-            font-size: 18px;
-            font-weight: 900;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 0 25px rgba(20, 241, 149, 0.3);
-            transition: all 0.3s ease;
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .boton-descargar:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 35px rgba(20, 241, 149, 0.5);
-        }
-
-        /* AVISO INFERIOR */
-        .aviso-phantom {
-            background-color: #0F172A;
-            border: 1px solid var(--borde-color);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            font-size: 16px;
-            color: var(--color-texto-suave);
-            line-height: 1.7;
-            position: relative;
-            z-index: 2;
-        }
-
-        .enlace {
-            color: var(--color-enlace);
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .enlace:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="contenedor-principal">
-        <!-- LOGO COHETE Y NOMBRE -->
-        <span class="icono-cohete">🚀</span>
-        <h1 class="nombre-logo">BitcoinDobmoney</h1>
-        <p class="subtitulo">Powered by Solana • Phantom Wallet</p>
-
-        <!-- ETIQUETA RED MAINNET -->
-        <div class="etiqueta-red">
-            <span class="punto-verde"></span>
-            <span>MAINNET • Red Real</span>
-            <span class="icono-check">✅</span>
-        </div>
-
-        <!-- BOTON CONECTAR -->
-        <button class="boton-conectar">
-            <span class="circulo-boton"></span>
-            CONECTAR PHANTOM
-        </button>
-
-        <!-- CÓDIGO QR -->
-        <div class="contenedor-qr">
-            <h3 class="titulo-qr">📱 Escanea para descargar</h3>
-            <div class="area-qr" id="codigoQR"></div>
-        </div>
-
-        <!-- BOTON DE DESCARGA -->
-        <button class="boton-descargar" onclick="descargarApp()">
-            ⬇️ DESCARGAR APLICACIÓN
-        </button>
-
-        <!-- AVISO INFERIOR -->
-        <div class="aviso-phantom">
-            💡 En móvil, abre esta página desde el navegador interno de Phantom<br>
-            o instala <a href="https://phantom.app" target="_blank" class="enlace">phantom.app</a> en desktop
-        </div>
-    </div>
-
-    <script>
-        // GENERAR CÓDIGO QR CON LA URL DE TU APLICACIÓN
-        var qr = new QRCode(document.getElementById("codigoQR"), {
-            text: "https://bitcoindobmoney.app", // CAMBIA ESTA DIRECCIÓN POR LA TUYA
-            width: 180,
-            height: 180,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-
-        // FUNCIÓN DE DESCARGA
-        function descargarApp() {
-            alert("Iniciando descarga de BitcoinDobmoney...");
-            // Si tienes el archivo de descarga, cambia el enlace aquí
-            window.open("https://ejemplo.com/bitcoindobmoney.apk", "_blank");
-        }
-    </script>
-</body>
-</html>
+        /* CHAT */
+        .contenedor-chat { display: none; margin-top: 15px; }
+        .contenedor-chat.activo { display: block; }
+        .caja-mensajes { height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); border: 1px solid var(--borde); border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 0.85rem; }
+        .mensaje { margin-bottom: 6px; padding: 4px 8px; border-radius: 6px; max-width: 80%; }
+        .mensaje-propio { background: var(--sol-morado); margin-left: auto; text-align: right; }
+        .mensaje-otro {
