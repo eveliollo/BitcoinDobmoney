@@ -3,17 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BitcoinDok • Solana</title>
-    <!-- LIBRERÍAS OFICIALES Y RECONOCIDAS -->
+    <title>BitcoinDobmoney • Solana</title>
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.6/lib/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.8/lib/index.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
-    <script src="https://unpkg.com/socket.io-client@4.7.2/dist/socket.io.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.min.js"></script>
-    
     <style>
         * {
             margin: 0;
@@ -26,7 +18,7 @@
         :root {
             --fondo-principal: #000000;
             --fondo-tarjeta: #0A0A12;
-            --color-borde: #2D2D44;
+            --borde-color: #2D2D44;
             --color-morado: #9945FF;
             --color-verde: #14F195;
             --color-naranja: #FF9500;
@@ -34,10 +26,6 @@
             --color-texto: #FFFFFF;
             --color-texto-suave: #8A8A9E;
             --color-enlace: #FF9500;
-            --color-rojo: #FF4D6D;
-            --color-azul: #00C2FF;
-            --color-oscuro: #12121F;
-            --color-gris-oscuro: #1E1E30;
         }
 
         body {
@@ -58,7 +46,7 @@
             width: 100%;
             max-width: 420px;
             background-color: var(--fondo-tarjeta);
-            border: 2px solid var(--color-borde);
+            border: 2px solid var(--borde-color);
             border-radius: 28px;
             padding: 40px 28px;
             box-shadow: 0 0 50px rgba(0,0,0,0.6);
@@ -78,7 +66,7 @@
             pointer-events: none;
         }
 
-        /* LOGO Y NOMBRE EXACTO COMO TU IMAGEN */
+        /* LOGO Y NOMBRE */
         .icono-cohete {
             font-size: 55px;
             display: block;
@@ -94,7 +82,232 @@
         }
 
         .nombre-logo {
-            font-size: 46px;
+            font-size: 42px;
             font-weight: 900;
             letter-spacing: -1px;
-            back
+            background: linear-gradient(90deg, var(--color-naranja), var(--color-amarillo), var(--color-verde));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .subtitulo {
+            font-size: 16px;
+            color: var(--color-texto-suave);
+            margin-bottom: 30px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ETIQUETA DE RED */
+        .etiqueta-red {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #0F172A;
+            border: 1px solid var(--color-verde);
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: var(--color-verde);
+            font-weight: 600;
+            margin-bottom: 35px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .punto-verde {
+            width: 12px;
+            height: 12px;
+            background-color: var(--color-verde);
+            border-radius: 50%;
+            animation: parpadeo 1.5s ease-in-out infinite;
+        }
+
+        @keyframes parpadeo {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .icono-check {
+            color: var(--color-verde);
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        /* BOTON CONECTAR */
+        .boton-conectar {
+            width: 100%;
+            background: linear-gradient(135deg, var(--color-morado), #7b2fff);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            padding: 22px;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(153, 69, 255, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .boton-conectar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 40px rgba(153, 69, 255, 0.6);
+        }
+
+        .circulo-boton {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--color-morado);
+            border: 2px solid white;
+        }
+
+        /* CÓDIGO QR */
+        .contenedor-qr {
+            background-color: #0F172A;
+            border: 1px solid var(--borde-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .titulo-qr {
+            font-size: 18px;
+            color: var(--color-verde);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .area-qr {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        /* BOTON DE DESCARGA */
+        .boton-descargar {
+            width: 100%;
+            background: linear-gradient(135deg, var(--color-verde), #00cc88);
+            color: black;
+            border: none;
+            border-radius: 18px;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(20, 241, 149, 0.3);
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .boton-descargar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 35px rgba(20, 241, 149, 0.5);
+        }
+
+        /* AVISO INFERIOR */
+        .aviso-phantom {
+            background-color: #0F172A;
+            border: 1px solid var(--borde-color);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            font-size: 16px;
+            color: var(--color-texto-suave);
+            line-height: 1.7;
+            position: relative;
+            z-index: 2;
+        }
+
+        .enlace {
+            color: var(--color-enlace);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .enlace:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor-principal">
+        <!-- LOGO COHETE Y NOMBRE -->
+        <span class="icono-cohete">🚀</span>
+        <h1 class="nombre-logo">BitcoinDobmoney</h1>
+        <p class="subtitulo">Powered by Solana • Phantom Wallet</p>
+
+        <!-- ETIQUETA RED MAINNET -->
+        <div class="etiqueta-red">
+            <span class="punto-verde"></span>
+            <span>MAINNET • Red Real</span>
+            <span class="icono-check">✅</span>
+        </div>
+
+        <!-- BOTON CONECTAR -->
+        <button class="boton-conectar">
+            <span class="circulo-boton"></span>
+            CONECTAR PHANTOM
+        </button>
+
+        <!-- CÓDIGO QR -->
+        <div class="contenedor-qr">
+            <h3 class="titulo-qr">📱 Escanea para descargar</h3>
+            <div class="area-qr" id="codigoQR"></div>
+        </div>
+
+        <!-- BOTON DE DESCARGA -->
+        <button class="boton-descargar" onclick="descargarApp()">
+            ⬇️ DESCARGAR APLICACIÓN
+        </button>
+
+        <!-- AVISO INFERIOR -->
+        <div class="aviso-phantom">
+            💡 En móvil, abre esta página desde el navegador interno de Phantom<br>
+            o instala <a href="https://phantom.app" target="_blank" class="enlace">phantom.app</a> en desktop
+        </div>
+    </div>
+
+    <script>
+        // GENERAR CÓDIGO QR CON LA URL DE TU APLICACIÓN
+        var qr = new QRCode(document.getElementById("codigoQR"), {
+            text: "https://bitcoindobmoney.app", // CAMBIA ESTA DIRECCIÓN POR LA TUYA
+            width: 180,
+            height: 180,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // FUNCIÓN DE DESCARGA
+        function descargarApp() {
+            alert("Iniciando descarga de BitcoinDobmoney...");
+            // Si tienes el archivo de descarga, cambia el enlace aquí
+            window.open("https://ejemplo.com/bitcoindobmoney.apk", "_blank");
+        }
+    </script>
+</body>
+</html>
