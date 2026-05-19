@@ -3,25 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NexTrade P2P – Solana</title>
+<title>BitcoinDobmoney | Solana</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 
 <style>
 :root {
     --bg: #050508;
     --surface: #0d0d14;
     --surface2: #13131e;
-    --border: rgba(130,100,255,0.15);
+    --border: rgba(130,100,255,0.18);
     --accent: #7c3aed;
-    --accent-glow: rgba(124,58,237,0.25);
     --accent2: #06d6a0;
     --accent3: #f59e0b;
     --text: #e8e8f0;
     --muted: #6b6b80;
     --danger: #ef4444;
     --success: #10b981;
-    --glow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --glow: 0 0 30px rgba(124,58,237,0.35);
 }
 
 * {
@@ -29,591 +28,305 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
-    -webkit-tap-highlight-color: transparent;
 }
 
 body {
     background-color: var(--bg);
     color: var(--text);
     line-height: 1.6;
-    padding: 16px;
-    max-width: 1400px;
+    padding: 20px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
-/* 🌍 NAV DE IDIOMAS */
+/* 🌍 Selector de idiomas */
 .selector-idiomas {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     justify-content: center;
-    margin-bottom: 24px;
+    margin-bottom: 30px;
 }
 
 .btn-idioma {
     background-color: var(--surface);
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     color: var(--text);
-    padding: 8px 18px;
-    border-radius: 20px;
+    padding: 12px 28px;
+    border-radius: 12px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s ease;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s ease;
 }
 
 .btn-idioma.activo {
     background-color: var(--accent);
     border-color: var(--accent);
-    box-shadow: 0 0 12px var(--accent-glow);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
 }
 
-/* 💻 HEADER */
-header {
-    text-align: center;
-    margin-bottom: 32px;
+.btn-idioma:hover {
+    transform: translateY(-3px);
 }
 
-header h1 {
-    font-size: 32px;
-    font-weight: 900;
-    background: linear-gradient(45deg, #fff, var(--accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-header p {
-    color: var(--muted);
-    font-size: 15px;
-    margin-top: 4px;
-}
-
-/* 🏗️ LAYOUT DIVISION COMPLETA (PC / MÓVIL) */
-.layout-principal {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 24px;
-    align-items: start;
-}
-
-/* ZONA IZQUIERDA: PRECIOS Y OPERACIONES */
-.zona-izquierda {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
-/* 👇 SECCIÓN DE PRECIOS */
-.seccion-precios {
-    background-color: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: var(--glow);
-    animation: fadeInUp 0.6s ease-out;
-}
-
-.cabecera-precios {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.titulo-precios { font-size: 20px; font-weight: 800; }
-.actualizacion-precios { font-size: 13px; color: var(--muted); }
-
-.etiqueta {
-    background: rgba(6, 214, 160, 0.1);
-    border: 1px solid var(--accent2);
-    color: var(--accent2);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 6px 14px;
-    border-radius: 30px;
-    text-transform: uppercase;
-}
-
+/* Estilos de las tarjetas SIN PRECIOS */
 .grilla-precios {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 24px 0;
 }
 
 .tarjeta-precio {
     background-color: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
+    padding: 30px;
+    text-align: center;
+    transition: all 0.3s ease;
 }
 
-.icono-precio { font-size: 28px; margin-bottom: 8px; }
-.nombre-precio { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-
-.valor-wrapper {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-top: 4px;
+.tarjeta-precio:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 25px rgba(124, 58, 237, 0.25);
+    transform: translateY(-4px);
 }
 
-.valor-precio { font-size: 24px; font-weight: 900; color: #fff; }
-.cambio-porcentaje { font-size: 12px; font-weight: 700; }
-.cambio-porcentaje.sube { color: var(--success); }
-.cambio-porcentaje.baja { color: var(--danger); }
+.icono-precio {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
 
+.nombre-precio {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 0;
+}
+
+.etiqueta-moneda {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 8px;
+}
+
+/* Sección de otras monedas */
 .tarjeta-otras {
     grid-column: span 2;
     background-color: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 20px;
+    padding: 30px;
+    margin: 24px 0;
+    transition: all 0.3s ease;
 }
 
-.titulo-otras { font-size: 14px; font-weight: 800; color: var(--accent2); margin-bottom: 16px; }
-.grilla-monedas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.tarjeta-otras:hover {
+    border-color: var(--accent2);
+    box-shadow: 0 0 25px rgba(6, 214, 160, 0.25);
+    transform: translateY(-4px);
+}
+
+.titulo-otras {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent2);
+    margin-bottom: 25px;
+}
+
+.grilla-monedas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
 
 .moneda-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255,255,255,0.02);
-    padding: 12px 16px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.03);
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
 }
 
-/* ❤️ CORAZÓN DEL CÓDIGO ACTUAL: EL ENTORNO P2P */
-.contenedor-p2p-real {
-    background-color: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: var(--glow);
-}
-
-/* Estilo responsivo para tablas nativas */
-.tabla-p2p-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    margin-top: 16px;
-}
-
-.tabla-p2p-real {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    font-size: 14px;
-}
-
-.tabla-p2p-real th {
-    padding: 12px;
+.nombre-moneda {
+    font-size: 18px;
     color: var(--muted);
-    border-bottom: 1px solid var(--border);
     font-weight: 600;
 }
 
-.tabla-p2p-real td {
-    padding: 16px 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.02);
+/* Nombre del creador */
+.nombre-creador {
+    font-size: 18px;
+    color: var(--muted);
+    margin-top: 8px;
+    font-weight: 500;
 }
 
-.btn-p2p-comprar {
-    background-color: var(--success);
-    color: #000;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.btn-p2p-comprar:hover { opacity: 0.9; }
-
-/* 💬 COMPONENTE DE CHAT PREMIUM */
-.contenedor-chat {
-    background-color: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    height: 580px;
-    box-shadow: var(--glow);
-    overflow: hidden;
-    position: sticky;
-    top: 20px;
-}
-
-.cabecera-chat {
-    background-color: var(--surface2);
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.info-usuario-chat { display: flex; align-items: center; gap: 10px; }
-.avatar { width: 36px; height: 36px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; }
-.estado-online { width: 8px; height: 8px; background-color: var(--success); border-radius: 50%; display: inline-block; }
-
-.zona-mensajes {
-    flex: 1;
-    padding: 16px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.mensaje { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.4; word-break: break-word; }
-.mensaje.entrante { background-color: var(--surface2); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
-.mensaje.saliente { background-color: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-.hora-mensaje { font-size: 10px; color: var(--muted); margin-top: 4px; text-align: right; display: block; }
-
-.formulario-chat { padding: 12px; background-color: var(--surface2); border-top: 1px solid var(--border); display: flex; gap: 8px; }
-.input-chat { flex: 1; background-color: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text); font-size: 14px; outline: none; }
-.input-chat:focus { border-color: var(--accent); }
-.btn-enviar { background-color: var(--accent); border: none; color: white; padding: 0 16px; border-radius: 12px; cursor: pointer; font-weight: bold; }
-
-/* Botón flotante para abrir chat en móviles */
-.btn-toggle-chat {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: var(--accent);
-    color: white;
-    border: none;
-    padding: 14px 20px;
-    border-radius: 30px;
-    font-weight: bold;
-    box-shadow: 0 4px 20px rgba(124,58,237,0.4);
-    z-index: 999;
-    cursor: pointer;
-}
-
-/* 📱 RESPONSIVE: ADAPTACIÓN TOTAL PARA SMARTPHONES */
-@media (max-width: 950px) {
-    .layout-principal { grid-template-columns: 1fr; }
-    .grilla-precios { grid-template-columns: 1fr; }
-    .tarjeta-otras { grid-column: span 1; }
-    .grilla-monedas { grid-template-columns: 1fr; }
-
-    /* El chat pasa a desplegarse desde abajo en móvil */
-    .contenedor-chat {
-        position: fixed;
-        bottom: 0; left: 0; right: 0;
-        height: 75vh;
-        z-index: 1000;
-        border-radius: 20px 20px 0 0;
-        transform: translateY(100%);
-        transition: transform 0.3s ease-in-out;
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    .contenedor-chat.abierto { transform: translateY(0); }
-    .btn-toggle-chat { display: block; }
-    .cerrar-chat-mobile { display: block !important; background: none; border: none; color: var(--muted); font-size: 20px; }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
-
-.cerrar-chat-mobile { display: none; }
-
-.loading {
-    animation: pulse 1.5s infinite ease-in-out;
-    color: transparent !important;
-    background: rgba(255,255,255,0.05);
-    border-radius: 4px;
-}
-@keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 0.3; } }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
 
-<nav class="selector-idiomas">
+<!-- 🌍 Selector de idiomas -->
+<div class="selector-idiomas">
     <button class="btn-idioma activo" data-idioma="es">Español</button>
     <button class="btn-idioma" data-idioma="en">English</button>
-</nav>
-
-<header>
-    <h1 data-tr="titulo_principal">NexTrade P2P</h1>
-    <p data-tr="descripcion_principal">Intercambio seguro de criptomonedas en Solana</p>
-</header>
-
-<button class="btn-toggle-chat" id="openChatBtn" onclick="toggleChatMobile()">💬 Chat de Orden (#409)</button>
-
-<div class="layout-principal">
-    
-    <!-- PARTE IZQUIERDA: PANEL DINÁMICO -->
-    <div class="zona-izquierda">
-        
-        <!-- SECCIÓN DE PRECIOS -->
-        <section class="seccion-precios">
-            <div class="cabecera-precios">
-                <div>
-                    <h2 class="titulo-precios" data-tr="titulo_precios">📈 Precios en tiempo real</h2>
-                    <p class="actualizacion-precios">
-                        <span data-tr="actualizado">Actualizado: </span>
-                        <span id="tiempo-actualizacion">...</span>
-                    </p>
-                </div>
-                <span class="etiqueta" data-tr="etiqueta">Solana & Criptomonedas</span>
-            </div>
-
-            <div class="grilla-precios">
-                <div class="tarjeta-precio">
-                    <div class="icono-precio" style="color: var(--accent3);">₿</div>
-                    <div class="nombre-precio">Bitcoin</div>
-                    <div class="valor-wrapper">
-                        <span class="valor-precio loading" id="precio-btc">00000</span>
-                        <span class="cambio-porcentaje" id="cambio-btc"></span>
-                    </div>
-                </div>
-
-                <div class="tarjeta-precio">
-                    <div class="icono-precio" style="color: #627EEA;">Ξ</div>
-                    <div class="nombre-precio">Ethereum</div>
-                    <div class="valor-wrapper">
-                        <span class="valor-precio loading" id="precio-eth">00000</span>
-                        <span class="cambio-porcentaje" id="cambio-eth"></span>
-                    </div>
-                </div>
-
-                <div class="tarjeta-precio">
-                    <div class="icono-precio" style="color: var(--accent);">◎</div>
-                    <div class="nombre-precio">Solana</div>
-                    <div class="valor-wrapper">
-                        <span class="valor-precio loading" id="precio-sol">00000</span>
-                        <span class="cambio-porcentaje" id="cambio-sol"></span>
-                    </div>
-                </div>
-
-                <div class="tarjeta-otras">
-                    <h3 class="titulo-otras" data-tr="otras_monedas">OTRAS MONEDAS</h3>
-                    <div class="grilla-monedas">
-                        <div class="moneda-item">
-                            <span class="nombre-moneda">DOGE</span>
-                            <span class="valor-moneda loading" id="precio-doge">0.00</span>
-                        </div>
-                        <div class="moneda-item">
-                            <span class="nombre-moneda">ADA</span>
-                            <span class="valor-moneda loading" id="precio-ada">0.00</span>
-                        </div>
-                        <div class="moneda-item">
-                            <span class="nombre-moneda">USDT</span>
-                            <span class="valor-moneda loading" id="precio-usdt">1.00</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ❤️ AQUÍ ESTÁ TU CÓDIGO REAL DEL P2P INTERTACTIVO (TABLAS, BOTONES, NATIVO) -->
-        <!-- Se unifica con el motor responsivo para que rinda al máximo en teléfonos -->
-        <section class="contenedor-p2p-real">
-            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">🛒 Mercado P2P Activo</h2>
-            <p style="color: var(--muted); font-size: 14px;">Compra y vende directamente usando tus contratos de Solana.</p>
-            
-            <div class="tabla-p2p-wrapper">
-                <table class="tabla-p2p-real">
-                    <thead>
-                        <tr>
-                            <th>Comerciante</th>
-                            <th>Límites / Método</th>
-                            <th>Precio Unitario</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight: 600;">CryptoDEX_Sol</td>
-                            <td style="color: var(--muted);">10 - 500 USD<br><span style="font-size:12px; color: #fff;">Transferencia Bancaria</span></td>
-                            <td style="font-size: 16px; font-weight: 700; color: var(--accent2);">85.20 USD</td>
-                            <td><button class="btn-p2p-comprar">Comprar SOL</button></td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: 600;">SatoshiNakamoto_P2P</td>
-                            <td style="color: var(--muted);">50 - 2000 USD<br><span style="font-size:12px; color: #fff;">Revolut / Bizum</span></td>
-                            <td style="font-size: 16px; font-weight: 700; color: var(--accent2);">85.45 USD</td>
-                            <td><button class="btn-p2p-comprar">Comprar SOL</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-        
-        <!-- Aquí puedes seguir añadiendo más formularios o tus lógicas previas de Solana -->
-
-    </div>
-
-    <!-- PARTE DERECHA: CHAT P2P -->
-    <aside class="contenedor-chat" id="chatContainer">
-        <div class="cabecera-chat">
-            <div class="info-usuario-chat">
-                <div class="avatar">Sol</div>
-                <div>
-                    <h4 style="font-size: 14px; font-weight:700;">Comprador_Solana99</h4>
-                    <span style="font-size: 11px; color: var(--muted);"><span class="estado-online"></span> En línea</span>
-                </div>
-            </div>
-            <button class="cerrar-chat-mobile" onclick="toggleChatMobile()">✕</button>
-        </div>
-
-        <div class="zona-mensajes" id="chatBox">
-            <div class="mensaje entrante">
-                Hola, buenas. Ya realicé la transferencia bancaria por los SOL. ¿Podrías verificar y liberar? 👍
-                <span class="hora-mensaje">Hace un momento</span>
-            </div>
-        </div>
-
-        <form class="formulario-chat" id="chatForm" onsubmit="enviarMensaje(event)">
-            <input type="text" class="input-chat" id="chatInput" placeholder="Escribe un mensaje seguro..." autocomplete="off">
-            <button type="submit" class="btn-enviar">🡪</button>
-        </form>
-    </aside>
-
+    <button class="btn-idioma" data-idioma="en-us">English US</button>
 </div>
 
+<!-- Encabezado con tu nombre -->
+<header style="text-align: center; margin-bottom: 30px;">
+    <h1 style="font-size: 40px; font-weight: 900; color: var(--accent); margin-bottom: 8px;">BitcoinDobmoney</h1>
+    <p class="nombre-creador">Creador: Evelio Llovera</p>
+</header>
+
+<!-- Sección de tarjetas SIN PRECIOS -->
+<div class="grilla-precios">
+    <!-- Bitcoin -->
+    <div class="tarjeta-precio">
+        <div class="icono-precio" style="color: var(--accent3);">₿</div>
+        <div class="nombre-precio" style="color: var(--accent3);">BITCOIN</div>
+        <div class="etiqueta-moneda">Moneda digital</div>
+    </div>
+
+    <!-- Ethereum -->
+    <div class="tarjeta-precio">
+        <div class="icono-precio" style="color: #627EEA;">Ξ</div>
+        <div class="nombre-precio" style="color: #627EEA;">ETHEREUM</div>
+        <div class="etiqueta-moneda">Plataforma descentralizada</div>
+    </div>
+
+    <!-- Solana -->
+    <div class="tarjeta-precio">
+        <div class="icono-precio" style="color: var(--accent);">◎</div>
+        <div class="nombre-precio" style="color: var(--accent);">SOLANA</div>
+        <div class="etiqueta-moneda">Red rápida y segura</div>
+    </div>
+
+    <!-- Otras monedas -->
+    <div class="tarjeta-otras">
+        <h3 class="titulo-otras">OTRAS MONEDAS</h3>
+        <div class="grilla-monedas">
+            <div class="moneda-item">
+                <span class="nombre-moneda">DOGE</span>
+            </div>
+            <div class="moneda-item">
+                <span class="nombre-moneda">ADA</span>
+            </div>
+            <div class="moneda-item">
+                <span class="nombre-moneda">USDT</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Aquí va el resto de tu código -->
+
 <script>
-// LÓGICA DEL CHAT
-function toggleChatMobile() {
-    const chat = document.getElementById('chatContainer');
-    chat.classList.toggle('abierto');
-}
-
-function enviarMensaje(e) {
-    e.preventDefault();
-    const input = document.getElementById('chatInput');
-    const msgTexto = input.value.trim();
-    if (!msgTexto) return;
-
-    const chatBox = document.getElementById('chatBox');
-    const ahora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const nuevoMensaje = document.createElement('div');
-    nuevoMensaje.className = 'mensaje saliente';
-    nuevoMensaje.innerHTML = `${msgTexto} <span class="hora-mensaje">${ahora}</span>`;
-    chatBox.appendChild(nuevoMensaje);
-    
-    input.value = '';
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    setTimeout(() => {
-        const respuesta = document.createElement('div');
-        respuesta.className = 'mensaje entrante';
-        respuesta.innerHTML = `Perfecto, quedo a la espera de la liberación en la red Solana. ¡Gracias! <span class="hora-mensaje">${ahora}</span>`;
-        chatBox.appendChild(respuesta);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }, 2000);
-}
-
-// DICCIONARIO DE TRADUCCIONES
+// Traducciones
 const traducciones = {
     es: {
-        titulo_principal: "NexTrade P2P",
-        descripcion_principal: "Intercambio seguro de criptomonedas en Solana",
-        titulo_precios: "📈 Precios en tiempo real",
-        actualizado: "Actualizado: ",
-        etiqueta: "Solana & Criptomonedas",
-        otras_monedas: "OTRAS MONEDAS",
-        cargando: "Cargando...",
-        sin_conexion: "Modo Offline"
+        titulo_principal: "BitcoinDobmoney",
+        descripcion_principal: "Criptomonedas y Activos Digitales",
+        otras_monedas: "OTRAS MONEDAS"
     },
     en: {
-        titulo_principal: "NexTrade P2P",
-        descripcion_principal: "Secure cryptocurrency exchange on Solana",
-        titulo_precios: "📈 Real-time prices",
-        actualizado: "Updated: ",
-        etiqueta: "Solana & Cryptocurrencies",
-        otras_monedas: "OTHER COINS",
-        cargando: "Loading...",
-        sin_conexion: "Offline Mode"
+        titulo_principal: "BitcoinDobmoney",
+        descripcion_principal: "Cryptocurrencies & Digital Assets",
+        otras_monedas: "OTHER COINS"
+    },
+    "en-us": {
+        titulo_principal: "BitcoinDobmoney",
+        descripcion_principal: "Crypto & Digital Assets",
+        otras_monedas: "MORE COINS"
     }
 };
 
-let cachePrecios = null;
-
+// Cambiar idioma
 document.querySelectorAll('.btn-idioma').forEach(boton => {
     boton.addEventListener('click', () => {
         document.querySelectorAll('.btn-idioma').forEach(b => b.classList.remove('activo'));
         boton.classList.add('activo');
+    });
+});
+</script>
+
+</body>
+</html>
+        <h3 class="titulo-otras" data-tr="otras_monedas">OTRAS MONEDAS</h3>
+        <div class="grilla-monedas">
+            <div class="moneda-item">
+                <span class="nombre-moneda">DOGE</span>
+            </div>
+            <div class="moneda-item">
+                <span class="nombre-moneda">ADA</span>
+            </div>
+            <div class="moneda-item">
+                <span class="nombre-moneda">USDT</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AQUÍ VA TODO LO DEMÁS DE TU CÓDIGO QUE TENÍAS ANTES -->
+
+
+<script>
+// 📚 DICCIONARIO DE TRADUCCIONES
+const traducciones = {
+    es: {
+        titulo_principal: "BitcoinDobmoney",
+        descripcion_principal: "Criptomonedas y Activos Digitales",
+        otras_monedas: "OTRAS MONEDAS"
+    },
+    en: {
+        titulo_principal: "BitcoinDobmoney",
+        descripcion_principal: "Cryptocurrencies & Digital Assets",
+        otras_monedas: "OTHER COINS"
+    },
+    "en-us": {
+        titulo_principal: "BitcoinDobmoney",
+        descripcion_principal: "Crypto & Digital Assets",
+        otras_monedas: "MORE COINS"
+    }
+};
+
+// 🌍 FUNCIONAMIENTO DEL CAMBIO DE IDIOMA
+document.querySelectorAll('.btn-idioma').forEach(boton => {
+    boton.addEventListener('click', () => {
+        // Quitar clase activa a todos los botones
+        document.querySelectorAll('.btn-idioma').forEach(b => b.classList.remove('activo'));
+        // Agregar clase activa al botón seleccionado
+        boton.classList.add('activo');
+        
+        // Obtener el idioma elegido
         const idioma = boton.dataset.idioma;
-        document.documentElement.lang = idioma;
+        
+        // Aplicar los cambios de texto
         aplicarTraducciones(idioma);
-        renderizarPrecios();
     });
 });
 
+// Función para cambiar todo el texto
 function aplicarTraducciones(idioma) {
     const datos = traducciones[idioma];
+    
+    // Buscar todos los elementos que tienen el atributo data-tr
     document.querySelectorAll('[data-tr]').forEach(elemento => {
         const clave = elemento.dataset.tr;
-        if (datos[clave]) elemento.textContent = datos[clave];
+        if (datos[clave]) {
+            elemento.textContent = datos[clave];
+        }
     });
 }
-
-function updateTrend(elementId, changeValue) {
-    const el = document.getElementById(elementId);
-    if (!el) return;
-    if (changeValue !== undefined && changeValue !== null) {
-        const isPositive = changeValue >= 0;
-        el.textContent = `${isPositive ? '▲' : '▼'} ${Math.abs(changeValue).toFixed(2)}%`;
-        el.className = `cambio-porcentaje ${isPositive ? 'sube' : 'baja'}`;
-    } else {
-        el.textContent = '';
-    }
-}
-
-function renderizarPrecios() {
-    const lang = document.documentElement.lang;
-    const timeEl = document.getElementById('tiempo-actualizacion');
-    document.querySelectorAll('.loading').forEach(el => el.classList.remove('loading'));
-
-    const format = (val, dec) => val.toLocaleString(lang, { minimumFractionDigits: dec, maximumFractionDigits: dec });
-
-    if (!cachePrecios) {
-        document.getElementById('precio-btc').textContent = '$' + format(76970, 0);
-        document.getElementById('precio-eth').textContent = '$' + format(2130, 0);
-        document.getElementById('precio-sol').textContent = '$' + format(85.50, 2);
-        document.getElementById('precio-doge').textContent = '$' + format(0.098, 3);
-        document.getElementById('precio-ada').textContent = '$' + format(0.25, 2);
-        document.getElementById('precio-usdt').textContent = '$' + format(1.00, 2);
-        return;
-    }
-
-    const d = cachePrecios;
-    document.getElementById('precio-btc').textContent = '$' + format(d.bitcoin.usd, 0);
-    document.getElementById('precio-eth').textContent = '$' + format(d.ethereum.usd, 0);
-    document.getElementById('precio-sol').textContent = '$' + format(d.solana.usd, 2);
-    document.getElementById('precio-doge').textContent = '$' + format(d.dogecoin.usd, 4);
-    document.getElementById('precio-ada').textContent = '$' + format(d.cardano.usd, 3);
-    document.getElementById('precio-usdt').textContent = '$' + format(d.tether.usd, 2);
-
-    updateTrend('cambio-btc', d.bitcoin.usd_24h_change);
-    updateTrend('cambio-eth', d.ethereum.usd_24h_change);
-    updateTrend('cambio-sol', d.solana.usd_24h_change);
-
-    timeEl.textContent = new Date().toLocaleTimeString(lang);
-}
-
-async function cargarPrecios() {
-    try {
-        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,dogecoin,cardano,tether&vs_currencies=usd&include_24hr_change=true");
-        if (!res.ok) throw new Error();
-        cachePrecios = await res.json();
-    } catch (e) {
-        cachePrecios = null; 
-    }
-    renderizarPrecios();
-}
-
-document.getElementById('tiempo-actualizacion').textContent = traducciones['es'].cargando;
-aplicarTraducciones('es');
-cargarPrecios();
-setInterval(cargarPrecios, 45000);
 </script>
+
 </body>
 </html>
