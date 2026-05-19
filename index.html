@@ -1,276 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>BitcoinDobmoney | Solana</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
-<style>
-  :root {
-    --bg: #050508;
-    --surface: #0d0d14;
-    --surface2: #13131e;
-    --border: rgba(130,100,255,0.18);
-    --accent: #7c3aed;
-    --accent2: #06d6a0;
-    --accent3: #f59e0b;
-    --text: #e8e8f0;
-    --muted: #6b6b80;
-    --danger: #ef4444;
-    --success: #10b981;
-    --glow: 0 0 30px rgba(124,58,237,0.35);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Syne', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,0.15), transparent),
-      radial-gradient(ellipse 60% 40% at 90% 80%, rgba(6,214,160,0.07), transparent),
-      radial-gradient(ellipse 40% 30% at 10% 60%, rgba(153,69,255,0.05), transparent);
-    pointer-events: none; z-index: 0;
-  }
-
-  /* HEADER */
-  header {
-    position: sticky; top: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 20px;
-    background: rgba(5,5,8,0.9);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-  }
-  .logo {
-    font-size: 1.15rem; font-weight: 800; letter-spacing: -0.5px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .logo .b { color: #f59e0b; }
-  .logo .d { color: var(--accent2); }
-  .net-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem; padding: 4px 10px;
-    border-radius: 20px; border: 1px solid var(--accent2);
-    color: var(--accent2); background: rgba(6,214,160,0.08);
-    display: flex; align-items: center; gap: 5px;
-  }
-  .net-badge::before {
-    content:''; width:6px; height:6px; border-radius:50%;
-    background:var(--accent2); animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  #wallet-btn {
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.78rem;
-    padding: 8px 16px; border-radius: 8px; cursor: pointer;
-    border: 1px solid var(--accent); background: rgba(124,58,237,0.15);
-    color: var(--text); transition: all 0.2s; white-space: nowrap;
-  }
-  #wallet-btn:hover { background: var(--accent); box-shadow: var(--glow); }
-  #wallet-btn.connected { border-color: var(--accent2); background: rgba(6,214,160,0.12); color: var(--accent2); }
-
-  /* HERO */
-  .hero {
-    position: relative; z-index: 1;
-    display: flex; flex-direction: column; align-items: center;
-    text-align: center; padding: 52px 24px 40px;
-    gap: 16px;
-  }
-  .hero-tag {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
-    letter-spacing: 2px; color: var(--accent2);
-    border: 1px solid rgba(6,214,160,0.25); padding: 4px 14px;
-    border-radius: 20px; background: rgba(6,214,160,0.06);
-  }
-  .hero h1 {
-    font-size: clamp(2rem, 8vw, 3.2rem); font-weight: 800;
-    line-height: 1.1; letter-spacing: -1px;
-  }
-  .hero h1 .line1 { display: block; color: var(--text); }
-  .hero h1 .line2 {
-    display: block;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .hero p {
-    font-size: 0.9rem; color: var(--muted); max-width: 340px; line-height: 1.6;
-  }
-
-  /* CONNECT CARD */
-  .connect-card {
-    position: relative; z-index: 1;
-    margin: 0 20px 32px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px; padding: 28px 24px;
-    display: flex; flex-direction: column; gap: 18px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
-  }
-  .connect-card h2 {
-    font-size: 1rem; font-weight: 700;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .connect-card h2 .icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), #9945ff);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem;
-  }
-
-  .main-connect-btn {
-    width: 100%; padding: 16px;
-    background: linear-gradient(135deg, var(--accent), #9945ff);
-    border: none; border-radius: 12px;
-    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
-    color: white; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    transition: all 0.2s; letter-spacing: 0.3px;
-    box-shadow: 0 4px 20px rgba(124,58,237,0.35);
-  }
-  .main-connect-btn:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 6px 28px rgba(124,58,237,0.5); }
-  .main-connect-btn:active { transform: translateY(0); }
-  .main-connect-btn .btn-dot {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: rgba(255,255,255,0.5);
-  }
-  .main-connect-btn.connected {
-    background: linear-gradient(135deg, var(--success), var(--accent2));
-  }
-
-  /* WALLET INFO */
-  #wallet-panel {
-    display: none;
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px 16px;
-    flex-direction: column; gap: 10px;
-  }
-  #wallet-panel.show { display: flex; }
-  .wallet-row {
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .wallet-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-  .wallet-value { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text); }
-  .wallet-value.green { color: var(--accent2); font-size: 1rem; font-weight: 700; }
-  .wallet-value.addr { color: var(--accent); font-size: 0.7rem; }
-  #disconnect-btn {
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.72rem;
-    padding: 7px 14px; border-radius: 7px; cursor: pointer;
-    border: 1px solid var(--danger); background: rgba(239,68,68,0.08);
-    color: var(--danger); transition: all 0.18s;
-  }
-  #disconnect-btn:hover { background: var(--danger); color: white; }
-
-  /* STATS */
-  .stats-grid {
-    position: relative; z-index: 1;
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px; padding: 0 20px 28px;
-  }
-  .stat-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 14px 16px;
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .stat-icon { font-size: 1.2rem; }
-  .stat-label { font-size: 0.6rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; text-transform: uppercase; }
-  .stat-value { font-size: 0.95rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-  .stat-value.purple { color: var(--accent); }
-  .stat-value.green { color: var(--accent2); }
-  .stat-value.amber { color: var(--accent3); }
-  .stat-value.white { color: var(--text); }
-
-  /* FEATURES */
-  .features {
-    position: relative; z-index: 1;
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px; padding: 0 20px 28px;
-  }
-  .feature-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 16px;
-    display: flex; flex-direction: column; gap: 8px;
-    transition: border-color 0.2s;
-  }
-  .feature-card:hover { border-color: var(--accent); }
-  .feature-icon { font-size: 1.4rem; }
-  .feature-title { font-size: 0.8rem; font-weight: 700; color: var(--accent); }
-  .feature-desc { font-size: 0.68rem; color: var(--muted); line-height: 1.5; }
-
-  /* P2P BUTTON — the big CTA */
-  .p2p-section {
-    position: relative; z-index: 1;
-    padding: 0 20px 36px;
-    display: flex; flex-direction: column; gap: 12px;
-  }
-  .section-label {
-    font-size: 0.62rem; font-weight: 700; letter-spacing: 2px;
-    color: var(--muted); text-transform: uppercase;
-  }
-  .p2p-btn {
-    width: 100%; padding: 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px; cursor: pointer;
-    display: flex; align-items: center; gap: 16px;
-    transition: all 0.2s; text-decoration: none;
-    position: relative; overflow: hidden;
-  }
-  .p2p-btn::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(6,214,160,0.04));
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .p2p-btn:hover { border-color: var(--accent2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(6,214,160,0.12); }
-  .p2p-btn:hover::before { opacity: 1; }
-  .p2p-btn-icon {
-    width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
-    background: linear-gradient(135deg, rgba(6,214,160,0.2), rgba(124,58,237,0.2));
-    border: 1px solid rgba(6,214,160,0.3);
-    display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
-  }
-  .p2p-btn-text { flex: 1; text-align: left; }
-  .p2p-btn-title { font-size: 0.95rem; font-weight: 800; color: var(--text); display: block; margin-bottom: 3px; }
-  .p2p-btn-sub { font-size: 0.7rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-  .p2p-btn-arrow { font-size: 1.2rem; color: var(--accent2); flex-shrink: 0; }
-  .p2p-new-badge {
-    position: absolute; top: 10px; right: 10px;
-    font-size: 0.58rem; font-weight: 700; letter-spacing: 1px;
-    padding: 2px 8px; border-radius: 10px;
-    background: rgba(6,214,160,0.15); color: var(--accent2);
-    border: 1px solid rgba(6,214,160,0.3); text-transform: uppercase;
-  }
-
-  /* TOAST */
-  #toast {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
-    z-index: 999; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 10px 20px;
-    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
-    opacity: 0; transition: all 0.3s; white-space: nowrap;
-    max-width: 90vw; text-align: center;
-  }
-  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-  #toast.success { border-color: var(--success); color: var(--success); }
-  #toast.error { border-color: var(--danger); color: var(--danger); }
-  #toast.info { border-color: var(--accent); color: var(--accent); }
-
-  /* FOOTER */
-  footer {
-    position: relative; z-index: 1;
-    text-align: center; padding: 20px;
-    border-top: 1px solid var(--border);
-    font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--muted);
-    line-height: 1.8;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BitcoinDobmoney | Solana P2P</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
 </head>
 <body>
 
@@ -282,7 +17,7 @@
     <span>₿</span><span class="b">Bitcoin</span><span class="d">Dob</span>money
   </div>
   <div class="net-badge">MAINNET</div>
-  <button id="wallet-btn">Conectar</button>
+  <button id="walletBtn">👻 Conectar</button>
 </header>
 
 <!-- HERO -->
@@ -310,15 +45,15 @@
   <div id="wallet-panel">
     <div class="wallet-row">
       <span class="wallet-label">Dirección</span>
-      <span class="wallet-value addr" id="disp-address">—</span>
+      <span class="wallet-value addr" id="walletAddress">—</span>
     </div>
     <div class="wallet-row">
       <span class="wallet-label">Balance</span>
-      <span class="wallet-value green" id="disp-balance">0 SOL</span>
+      <span class="wallet-value green" id="walletBalance">0 SOL</span>
     </div>
     <div class="wallet-row">
       <span class="wallet-label">Red</span>
-      <span class="wallet-value" style="color:var(--accent2);">Solana Mainnet</span>
+      <span class="wallet-value" id="networkStatus" style="color:var(--accent2);">Solana Mainnet</span>
     </div>
     <button id="disconnect-btn">🔌 Desconectar</button>
   </div>
@@ -358,7 +93,7 @@
   <div class="feature-card">
     <div class="feature-icon">⚡</div>
     <div class="feature-title">Velocidad</div>
-    <div class="feature-desc">Confirmaciones en menos de 1 segundo con Solana.</div>
+    <div class="feature-desc">Confirmaciones en menos de 1 segundo.</div>
   </div>
   <div class="feature-card">
     <div class="feature-icon">🌐</div>
@@ -367,129 +102,41 @@
   </div>
   <div class="feature-card">
     <div class="feature-icon">📊</div>
-    <div class="feature-title">Saldo real</div>
-    <div class="feature-desc">Balance en vivo directo de la blockchain.</div>
+    <div class="feature-title">Saldo Real</div>
+    <div class="feature-desc">Balance en vivo directo de blockchain.</div>
   </div>
 </div>
 
-<!-- P2P SECTION -->
-<div class="p2p-section">
-  <div class="section-label">▸ Plataforma Avanzada</div>
-
-  <a href="solana-p2p.html" class="p2p-btn">
-    <div class="p2p-btn-icon">🎥</div>
-    <div class="p2p-btn-text">
-      <span class="p2p-btn-title">NexTrade P2P</span>
-      <span class="p2p-btn-sub">Video · IA · SOL · SPL · NFT</span>
-    </div>
-    <div class="p2p-btn-arrow">→</div>
-    <div class="p2p-new-badge">NUEVO</div>
-  </a>
-
-  <a href="https://explorer.solana.com" target="_blank" class="p2p-btn">
-    <div class="p2p-btn-icon">🔍</div>
-    <div class="p2p-btn-text">
-      <span class="p2p-btn-title">Solana Explorer</span>
-      <span class="p2p-btn-sub">Verifica transacciones on-chain</span>
-    </div>
-    <div class="p2p-btn-arrow">↗</div>
-  </a>
+<!-- CAMERA SECTION -->
+<div class="camera-card">
+  <h3>📹 Cámara Web</h3>
+  <video id="video"></video>
+  <button id="cameraBtn">🎥 Activar Cámara</button>
 </div>
 
+<!-- CHAT SECTION -->
+<div class="chat-card">
+  <h3>💬 Chat P2P</h3>
+  <div id="chatBox"></div>
+  <div class="chat-input">
+    <input 
+      type="text" 
+      id="msgInput" 
+      placeholder="Escribe tu mensaje..."
+      autocomplete="off"
+    >
+    <button id="sendBtn">Enviar</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
 <footer>
-  BitcoinDobmoney · Solana Mainnet · Sin custodia<br>
-  Código abierto · GitHub Pages
+  ₿ BitcoinDobmoney · Solana Mainnet · Sin custodia<br>
+  🔓 Código abierto · GitHub Pages · MIT License
 </footer>
 
-<script>
-const RPC = 'https://api.mainnet-beta.solana.com';
-let connection, walletPubkey;
+<!-- SCRIPTS -->
+<script src="app.js"></script>
 
-async function initRPC() {
-  try {
-    connection = new solanaWeb3.Connection(RPC, 'confirmed');
-  } catch(e) { console.error('RPC error', e); }
-}
-
-async function connectWallet() {
-  const provider = window.solana;
-  if (!provider?.isPhantom) {
-    showToast('Instala Phantom Wallet', 'error');
-    setTimeout(() => window.open('https://phantom.app/', '_blank'), 1000);
-    return;
-  }
-  try {
-    const resp = await provider.connect();
-    walletPubkey = resp.publicKey.toString();
-    onConnected();
-  } catch(e) {
-    showToast('Error: ' + e.message, 'error');
-  }
-}
-
-async function onConnected() {
-  // Update UI
-  const short = walletPubkey.slice(0,4) + '...' + walletPubkey.slice(-4);
-  document.getElementById('wallet-btn').textContent = short;
-  document.getElementById('wallet-btn').classList.add('connected');
-  document.getElementById('main-connect-btn').innerHTML = '✓ &nbsp;PHANTOM CONECTADA';
-  document.getElementById('main-connect-btn').classList.add('connected');
-  document.getElementById('disp-address').textContent = walletPubkey.slice(0,8)+'...'+walletPubkey.slice(-6);
-  document.getElementById('wallet-panel').classList.add('show');
-  await fetchBalance();
-  showToast('Wallet conectada ✓', 'success');
-}
-
-async function fetchBalance() {
-  if (!walletPubkey || !connection) return;
-  try {
-    const pk = new solanaWeb3.PublicKey(walletPubkey);
-    const lamports = await connection.getBalance(pk);
-    const sol = (lamports / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
-    document.getElementById('disp-balance').textContent = sol + ' SOL';
-    document.getElementById('stat-sol').textContent = sol + ' SOL';
-  } catch(e) {
-    document.getElementById('stat-sol').textContent = 'error';
-  }
-}
-
-async function disconnectWallet() {
-  try {
-    await window.solana?.disconnect();
-  } catch(e) {}
-  walletPubkey = null;
-  document.getElementById('wallet-btn').textContent = 'Conectar';
-  document.getElementById('wallet-btn').classList.remove('connected');
-  document.getElementById('main-connect-btn').innerHTML = '<div class="btn-dot"></div> CONECTAR PHANTOM';
-  document.getElementById('main-connect-btn').classList.remove('connected');
-  document.getElementById('wallet-panel').classList.remove('show');
-  document.getElementById('stat-sol').textContent = '—';
-  showToast('Wallet desconectada', 'info');
-}
-
-function showToast(msg, type='info') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'show ' + type;
-  clearTimeout(window._tt);
-  window._tt = setTimeout(() => t.className = '', 3000);
-}
-
-// Events
-document.getElementById('wallet-btn').onclick = connectWallet;
-document.getElementById('main-connect-btn').onclick = connectWallet;
-document.getElementById('disconnect-btn').onclick = disconnectWallet;
-
-// Init
-window.onload = () => {
-  initRPC();
-  // Auto-reconnect if Phantom already connected
-  if (window.solana?.isConnected && window.solana?.publicKey) {
-    walletPubkey = window.solana.publicKey.toString();
-    onConnected();
-  }
-};
-</script>
 </body>
 </html>
-
