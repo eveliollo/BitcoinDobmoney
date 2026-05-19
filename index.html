@@ -3,261 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bitcoin Dob Money | Solana DApp</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <title>BitcoinDobmor • Solana P2P Live</title>
+    <!-- BIBLIOTECAS REALES -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.6/lib/index.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
+    <script src="https://unpkg.com/socket.io-client@4.7.2/dist/socket.io.min.js"></script>
+
     <style>
-:root {
-  --sol: #FF9500;
-  --sol2: #00FFA3;
-  --sol3: #14F195;
-  --bg: #000000;
-  --bg2: #0A0A0F;
-  --border: #1E1E2F;
-  --text: #FFFFFF;
-  --muted: #888899;
-  --font-mono: 'Space Mono', monospace;
-  --font-main: 'Syne', sans-serif;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg-principal: #050510;
+            --bg-tarjeta: #0d0d22;
+            --borde: rgba(153, 69, 255, 0.3);
+            --borde-verde: rgba(20, 241, 149, 0.25);
+            --texto: #e8e8ff;
+            --texto-suave: #7070a0;
+            --sol-morado: #9945FF;
+            --sol-verde: #14F195;
+            --sol-azul: #00C2FF;
+            --rojo: #ff4d6d;
+            --gris-oscuro: #1a1a2e;
+        }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-main);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px;
-  position: relative;
-  overflow-x: hidden;
-}
+        body {
+            background: var(--bg-principal);
+            color: var(--texto);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image:
-    linear-gradient(rgba(153,69,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(153,69,255,0.04) 1px, transparent 1px);
-  background-size: 36px 36px;
-  pointer-events: none;
-}
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(153,69,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(153,69,255,0.04) 1px, transparent 1px);
+            background-size: 36px 36px;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-/* ── CARD ── */
-.card {
-  position: relative; z-index: 1;
-  width: 100%; max-width: 420px;
-  background: rgba(10,10,15,0.9);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 36px 28px;
-  box-shadow: 0 0 60px rgba(0,0,0,0.5);
-}
+        .contenedor {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(13, 13, 34, 0.85);
+            border: 1px solid var(--borde);
+            border-radius: 28px;
+            padding: 36px 28px;
+            backdrop-filter: blur(24px);
+            box-shadow: 0 0 60px rgba(153, 69, 255, 0.1);
+            position: relative;
+            z-index: 2;
+        }
 
-/* ── LOGO ── */
-.logo-area { text-align: center; margin-bottom: 32px; }
+        /* LOGO */
+        .seccion-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .icono-cohete {
+            font-size: 3.5rem;
+            display: block;
+            margin-bottom: 12px;
+            animation: flotar 3s ease-in-out infinite;
+        }
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .nombre-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--sol-morado), var(--sol-azul), var(--sol-verde));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        .sub-logo {
+            font-size: 0.85rem;
+            color: var(--texto-suave);
+            letter-spacing: 0.5px;
+        }
 
-.rocket { font-size: 3rem; display: block; margin-bottom: 12px; }
+        /* ESTADO DE RED SOLANA */
+        .etiqueta-red {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(20, 241, 149, 0.08);
+            border: 1px solid var(--borde-verde);
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-size: 0.85rem;
+            color: var(--sol-verde);
+            margin-bottom: 24px;
+            width: 100%;
+        }
+        .punto-activo {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--sol-verde);
+            animation: parpadeo 1.5s ease infinite;
+        }
+        @keyframes parpadeo {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
 
-.logo { 
-  font-size: 2.2rem; 
-  font-weight: 800; 
-  letter-spacing: -1px;
-  background: linear-gradient(135deg, var(--sol), var(--sol2));
-  -webkit-background-clip: text; 
-  -webkit-text-fill-color: transparent;
-}
+        /* BOTON CONECTAR PHANTOM */
+        .boton-conectar {
+            width: 100%;
+            padding: 18px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--sol-morado), #7b2fff);
+            color: white;
+            box-shadow: 0 4px 24px rgba(153, 69, 255, 0.45);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .boton-conectar.conectado {
+            background: linear-gradient(135deg, #0a8f5a, var(--sol-verde));
+            box-shadow: 0 4px 24px rgba(20, 241, 149, 0.35);
+        }
+        .circulo-boton {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--sol-morado);
+            border: 2px solid white;
+        }
+        .boton-conectar.conectado .circulo-boton { background: var(--sol-verde); }
 
-.sub { 
-  font-size: 0.9rem; 
-  color: var(--muted); 
-  font-family: var(--font-mono);
-  margin-top: 8px; 
-  letter-spacing: 0.5px; 
-}
+        /* INFORMACION BILLETERA SOLANA */
+        .info-billetera {
+            display: none;
+            background: rgba(20, 241, 149, 0.05);
+            border: 1px solid var(--borde-verde);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 20px;
+            animation: aparecer 0.4s ease;
+        }
+        .info-billetera.mostrar { display: block; }
+        @keyframes aparecer { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .etiqueta-dato { font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--texto-suave); margin-bottom: 8px; font-weight: 600; }
+        .direccion-campo { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px; margin-bottom: 15px; }
+        .direccion-texto { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--sol-azul); word-break: break-all; }
+        .boton-copiar { background: none; border: none; color: var(--texto-suave); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
+        .boton-copiar:hover { color: var(--sol-verde); }
+        .saldo-fila { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+        .saldo-numero { font-size: 2rem; font-weight: 800; background: linear-gradient(90deg, var(--sol-verde), var(--sol-azul)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Space Mono', monospace; }
+        .saldo-unidad { font-size: 1rem; color: var(--texto-suave); }
+        .saldo-usd { font-size: 0.85rem; color: var(--texto-suave); font-family: 'Space Mono', monospace; }
 
-/* ── NETWORK BADGE ── */
-.net-badge {
-  display: inline-flex; 
-  align-items: center; 
-  gap: 8px;
-  background: #0F172A;
-  border: 1px solid #1E293B;
-  border-radius: 20px; 
-  padding: 8px 18px;
-  font-size: 0.9rem; 
-  font-family: var(--font-mono);
-  color: var(--sol2); 
-  margin-bottom: 30px;
-  width: 100%; 
-  justify-content: center;
-}
-.dot { 
-  width: 8px; 
-  height: 8px; 
-  border-radius: 50%;
-  background: var(--sol2); 
-  animation: pulse 1.5s ease infinite; 
-}
-@keyframes pulse { 
-  0%,100%{opacity:1} 
-  50%{opacity:.3} 
-}
+        /* SECCION P2P - SOLANA VIDEO LLAMADA */
+        .seccion-p2p { background: rgba(0,0,0,0.2); border: 1px solid var(--borde); border-radius: 14px; padding: 20px; margin-bottom: 20px; display: none; }
+        .seccion-p2p.mostrar { display: block; }
+        .titulo-p2p { text-align: center; margin-bottom: 15px; color: var(--sol-verde); font-size: 1.2rem; }
+        .contenedor-codigo { display: flex; gap: 10px; margin-bottom: 15px; }
+        .input-codigo { flex:1; padding: 12px; background: var(--gris-oscuro); border: 1px solid var(--borde); border-radius: 8px; color: white; font-size: 0.9rem; }
+        .btn-copiar-codigo { padding: 12px 15px; background: var(--sol-morado); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .fila-botones { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-p2p { flex:1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; }
+        .btn-crear { background: var(--sol-morado); color: white; }
+        .btn-unir { background: var(--sol-azul); color: white; }
+        .btn-p2p:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
-/* ── CONNECT BUTTON ── */
-.btn-connect {
-  width: 100%;
-  padding: 20px;
-  border-radius: 16px; 
-  border: none; 
-  cursor: pointer;
-  font-family: var(--font-main); 
-  font-weight: 800; 
-  font-size: 1.3rem;
-  letter-spacing: .5px;
-  background: linear-gradient(135deg, #9945FF, #7b2fff);
-  color: #fff;
-  box-shadow: 0 4px 24px rgba(153,69,255,0.45);
-  transition: all .25s;
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  gap: 12px;
-  text-transform: uppercase;
-}
-.btn-connect:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(153,69,255,0.6);
-}
-.btn-connect:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-.btn-connect.connected {
-  background: linear-gradient(135deg, #0a8f5a, #14F195);
-  box-shadow: 0 4px 24px rgba(20,241,149,0.35);
-}
+        /* VIDEOS EN TIEMPO REAL */
+        .contenedor-videos { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .contenedor-videos.activo { display: grid; }
+        .video-box { background: black; border-radius: 10px; overflow: hidden; aspect-ratio: 16/9; border: 2px solid var(--sol-verde); }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .video-titulo { font-size: 0.7rem; text-align: center; margin-top: 4px; color: var(--texto-suave); }
 
-/* ── STATUS ── */
-.status {
-  text-align: center; 
-  margin-top: 20px;
-  font-size: 0.85rem; 
-  font-family: var(--font-mono);
-  color: var(--muted); 
-  min-height: 25px;
-}
-.status.ok  { color: var(--sol2); }
-.status.err { color: #ff4d6d; }
+        /* CHAT EN TIEMPO REAL */
+        .contenedor-chat { display: none; margin-top: 15px; }
+        .contenedor-chat.activo { display: block; }
+        .caja-mensajes { height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); border: 1px solid var(--borde); border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 0.85rem; }
+        .mensaje { margin-bottom: 6px; padding: 6px 10px; border-radius: 6px; max-width: 80%; line-height: 1.4; }
+        .mensaje-propio { background: var(--sol-morado); margin-left: auto; text-align: right; }
+        .mensaje-otro { background: var(--gris-oscuro); margin-right: auto; }
+        .enviar-mensaje { display: flex; gap: 8px; }
+        .input-chat { flex:1; padding: 12px; background: var(--gris-oscuro); border: 1px solid var(--borde); border-radius: 8px; color: white; font-size: 0.9rem; }
+        .btn-enviar { padding: 12px 18px; background: var(--sol-verde); color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-/* ── PHANTOM NOTICE ── */
-.phantom-notice {
-  margin-top: 25px; 
-  padding: 15px;
-  background: #0F172A; 
-  border: 1px solid #1E293B;
-  border-radius: 12px; 
-  font-size: 0.8rem; 
-  font-family: var(--font-mono);
-  color: var(--muted); 
-  text-align: center; 
-  line-height: 1.6;
-}
-.phantom-notice a { color: var(--sol); text-decoration: none; }
-.phantom-notice a:hover { text-decoration: underline; }
+        /* ESTADO GENERAL */
+        .estado { text-align: center; font-size: 0.8rem; font-family: 'Space Mono', monospace; margin-top: 16px; min-height: 20px; }
+        .estado.exito { color: var(--sol-verde); }
+        .estado.error { color: var(--rojo); }
+        .estado.info { color: var(--sol-azul); }
 
-/* spinner */
-.spin {
-  display: inline-block; 
-  width: 16px; 
-  height: 16px;
-  border: 2px solid rgba(255,255,255,.2);
-  border-top-color: #fff; 
-  border-radius: 50%;
-  animation: spin .6s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-</style>
+        /* AVISO PHANTOM */
+        .aviso-phantom { margin-top: 20px; padding: 14px; background: rgba(153, 69, 255, 0.07); border: 1px solid var(--borde); border-radius: 10px; font-size: 0.8rem; color: var(--texto-suave); text-align: center; line-height: 1.5; }
+        .enlace { color: var(--sol-morado); text-decoration: none; font-weight: 700; }
+    </style>
 </head>
 <body>
+    <div class="contenedor">
+        <!-- LOGO -->
+        <div class="seccion-logo">
+            <span class="icono-cohete">🚀</span>
+            <h1 class="nombre-logo">BitcoinDobmor</h1>
+            <p class="sub-logo">Powered by Solana • P2P Live</p>
+        </div>
 
-<div class="card">
-  <!-- LOGO -->
-  <div class="logo-area">
-    <span class="rocket">🚀</span>
-    <div class="logo">BitcoinDobmoney</div>
-    <div class="sub">Powered by Solana · Phantom Wallet</div>
-  </div>
+        <!-- ESTADO DE RED SOLANA -->
+        <div class="etiqueta-red">
+            <span class="punto-activo"></span>
+            <span id="textoRed">Devnet • Conectado</span>
+        </div>
 
-  <!-- NETWORK -->
-  <div class="net-badge">
-    <div class="dot"></div>
-    <span id="net-label">MAINNET · Red Real ✅</span>
-  </div>
+        <!-- BOTON CONECTAR PHANTOM -->
+        <button class="boton-conectar" id="btnConectar">
+            <span class="circulo-boton"></span>
+            <span id="textoBoton">CONECTAR PHANTOM</span>
+        </button>
 
-  <!-- CONNECT BUTTON -->
-  <button class="btn-connect" id="btn-main" onclick="handleConnect()">
-    <span>🟣</span> <span id="btn-text">CONECTAR PHANTOM</span>
-  </button>
+        <!-- INFORMACION BILLETERA SOLANA -->
+        <div class="info-billetera" id="infoBilletera">
+            <div class="etiqueta-dato">Dirección de tu cuenta</div>
+            <div class="direccion-campo">
+                <span class="direccion-texto" id="direccionTexto">...</span>
+                <button class="boton-copiar" id="btnCopiar">📋</button>
+            </div>
 
-  <div class="status" id="status-msg"></div>
+            <div class="etiqueta-dato">Saldo disponible</div>
+            <div class="saldo-fila">
+                <span class="saldo-numero" id="saldoNumero">0.0000</span>
+                <span class="saldo-unidad">◎ SOL</span>
+            </div>
+            <div class="saldo-usd" id="saldoUSD">≈ $0.00 USD</div>
+        </div>
 
-  <!-- PHANTOM NOTICE -->
-  <div class="phantom-notice" id="phantom-notice">
-    💡 En móvil, abre esta página desde el <strong>browser interno de Phantom</strong><br>
-    o instala <a href="https://phantom.app/" target="_blank">phantom.app</a> en desktop
-  </div>
-</div>
-
-<script>
-const MAINNET = 'https://api.mainnet-beta.solana.com';
-let pubkey = null;
-let solPrice = 0;
-
-// ── STATUS HELPER ──────────────────────────────────────
-function setStatus(msg, type = '') {
-  const el = document.getElementById('status-msg');
-  el.textContent = msg;
-  el.className = 'status ' + type;
-}
-
-// ── CONNECT ────────────────────────────────────────────
-async function handleConnect() {
-  const phantom = window.solana;
-
-  if (!phantom?.isPhantom) {
-    setStatus('❌ Phantom no encontrada. Ábrela desde el browser de Phantom o instálala.', 'err');
-    document.getElementById('phantom-notice').style.display = 'block';
-    return;
-  }
-
-  const btn = document.getElementById('btn-main');
-  const btnText = document.getElementById('btn-text');
-  btnText.innerHTML = '<span class="spin"></span> Conectando...';
-  btn.disabled = true;
-  setStatus('Esperando aprobación en Phantom...', '');
-
-  try {
-    const resp = await phantom.connect();
-    pubkey = resp.publicKey.toString();
-
-    btn.classList.add('connected');
-    btnText.textContent = '✅ CONECTADO';
-    btn.disabled = false;
-    btn.onclick = null;
-
-    document.getElementById('net-label').textContent = 'MAINNET · Conectada ✅';
-    setStatus('✅ Billetera conectada correctamente', 'ok');
-
-  } catch(e) {
-    btn.disabled = false;
-    btnText.textContent = 'CONECTAR PHANTOM';
-    if (e.code === 4001) {
-      setStatus('⚠️ Conexión rechazada por el usuario', 'err');
-    } else {
-      setStatus('❌ Error: ' + e.message, 'err');
-    }
-  }
-}
-</script>
-</body>
-</html>
+        <!-- SECCION P2P VIDEO LLAMADA -->
+        <div class="seccion-p2p" id="seccionP2P">
+            <h2 class="titulo-p2p">📡 VIDEOLAMADA P2P • SOLANA
