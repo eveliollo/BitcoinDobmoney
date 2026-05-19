@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>BitcoinDobmoney | Solana</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bitcoin Dob Money | Solana DApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
 :root {
   --sol: #9945FF;
   --sol2: #14F195;
@@ -70,12 +70,8 @@ body::after {
 /* ── LOGO ── */
 .logo-area { text-align: center; margin-bottom: 32px; }
 
-.rocket { font-size: 3rem; display: block; margin-bottom: 12px;
-  animation: float 3s ease-in-out infinite; }
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-
 .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: -1px;
-  background: linear-gradient(135deg, var(--sol), var(--sol2));
+  background: linear-gradient(135deg, #FF9500, #00FFA3);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
 .sub { font-size: 0.75rem; color: var(--muted); font-family: var(--font-mono);
@@ -163,17 +159,6 @@ body::after {
   font-family: var(--font-mono); margin-top: 4px;
 }
 
-/* ── AIRDROP ── */
-.btn-airdrop {
-  width: 100%; margin-top: 14px;
-  padding: 10px; border-radius: 10px; border: none; cursor: pointer;
-  background: rgba(0,194,255,0.1); border: 1px solid rgba(0,194,255,0.25);
-  color: var(--sol3); font-family: var(--font-main); font-weight: 700;
-  font-size: 0.85rem; transition: all .2s;
-}
-.btn-airdrop:hover { background: rgba(0,194,255,0.18); }
-.btn-airdrop:disabled { opacity: .4; cursor: not-allowed; }
-
 /* ── DISCONNECT ── */
 .btn-disconnect {
   width: 100%; margin-top: 10px;
@@ -183,23 +168,6 @@ body::after {
   font-size: 0.85rem; transition: all .2s;
 }
 .btn-disconnect:hover { background: rgba(255,77,109,0.2); }
-
-/* ── TX LOG ── */
-.tx-section { margin-top: 20px; }
-.tx-title { font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--muted); font-family: var(--font-mono); margin-bottom: 8px; }
-.tx-log {
-  background: rgba(0,0,0,.3); border: 1px solid var(--border);
-  border-radius: 10px; padding: 10px;
-  max-height: 130px; overflow-y: auto;
-  font-family: var(--font-mono); font-size: 0.68rem;
-}
-.tx-item { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,.04); color: var(--muted); }
-.tx-item:last-child { border: none; }
-.tx-item a { color: var(--sol3); text-decoration: none; }
-.tx-item a:hover { text-decoration: underline; }
-.tx-ok { color: #14F195; }
-.tx-err { color: #ff4d6d; }
 
 /* ── STATUS ── */
 .status {
@@ -238,15 +206,14 @@ body::after {
 <div class="card">
   <!-- LOGO -->
   <div class="logo-area">
-    <span class="rocket">🚀</span>
-    <div class="logo">BitcoinDobmoney</div>
+    <div class="logo">Bitcoin Dob Money</div>
     <div class="sub">Powered by Solana · Phantom Wallet</div>
   </div>
 
   <!-- NETWORK -->
   <div class="net-badge">
     <div class="dot"></div>
-    <span id="net-label">Devnet · Lista para conectar</span>
+    <span id="net-label">MAINNET · Red Real ✅</span>
   </div>
 
   <!-- CONNECT BUTTON -->
@@ -264,21 +231,10 @@ body::after {
 
     <div class="wlabel">Saldo disponible</div>
     <div class="bal-row">
-      <div class="bal-num" id="bal-num">0.000</div>
+      <div class="bal-num" id="bal-num">0.0000</div>
       <div class="bal-unit">◎ SOL</div>
     </div>
     <div class="bal-usd" id="bal-usd">≈ $0.00 USD</div>
-
-    <button class="btn-airdrop" id="btn-airdrop" onclick="airdrop()">
-      🪂 Solicitar 1 SOL gratis (Devnet)
-    </button>
-
-    <div class="tx-section">
-      <div class="tx-title">Transacciones</div>
-      <div class="tx-log" id="tx-log">
-        <div class="tx-item" style="color:var(--muted)">Sin transacciones aún...</div>
-      </div>
-    </div>
 
     <button class="btn-disconnect" onclick="disconnect()">🔌 Desconectar Wallet</button>
   </div>
@@ -293,8 +249,7 @@ body::after {
 </div>
 
 <script>
-const DEVNET = 'https://api.devnet.solana.com';
-const EXPLORER = 'https://explorer.solana.com/tx/';
+const MAINNET = 'https://api.mainnet-beta.solana.com';
 let pubkey = null;
 let solPrice = 0;
 
@@ -318,7 +273,7 @@ async function fetchSolPrice() {
 async function fetchBalance() {
   if (!pubkey) return;
   try {
-    const r = await fetch(DEVNET, {
+    const r = await fetch(MAINNET, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -365,12 +320,12 @@ async function handleConnect() {
     btn.classList.add('connected');
     btnText.textContent = '✅ CONECTADO';
     btn.disabled = false;
-    btn.onclick = null; // disable reconnect
+    btn.onclick = null;
 
     document.getElementById('addr-text').textContent = pubkey;
     document.getElementById('wallet-box').classList.add('show');
     document.getElementById('phantom-notice').style.display = 'none';
-    document.getElementById('net-label').textContent = 'Devnet · Wallet Conectada ✅';
+    document.getElementById('net-label').textContent = 'MAINNET · Conectada ✅';
 
     setStatus('✅ Billetera conectada correctamente', 'ok');
 
@@ -386,106 +341,5 @@ async function handleConnect() {
     if (e.code === 4001) {
       setStatus('⚠️ Conexión rechazada por el usuario', 'err');
     } else {
-      setStatus('❌ Error: ' + e.message, 'err');
-    }
-  }
-}
+      setStatus('❌ Error: ' + e.message,
 
-// ── DISCONNECT ─────────────────────────────────────────
-async function disconnect() {
-  try {
-    await window.solana?.disconnect();
-  } catch {}
-  pubkey = null;
-
-  const btn = document.getElementById('btn-main');
-  const btnText = document.getElementById('btn-text');
-  btn.classList.remove('connected');
-  btnText.textContent = 'CONECTAR PHANTOM';
-  btn.onclick = handleConnect;
-  btn.disabled = false;
-
-  document.getElementById('wallet-box').classList.remove('show');
-  document.getElementById('bal-num').textContent = '0.000';
-  document.getElementById('bal-usd').textContent = '≈ $0.00 USD';
-  document.getElementById('addr-text').textContent = '—';
-  document.getElementById('net-label').textContent = 'Devnet · Lista para conectar';
-  document.getElementById('phantom-notice').style.display = 'block';
-  setStatus('🔌 Wallet desconectada', '');
-}
-
-// ── AIRDROP ────────────────────────────────────────────
-async function airdrop() {
-  if (!pubkey) return;
-  const btn = document.getElementById('btn-airdrop');
-  btn.disabled = true;
-  btn.textContent = '⏳ Solicitando airdrop...';
-  setStatus('Solicitando 1 SOL de Devnet...', '');
-
-  try {
-    const r = await fetch(DEVNET, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0', id: 1,
-        method: 'requestAirdrop',
-        params: [pubkey, 1000000000]
-      })
-    });
-    const d = await r.json();
-    if (d.result) {
-      addTx('🪂 AIRDROP 1 SOL', d.result, true);
-      setStatus('✅ 1 SOL recibido en Devnet!', 'ok');
-      setTimeout(fetchBalance, 2500);
-    } else {
-      setStatus('❌ Airdrop falló: ' + JSON.stringify(d.error?.message || d.error), 'err');
-    }
-  } catch(e) {
-    setStatus('❌ Error: ' + e.message, 'err');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '🪂 Solicitar 1 SOL gratis (Devnet)';
-  }
-}
-
-// ── TX LOG ─────────────────────────────────────────────
-function addTx(label, sig, ok) {
-  const log = document.getElementById('tx-log');
-  // Remove placeholder
-  if (log.children.length === 1 && log.children[0].textContent.includes('Sin transacciones')) {
-    log.innerHTML = '';
-  }
-  const item = document.createElement('div');
-  item.className = 'tx-item';
-  if (ok && sig && sig.length > 20) {
-    item.innerHTML = `<span class="tx-ok">✅</span> ${label} — <a href="${EXPLORER}${sig}?cluster=devnet" target="_blank">${sig.slice(0,10)}...</a>`;
-  } else {
-    item.innerHTML = `<span class="tx-err">❌</span> ${label}`;
-  }
-  log.prepend(item);
-}
-
-// ── COPY ADDRESS ───────────────────────────────────────
-function copyAddr() {
-  if (!pubkey) return;
-  navigator.clipboard.writeText(pubkey).then(() => {
-    setStatus('📋 Dirección copiada', 'ok');
-    setTimeout(() => setStatus('', ''), 2000);
-  });
-}
-
-// ── AUTO-CONNECT if already authorized ────────────────
-window.addEventListener('load', async () => {
-  if (window.solana?.isPhantom) {
-    try {
-      const resp = await window.solana.connect({ onlyIfTrusted: true });
-      if (resp.publicKey) {
-        pubkey = resp.publicKey.toString();
-        document.getElementById('btn-main').click();
-      }
-    } catch {} // not previously authorized, that's fine
-  }
-});
-</script>
-</body>
-</html>
