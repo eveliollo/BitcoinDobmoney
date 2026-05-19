@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BitcoinDok • Solana</title>
-    
-    <!-- LIBRERÍAS OFICIALES SOLANA -->
-    <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.min.js"></script>
-    <script src="https://unpkg.com/@solana/spl-token@0.3.8/lib/index.min.js"></script>
+    <!-- LIBRERÍAS OFICIALES DE SOLANA -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.6/lib/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.8/lib/index.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
 
     <style>
         * {
@@ -33,6 +36,7 @@
             --color-azul: #00C2FF;
             --color-oscuro: #12121F;
             --color-dorado: #FFD700;
+            --color-brillo: #FFFFFF;
         }
 
         body {
@@ -72,73 +76,56 @@
             background: radial-gradient(circle, rgba(153, 69, 255, 0.08) 0%, transparent 70%);
             pointer-events: none;
         }
-                .contenedor-logo {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 100px;
-            height: 100px;
-            border-radius: 30px;
-            background: linear-gradient(135deg, var(--color-morado), var(--color-azul));
-            padding: 8px;
+
+        /* ==============================================
+           LOGO Y NOMBRE MEJORADOS - BONITOS Y MODERNOS
+           ============================================== */
+           
+        /* Icono del cohete con efecto de brillo */
+        .icono-cohete {
+            font-size: 65px;
+            display: block;
             margin-bottom: 18px;
+            animation: flotar 3s ease-in-out infinite, brillo 2s ease-in-out infinite;
             position: relative;
             z-index: 2;
-            box-shadow: 0 0 30px rgba(153, 69, 255, 0.4), inset 0 0 15px rgba(255,255,255,0.2);
-            animation: latido 2.5s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
         }
 
-        .contenedor-logo::before {
-            content: '';
-            position: absolute;
-            top: -3px;
-            left: -3px;
-            right: -3px;
-            bottom: -3px;
-            border-radius: 33px;
-            background: linear-gradient(45deg, var(--color-naranja), var(--color-dorado), var(--color-verde));
-            z-index: -1;
-            filter: blur(5px);
-            opacity: 0.8;
-        }
-
-        .icono-logo {
-            font-size: 52px;
-            animation: movimiento 3s ease-in-out infinite;
-        }
-
-        @keyframes latido {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        @keyframes movimiento {
+        @keyframes flotar {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            25% { transform: translateY(-5px) rotate(-3deg); }
-            75% { transform: translateY(5px) rotate(3deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
         }
 
+        @keyframes brillo {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        /* NOMBRE: Gradiente más bonito, colores más vivos y efecto de brillo */
         .nombre-logo {
-            font-size: 46px;
+            font-size: 48px;
             font-weight: 900;
             letter-spacing: -1px;
+            /* Gradiente nuevo y más bonito */
             background: linear-gradient(
                 45deg, 
-                var(--color-naranja) 0%, 
-                var(--color-dorado) 25%, 
-                var(--color-amarillo) 50%, 
-                var(--color-verde) 75%, 
-                var(--color-azul) 100%
+                #FF9500 0%, 
+                #FFD700 25%, 
+                #E6E200 50%, 
+                #14F195 75%, 
+                #00C2FF 100%
             );
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             position: relative;
             z-index: 2;
-            text-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+            text-shadow: 0 0 30px rgba(20, 241, 149, 0.3);
         }
 
+        /* Subtítulo mejorado */
         .subtitulo {
             font-size: 17px;
             color: var(--color-texto-suave);
@@ -148,6 +135,10 @@
             z-index: 2;
             font-weight: 500;
         }
+
+        /* ==============================================
+           RESTO DEL DISEÑO IGUAL QUE TU IMAGEN
+           ============================================== */
 
         .etiqueta-red {
             display: flex;
@@ -241,7 +232,8 @@
             background-color: var(--color-verde);
             box-shadow: 0 0 15px rgba(20, 241, 149, 0.8);
         }
-                .aviso-phantom {
+
+        .aviso-phantom {
             background-color: var(--color-oscuro);
             border: 1px solid var(--color-borde);
             border-radius: 15px;
@@ -264,68 +256,11 @@
             text-decoration: underline;
         }
 
-        .tarjeta {
-            background-color: var(--color-oscuro);
-            border: 1px solid var(--color-borde);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-        }
+        /* --------------------------
+           FUNCIONES REALES AGREGADAS
+           -------------------------- */
 
-        .tarjeta.t-morado { border-color: var(--color-morado); }
-        .tarjeta.t-azul { border-color: var(--color-azul); }
-        .tarjeta.t-naranja { border-color: var(--color-naranja); }
-
-        .titulo-tarjeta {
-            font-size: 16px;
-            color: var(--color-texto-suave);
-            margin-bottom: 15px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .fila-dato {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--color-borde);
-        }
-
-        .fila-dato:last-child { border-bottom: none; }
-
-        .etiqueta {
-            color: var(--color-texto-suave);
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .valor {
-            color: var(--color-texto);
-            font-weight: bold;
-            font-size: 15px;
-        }
-
-        .valor.verde { color: var(--color-verde); }
-        .valor.rojo { color: var(--color-rojo); }
-        .valor.azul { color: var(--color-azul); }
-        .valor.naranja { color: var(--color-naranja); }
-
-        .btn-icono {
-            background: none;
-            border: none;
-            color: var(--color-texto-suave);
-            font-size: 16px;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-
-        .btn-icono:hover { color: var(--color-verde); }
-
+        /* Notificaciones */
         .notificacion {
             position: fixed;
             top: 20px;
@@ -352,6 +287,7 @@
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
+        /* Navegación entre secciones */
         .navegacion {
             display: flex;
             gap: 8px;
@@ -368,7 +304,7 @@
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
             font-size: 13px;
             background-color: var(--color-oscuro);
             color: var(--color-texto-suave);
@@ -381,285 +317,91 @@
             border-color: var(--color-morado);
         }
 
+        /* Secciones de contenido */
         .seccion {
             display: none;
             margin-bottom: 25px;
+            position: relative;
+            z-index: 2;
             animation: aparecer 0.4s ease;
         }
 
-        .seccion.mostrar { display: block; }
+        .seccion.mostrar {
+            display: block;
+        }
 
         @keyframes aparecer {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-    </style>
-</head>
-<body>
-    <div class="contenedor-principal">
-                <div class="contenedor-logo">
-            <span class="icono-logo">🚀</span>
-        </div>
-        <h1 class="nombre-logo">BitcoinDok</h1>
-        <p class="subtitulo">Conect
-                    <h1 class="nombre-logo">BitcoinDok</h1>
-        <p class="subtitulo">Conecta y gestiona tus activos en la red Solana de forma segura y rápida</p>
 
-        <div class="etiqueta-red" id="estadoRed">
-            <span class="punto-verde"></span>
-            <span>Red Solana: Conectada</span>
-            <span class="icono-check">✓</span>
-        </div>
-
-        <button class="boton-conectar" id="botonConectar">
-            <span class="circulo-boton"></span>
-            CONECTAR
-        </button>
-
-        <div class="aviso-phantom">
-            <p>Recomendamos usar la billetera <a href="#" class="enlace">Phantom</a> o <a href="#" class="enlace">Solflare</a> para una mejor experiencia y seguridad.</p>
-        </div>
-
-        <div class="navegacion" id="navegacion">
-            <button class="btn-navegacion activo" data-seccion="billetera">Billetera</button>
-            <button class="btn-navegacion" data-seccion="activos">Activos</button>
-            <button class="btn-navegacion" data-seccion="transacciones">Transacciones</button>
-            <button class="btn-navegacion" data-seccion="red">Red</button>
-        </div>
-
-        <!-- SECCIÓN BILLETERA -->
-        <div class="seccion mostrar" id="billetera">
-            <div class="tarjeta t-morado">
-                <div class="titulo-tarjeta">
-                    Dirección Pública
-                    <button class="btn-icono" id="copiarDir">📋</button>
-                </div>
-                <div class="fila-dato">
-                    <span class="valor" id="direccionCuenta">No conectado</span>
-                </div>
-            </div>
-
-            <div class="tarjeta t-verde">
-                <div class="titulo-tarjeta">Saldo Disponible</div>
-                <div class="fila-dato">
-                    <span class="etiqueta">SOL</span>
-                    <span class="valor verde" id="saldoSol">0.000000 SOL</span>
-                </div>
-                <div class="fila-dato">
-                    <span class="etiqueta">Valor USD</span>
-                    <span class="valor" id="valorUsd">$0.00</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN ACTIVOS -->
-        <div class="seccion" id="activos">
-            <div class="tarjeta t-azul">
-                <div class="titulo-tarjeta">Tokens SPL</div>
-                <div class="fila-dato">
-                    <span class="etiqueta">USDC</span>
-                    <span class="valor azul" id="saldoUsdc">0.00 USDC</span>
-                </div>
-                <div class="fila-dato">
-                    <span class="etiqueta">BONK</span>
-                    <span class="valor naranja" id="saldoBonk">0.00 BONK</span>
-                </div>
-                <div class="fila-dato">
-                    <span class="etiqueta">RAY</span>
-                    <span class="valor" id="saldoRay">0.00 RAY</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN TRANSACCIONES -->
-        <div class="seccion" id="transacciones">
-            <div class="tarjeta t-naranja">
-                <div class="titulo-tarjeta">Últimas Transacciones</div>
-                <p class="valor" style="opacity:0.7;">Sin transacciones recientes</p>
-            </div>
-        </div>
-
-        <!-- SECCIÓN INFORMACIÓN RED -->
-        <div class="seccion" id="red">
-            <div class="tarjeta t-morado">
-                <div class="titulo-tarjeta">Datos de la Red</div>
-                <div class="fila-dato">
-                    <span class="etiqueta">Red</span>
-                    <span class="valor" id="tipoRed">Devnet</span>
-                </div>
-                <div class="fila-dato">
-                    <span class="etiqueta">Último Bloque</span>
-                    <span class="valor" id="ultimoBloque">-</span>
-                </div>
-                <div class="fila-dato">
-                    <span class="etiqueta">Versión</span>
-                    <span class="valor" id="versionSolana">1.16.x</span>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- SISTEMA DE FUNCIONAMIENTO SOLANA -->
-    <div class="notificacion" id="notificacion"></div>
-
-    <script>
-        // VARIABLES GLOBALES
-        let conexion;
-        let cuentaConectada = null;
-        const RED_SOLANA = "https://api.devnet.solana.com"; // Cambia a mainnet si lo deseas
-
-        // ELEMENTOS DEL DOM
-        const botonConectar = document.getElementById("botonConectar");
-        const estadoRed = document.getElementById("estadoRed");
-        const direccionCuenta = document.getElementById("direccionCuenta");
-        const saldoSol = document.getElementById("saldoSol");
-        const valorUsd = document.getElementById("valorUsd");
-        const copiarDir = document.getElementById("copiarDir");
-        const navegacion = document.getElementById("navegacion");
-        const botonesNav = document.querySelectorAll(".btn-navegacion");
-        const secciones = document.querySelectorAll(".seccion");
-        const notificacion = document.getElementById("notificacion");
-
-        // INICIAR CONEXIÓN CON SOLANA
-        window.addEventListener("load", () => {
-            conexion = new solanaWeb3.Connection(RED_SOLANA, "confirmed");
-            verificarConexionBilletera();
-        });
-
-        // VERIFICAR SI HAY BILLETERA INSTALADA
-        function verificarConexionBilletera() {
-            if (window.solana && window.solana.isPhantom) {
-                mostrarNotificacion("Billetera detectada correctamente", "azul");
-                estadoRed.classList.add("cambiando");
-                setTimeout(() => estadoRed.classList.remove("cambiando"), 500);
-            } else {
-                mostrarNotificacion("Instala Phantom para conectarte", "naranja");
-            }
+        /* Tarjetas de información */
+        .tarjeta {
+            background-color: var(--color-oscuro);
+            border: 1px solid var(--color-borde);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
         }
 
-        // ACCIÓN BOTÓN CONECTAR
-        botonConectar.addEventListener("click", async () => {
-            if (!cuentaConectada) {
-                try {
-                    await conectarBilletera();
-                } catch (error) {
-                    mostrarNotificacion("Error al conectar: " + error.message, "error");
-                }
-            } else {
-                desconectarBilletera();
-            }
-        });
+        .tarjeta.t-verde { border-color: var(--color-verde); }
+        .tarjeta.t-morado { border-color: var(--color-morado); }
+        .tarjeta.t-azul { border-color: var(--color-azul); }
+        .tarjeta.t-naranja { border-color: var(--color-naranja); }
 
-        // CONECTAR CON PHANTOM
-        async function conectarBilletera() {
-            if (!window.solana) {
-                mostrarNotificacion("Por favor instala la billetera Phantom", "naranja");
-                window.open("https://phantom.app/", "_blank");
-                return;
-            }
-
-            try {
-                const respuesta = await window.solana.connect();
-                cuentaConectada = respuesta.publicKey;
-                
-                // ACTUALIZAR INTERFAZ
-                botonConectar.classList.add("conectado");
-                botonConectar.innerHTML = `<span class="circulo-boton"></span> DESCONECTAR`;
-                direccionCuenta.textContent = cuentaConectada.toString();
-                navegacion.style.display = "flex";
-                
-                // CARGAR DATOS
-                await cargarSaldo();
-                mostrarNotificacion("¡Conectado exitosamente!", "verde");
-
-                // ESCUCHAR CAMBIOS DE CUENTA
-                window.solana.on("accountChanged", () => {
-                    window.location.reload();
-                });
-
-            } catch (error) {
-                mostrarNotificacion("Conexión cancelada", "naranja");
-            }
+        .titulo-tarjeta {
+            font-size: 16px;
+            color: var(--color-texto-suave);
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        // CARGAR SALDO DE SOL
-        async function cargarSaldo() {
-            if (!cuentaConectada) return;
-
-            try {
-                const saldoLamport = await conexion.getBalance(cuentaConectada);
-                const saldoSol = saldoLamport / solanaWeb3.LAMPORTS_PER_SOL;
-                
-                // MOSTRAR SALDO
-                document.getElementById("saldoSol").textContent = saldoSol.toFixed(6) + " SOL";
-                
-                // VALOR APROXIMADO EN USD (DATO SIMULADO)
-                const precioSol = 120; // Precio aproximado, puedes usar una API real
-                const valor = saldoSol * precioSol;
-                document.getElementById("valorUsd").textContent = "$" + valor.toFixed(2);
-
-            } catch (error) {
-                console.error("Error al cargar saldo:", error);
-            }
+        /* DATOS DE BILLETERA */
+        .fila-dato {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color-borde);
         }
 
-        // COPIAR DIRECCIÓN
-        copiarDir.addEventListener("click", async () => {
-            if (!cuentaConectada) {
-                mostrarNotificacion("Primero conecta tu billetera", "naranja");
-                return;
-            }
-            const direccion = cuentaConectada.toString();
-            await navigator.clipboard.writeText(direccion);
-            mostrarNotificacion("Dirección copiada al portapapeles", "azul");
-        });
+        .fila-dato:last-child { border-bottom: none; }
 
-        // CAMBIAR ENTRE SECCIONES
-        botonesNav.forEach(boton => {
-            boton.addEventListener("click", () => {
-                const seccionId = boton.getAttribute("data-seccion");
-                
-                // QUITAR ACTIVO A TODOS
-                botonesNav.forEach(b => b.classList.remove("activo"));
-                secciones.forEach(s => s.classList.remove("mostrar"));
-                
-                // PONER ACTIVO AL SELECCIONADO
-                boton.classList.add("activo");
-                document.getElementById(seccionId).classList.add("mostrar");
-            });
-        });
-
-        // DESCONECTAR BILLETERA
-        function desconectarBilletera() {
-            cuentaConectada = null;
-            botonConectar.classList.remove("conectado");
-            botonConectar.innerHTML = `<span class="circulo-boton"></span> CONECTAR`;
-            direccionCuenta.textContent = "No conectado";
-            saldoSol.textContent = "0.000000 SOL";
-            valorUsd.textContent = "$0.00";
-            navegacion.style.display = "none";
-            mostrarNotificacion("Desconectado correctamente", "naranja");
+        .etiqueta {
+            color: var(--color-texto-suave);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        // SISTEMA DE NOTIFICACIONES
-        function mostrarNotificacion(mensaje, tipo) {
-            notificacion.textContent = mensaje;
-            notificacion.className = "notificacion " + tipo;
-            notificacion.style.display = "block";
-
-            setTimeout(() => {
-                notificacion.style.display = "none";
-            }, 3000);
+        .valor {
+            color: var(--color-texto);
+            font-weight: bold;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        // ACTUALIZAR DATOS CADA 15 SEGUNDOS
-        setInterval(() => {
-            if (cuentaConectada) {
-                cargarSaldo();
-            }
-        }, 15000);
+        .valor.verde { color: var(--color-verde); }
+        .valor.rojo { color: var(--color-rojo); }
+        .valor.azul { color: var(--color-azul); }
+        .valor.naranja { color: var(--color-naranja); }
 
-    </script>
-</body>
-</html>
+        .btn-icono {
+            background: none;
+            border: none;
+            color: var(--color-texto-suave);
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .btn-icono:hover { color: var(--color-verde); }
+
+        /* Precios y gráficos */
+        .precio-actual
