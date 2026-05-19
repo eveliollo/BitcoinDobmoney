@@ -1,5 +1,5 @@
-# Copia index.html a la raíz del repo
-cp index.html ./
+# En tu repo BitcoinDobmoney
+# Renombra el archivo a index.html y súbelo
 git add index.html
-git commit -m "🚀 NexTalk P2P launch"
+git commit -m "fix: JS arreglado, wallet funcional"
 git push
