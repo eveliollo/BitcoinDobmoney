@@ -3,489 +3,1054 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>BitcoinDobmoney | Solana</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<title>SolPay P2P · Professional DeFi Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Outfit:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --sol: #9945FF;
-  --sol2: #14F195;
-  --sol3: #00C2FF;
-  --bg: #050510;
-  --bg2: #0d0d22;
-  --border: rgba(153,69,255,0.3);
-  --border2: rgba(20,241,149,0.25);
-  --text: #e8e8ff;
-  --muted: #7070a0;
-  --font-mono: 'Space Mono', monospace;
-  --font-main: 'Syne', sans-serif;
+  --p:   #00FFB2;
+  --p2:  #7C3AED;
+  --p3:  #F59E0B;
+  --p4:  #EF4444;
+  --p5:  #06B6D4;
+  --bg:  #05050A;
+  --bg1: #0C0C15;
+  --bg2: #131320;
+  --bg3: #1A1A28;
+  --border:  rgba(255,255,255,0.06);
+  --border2: rgba(0,255,178,0.18);
+  --text:  #EEEEFF;
+  --muted: #5A5A7A;
+  --font:  'DM Sans', sans-serif;
+  --mono:  'IBM Plex Mono', monospace;
+  --head:  'Outfit', sans-serif;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* noise */
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;opacity:.7}
+.glow{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(90px);opacity:.1}
+.glow.a{width:450px;height:450px;background:var(--p2);top:-120px;right:-80px}
+.glow.b{width:320px;height:320px;background:var(--p);bottom:50px;left:-100px}
+.glow.c{width:200px;height:200px;background:var(--p5);top:40%;left:40%;opacity:.06}
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-main);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px;
-  position: relative;
-  overflow-x: hidden;
-}
+/* ── APP SHELL ── */
+.app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100dvh}
 
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image:
-    linear-gradient(rgba(153,69,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(153,69,255,0.04) 1px, transparent 1px);
-  background-size: 36px 36px;
-  pointer-events: none;
-}
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(5,5,10,0.82);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:9px}
+.brand-mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--p2),var(--p));display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.brand-name{font-family:var(--head);font-weight:800;font-size:1rem;letter-spacing:-.3px}
+.brand-sub{font-size:.55rem;font-family:var(--mono);color:var(--muted);display:block;margin-top:-1px}
+.topbar-r{display:flex;align-items:center;gap:8px}
+.netpill{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;background:rgba(0,255,178,.07);border:1px solid var(--border2);font-size:.6rem;font-family:var(--mono);color:var(--p)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--p);animation:pulse 1.8s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.icon-btn{width:34px;height:34px;border-radius:9px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;position:relative;transition:border .15s}
+.icon-btn:hover{border-color:rgba(124,58,237,.4)}
+.badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--p4);font-size:.48rem;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;border:2px solid var(--bg)}
 
-body::after {
-  content: '';
-  position: fixed;
-  top: -100px; left: 50%; transform: translateX(-50%);
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(153,69,255,0.12) 0%, transparent 70%);
-  pointer-events: none;
-}
+/* ── WALLET BAR ── */
+.wbar{margin:12px 14px;background:linear-gradient(135deg,rgba(124,58,237,.13),rgba(0,255,178,.07));border:1px solid rgba(124,58,237,.25);border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wbar-l{display:flex;flex-direction:column;gap:3px;min-width:0}
+.wlbl{font-size:.58rem;font-family:var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.waddr{font-size:.7rem;font-family:var(--mono);color:var(--p);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.wbar-r{text-align:right;flex-shrink:0}
+.wsol{font-family:var(--head);font-size:1.45rem;font-weight:800;background:linear-gradient(90deg,var(--p),var(--p5));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.wusd{font-size:.62rem;font-family:var(--mono);color:var(--muted);margin-top:1px}
 
-/* ── CARD ── */
-.card {
-  position: relative; z-index: 1;
-  width: 100%; max-width: 420px;
-  background: rgba(13,13,34,0.85);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 36px 28px;
-  backdrop-filter: blur(24px);
-  box-shadow: 0 0 60px rgba(153,69,255,0.1);
-}
+/* ── TABS ── */
+.tabs{display:flex;padding:0 14px;gap:2px;border-bottom:1px solid var(--border);background:rgba(5,5,10,.7);backdrop-filter:blur(12px);position:sticky;top:62px;z-index:50;overflow-x:auto}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:11px 10px;font-size:.68rem;font-weight:600;text-align:center;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:var(--font);display:flex;align-items:center;gap:4px;white-space:nowrap}
+.tab.active{color:var(--p);border-bottom-color:var(--p)}
 
-/* ── LOGO ── */
-.logo-area { text-align: center; margin-bottom: 32px; }
+/* ── PANELS ── */
+.panel{display:none;flex-direction:column;flex:1;padding:14px;gap:12px;padding-bottom:80px}
+.panel.active{display:flex}
 
-.rocket { font-size: 3rem; display: block; margin-bottom: 12px;
-  animation: float 3s ease-in-out infinite; }
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+/* ── SECTION HEAD ── */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.sh-title{font-family:var(--head);font-size:.92rem;font-weight:700}
+.sh-act{font-size:.68rem;color:var(--p);font-family:var(--mono);cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid var(--border2);background:rgba(0,255,178,.05);transition:all .15s}
+.sh-act:hover{background:rgba(0,255,178,.1)}
 
-.logo { font-size: 1.6rem; font-weight: 800; letter-spacing: -1px;
-  background: linear-gradient(135deg, var(--sol), var(--sol2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+/* ── CARDS ── */
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:16px;padding:16px}
+.card.glow-border{border-color:rgba(0,255,178,.15)}
 
-.sub { font-size: 0.75rem; color: var(--muted); font-family: var(--font-mono);
-  margin-top: 6px; letter-spacing: 0.5px; }
+/* ── INPUTS ── */
+.lbl{font-size:.6rem;font-family:var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;display:block}
+.inp{width:100%;padding:12px 14px;border-radius:11px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.85rem;outline:none;transition:border .2s}
+.inp:focus{border-color:rgba(124,58,237,.45)}
+.inp::placeholder{color:var(--muted)}
+.inp-group{margin-bottom:12px}
+.amt-row{display:flex;gap:8px;align-items:flex-end}
+.amt-row .inp{flex:1;font-family:var(--head);font-size:1.15rem;font-weight:700}
+.cur-badge{padding:12px 11px;border-radius:11px;background:rgba(0,255,178,.07);border:1px solid var(--border2);font-family:var(--mono);font-size:.72rem;color:var(--p);font-weight:700;white-space:nowrap;cursor:pointer;transition:all .15s}
+.cur-badge:hover{background:rgba(0,255,178,.12)}
+.quick-row{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.qbtn{padding:4px 9px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:.62rem;font-family:var(--mono);cursor:pointer;transition:all .15s}
+.qbtn:hover{border-color:var(--border2);color:var(--p)}
+.fee-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--border);margin-top:4px}
+.fee-l{font-size:.62rem;font-family:var(--mono);color:var(--muted)}
+.fee-v{font-size:.68rem;font-family:var(--mono);color:var(--p)}
 
-/* ── NETWORK BADGE ── */
-.net-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(20,241,149,0.08);
-  border: 1px solid var(--border2);
-  border-radius: 20px; padding: 6px 14px;
-  font-size: 0.7rem; font-family: var(--font-mono);
-  color: var(--sol2); margin-bottom: 24px;
-  width: 100%; justify-content: center;
-}
-.dot { width: 7px; height: 7px; border-radius: 50%;
-  background: var(--sol2); animation: pulse 1.5s ease infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+/* ── BUTTONS ── */
+.btn{width:100%;padding:15px;border-radius:13px;border:none;cursor:pointer;font-family:var(--head);font-size:.95rem;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .25s}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,var(--p2),#9F67FF);color:#fff;box-shadow:0 4px 20px rgba(124,58,237,.4)}
+.btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,58,237,.55)}
+.btn-green{background:linear-gradient(135deg,#059669,var(--p));color:#000;box-shadow:0 4px 18px rgba(0,255,178,.3)}
+.btn-green:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 26px rgba(0,255,178,.45)}
+.btn-outline{background:transparent;color:var(--p);border:1px solid var(--border2)}
+.btn-outline:hover:not(:disabled){background:rgba(0,255,178,.07)}
+.btn-sm{padding:9px 14px;font-size:.75rem;border-radius:9px;width:auto}
 
-/* ── CONNECT BUTTON ── */
-.btn-connect {
-  width: 100%;
-  padding: 16px;
-  border-radius: 14px; border: none; cursor: pointer;
-  font-family: var(--font-main); font-weight: 800; font-size: 1rem;
-  letter-spacing: .3px;
-  background: linear-gradient(135deg, var(--sol), #7b2fff);
-  color: #fff;
-  box-shadow: 0 4px 24px rgba(153,69,255,0.45);
-  transition: all .25s;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-}
-.btn-connect:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(153,69,255,0.6);
-}
-.btn-connect:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-.btn-connect.connected {
-  background: linear-gradient(135deg, #0a8f5a, #14F195);
-  box-shadow: 0 4px 24px rgba(20,241,149,0.35);
-}
+/* ── MARKET CARD ── */
+.market-card{background:var(--bg1);border:1px solid var(--border);border-radius:16px;padding:16px}
+.mkt-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.sol-price{font-family:var(--head);font-size:1.5rem;font-weight:800}
+.sol-lbl{font-size:.58rem;font-family:var(--mono);color:var(--muted);margin-bottom:3px}
+.change-badge{font-size:.68rem;font-family:var(--mono);padding:3px 8px;border-radius:6px}
+.change-badge.up{background:rgba(0,255,178,.1);color:var(--p)}
+.change-badge.down{background:rgba(239,68,68,.1);color:var(--p4)}
+.sparkline{width:100%;height:44px}
+.mkt-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.mkt-stat{text-align:center;background:var(--bg2);border-radius:9px;padding:8px 6px}
+.mkt-stat-v{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--text)}
+.mkt-stat-l{font-size:.55rem;font-family:var(--mono);color:var(--muted);margin-top:2px}
 
-/* ── WALLET INFO BOX ── */
-.wallet-box {
-  display: none;
-  margin-top: 20px;
-  background: rgba(20,241,149,0.05);
-  border: 1px solid var(--border2);
-  border-radius: 14px;
-  padding: 20px;
-}
-.wallet-box.show { display: block; animation: fadeIn .4s ease; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+/* ── DEFI FEATURES GRID ── */
+.features-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feat-card{background:var(--bg1);border:1px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:6px}
+.feat-card:hover{border-color:rgba(124,58,237,.35);transform:translateY(-1px)}
+.feat-icon{font-size:1.5rem}
+.feat-name{font-family:var(--head);font-size:.82rem;font-weight:700}
+.feat-desc{font-size:.62rem;font-family:var(--mono);color:var(--muted);line-height:1.4}
+.feat-badge{font-size:.55rem;font-family:var(--mono);padding:2px 7px;border-radius:5px;font-weight:700;display:inline-block;margin-top:2px}
+.feat-badge.live{background:rgba(0,255,178,.1);color:var(--p)}
+.feat-badge.soon{background:rgba(245,158,11,.1);color:var(--p3)}
+.feat-badge.new{background:rgba(124,58,237,.15);color:#A78BFA}
 
-.wlabel {
-  font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--muted); font-family: var(--font-mono); margin-bottom: 6px;
-}
-.waddr {
-  font-size: 0.78rem; font-family: var(--font-mono);
-  color: var(--sol3); word-break: break-all;
-  background: rgba(0,0,0,.3); border-radius: 8px;
-  padding: 8px 10px; margin-bottom: 14px;
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-}
-.copy-btn {
-  background: none; border: none; cursor: pointer;
-  color: var(--muted); font-size: 1rem; flex-shrink: 0;
-}
-.copy-btn:hover { color: var(--sol2); }
+/* ── SWAP MODULE ── */
+.swap-box{background:var(--bg2);border-radius:12px;padding:14px;border:1px solid var(--border)}
+.swap-arrow{display:flex;justify-content:center;margin:8px 0}
+.swap-arrow-btn{width:34px;height:34px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;transition:all .2s}
+.swap-arrow-btn:hover{transform:rotate(180deg);border-color:var(--border2)}
+.swap-token-row{display:flex;align-items:center;gap:8px}
+.token-selector{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;cursor:pointer;font-size:.75rem;font-family:var(--mono);font-weight:700;transition:border .15s;white-space:nowrap}
+.token-selector:hover{border-color:var(--border2)}
+.token-icon{font-size:1rem}
+.swap-rate-info{background:var(--bg3);border-radius:9px;padding:10px;margin-top:10px;font-size:.65rem;font-family:var(--mono);color:var(--muted)}
+.swap-rate-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.swap-rate-row:last-child{margin-bottom:0}
+.swap-rate-val{color:var(--text)}
+.price-impact-ok{color:var(--p)}
+.price-impact-warn{color:var(--p3)}
 
-.bal-row {
-  display: flex; align-items: baseline; gap: 8px;
-}
-.bal-num {
-  font-size: 2rem; font-weight: 800;
-  background: linear-gradient(90deg, var(--sol2), var(--sol3));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  font-family: var(--font-mono);
-}
-.bal-unit { font-size: 0.85rem; color: var(--muted); font-family: var(--font-mono); }
+/* ── STAKING ── */
+.stake-card{background:var(--bg1);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.stake-header{display:flex;align-items:center;justify-content:space-between}
+.stake-validator{display:flex;align-items:center;gap:9px}
+.val-avatar{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.val-name{font-weight:600;font-size:.83rem}
+.val-meta{font-size:.6rem;font-family:var(--mono);color:var(--muted)}
+.apy-pill{background:rgba(0,255,178,.1);border:1px solid var(--border2);border-radius:8px;padding:5px 10px;text-align:center;flex-shrink:0}
+.apy-num{font-family:var(--head);font-size:1rem;font-weight:800;color:var(--p)}
+.apy-lbl{font-size:.55rem;font-family:var(--mono);color:var(--muted)}
+.stake-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.ss-item{background:var(--bg2);border-radius:8px;padding:8px;text-align:center}
+.ss-v{font-family:var(--mono);font-size:.72rem;font-weight:700}
+.ss-l{font-size:.55rem;font-family:var(--mono);color:var(--muted);margin-top:2px}
+.stake-bar-wrap{background:var(--bg3);border-radius:6px;height:5px;overflow:hidden}
+.stake-bar-fill{height:100%;background:linear-gradient(90deg,var(--p2),var(--p));border-radius:6px;transition:width .6s ease}
 
-.bal-usd {
-  font-size: 0.75rem; color: var(--muted);
-  font-family: var(--font-mono); margin-top: 4px;
-}
+/* ── NFT SECTION ── */
+.nft-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.nft-card{background:var(--bg1);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s}
+.nft-card:hover{border-color:rgba(124,58,237,.4);transform:translateY(-2px)}
+.nft-img{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--bg2)}
+.nft-info{padding:8px}
+.nft-name{font-size:.68rem;font-weight:600;font-family:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nft-price{font-size:.6rem;font-family:var(--mono);color:var(--p);margin-top:2px}
+.nft-coll{font-size:.55rem;font-family:var(--mono);color:var(--muted)}
 
-/* ── AIRDROP ── */
-.btn-airdrop {
-  width: 100%; margin-top: 14px;
-  padding: 10px; border-radius: 10px; border: none; cursor: pointer;
-  background: rgba(0,194,255,0.1); border: 1px solid rgba(0,194,255,0.25);
-  color: var(--sol3); font-family: var(--font-main); font-weight: 700;
-  font-size: 0.85rem; transition: all .2s;
-}
-.btn-airdrop:hover { background: rgba(0,194,255,0.18); }
-.btn-airdrop:disabled { opacity: .4; cursor: not-allowed; }
+/* ── PORTFOLIO ── */
+.port-pie{width:100%;display:flex;justify-content:center;margin:8px 0}
+.port-legend{display:flex;flex-direction:column;gap:7px}
+.port-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)}
+.port-row:last-child{border-bottom:none}
+.port-left{display:flex;align-items:center;gap:9px}
+.port-token-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.port-token-name{font-size:.82rem;font-weight:600}
+.port-token-qty{font-size:.62rem;font-family:var(--mono);color:var(--muted)}
+.port-right{text-align:right}
+.port-value{font-family:var(--mono);font-size:.82rem;font-weight:700}
+.port-change{font-size:.6rem;font-family:var(--mono)}
+.port-change.up{color:var(--p)}
+.port-change.down{color:var(--p4)}
+.port-total{background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(0,255,178,.08));border:1px solid rgba(0,255,178,.15);border-radius:12px;padding:14px;text-align:center;margin-bottom:8px}
+.pt-lbl{font-size:.6rem;font-family:var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.pt-val{font-family:var(--head);font-size:2rem;font-weight:800;background:linear-gradient(90deg,var(--p),var(--p5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:4px 0}
+.pt-change{font-size:.72rem;font-family:var(--mono)}
 
-/* ── DISCONNECT ── */
-.btn-disconnect {
-  width: 100%; margin-top: 10px;
-  padding: 10px; border-radius: 10px; border: none; cursor: pointer;
-  background: rgba(255,77,109,0.1); border: 1px solid rgba(255,77,109,0.25);
-  color: #ff4d6d; font-family: var(--font-main); font-weight: 700;
-  font-size: 0.85rem; transition: all .2s;
-}
-.btn-disconnect:hover { background: rgba(255,77,109,0.2); }
+/* ── P2P OFFERS ── */
+.offers-list{display:flex;flex-direction:column;gap:8px}
+.offer-card{background:var(--bg1);border:1px solid var(--border);border-radius:13px;padding:13px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:border .2s}
+.offer-card:hover{border-color:rgba(124,58,237,.3)}
+.offer-av{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.offer-info{flex:1;min-width:0}
+.offer-name{font-weight:600;font-size:.85rem}
+.offer-meta{font-size:.6rem;font-family:var(--mono);color:var(--muted)}
+.offer-rep{display:flex;align-items:center;gap:3px;margin-top:2px;font-size:.6rem;font-family:var(--mono);color:var(--p3)}
+.offer-r{text-align:right;flex-shrink:0}
+.offer-rate{font-family:var(--head);font-size:.92rem;font-weight:700;color:var(--p)}
+.offer-lim{font-size:.6rem;font-family:var(--mono);color:var(--muted)}
+.otype{font-size:.56rem;font-family:var(--mono);padding:2px 6px;border-radius:4px;font-weight:700;margin-top:3px;display:inline-block}
+.otype.buy{background:rgba(0,255,178,.1);color:var(--p)}
+.otype.sell{background:rgba(239,68,68,.1);color:var(--p4)}
 
-/* ── TX LOG ── */
-.tx-section { margin-top: 20px; }
-.tx-title { font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--muted); font-family: var(--font-mono); margin-bottom: 8px; }
-.tx-log {
-  background: rgba(0,0,0,.3); border: 1px solid var(--border);
-  border-radius: 10px; padding: 10px;
-  max-height: 130px; overflow-y: auto;
-  font-family: var(--font-mono); font-size: 0.68rem;
-}
-.tx-item { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,.04); color: var(--muted); }
-.tx-item:last-child { border: none; }
-.tx-item a { color: var(--sol3); text-decoration: none; }
-.tx-item a:hover { text-decoration: underline; }
-.tx-ok { color: #14F195; }
-.tx-err { color: #ff4d6d; }
+/* ── CHAT ── */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100dvh - 190px)}
+.contacts-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;flex-shrink:0}
+.contacts-row::-webkit-scrollbar{display:none}
+.cpill{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.cav{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:2px solid transparent;transition:all .2s;position:relative}
+.cav.online::after{content:'';position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--p);border:2px solid var(--bg)}
+.cpill.active .cav{border-color:var(--p)}
+.cname{font-size:.58rem;font-family:var(--mono);color:var(--muted)}
+.chatbox{flex:1;background:var(--bg1);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden}
+.chat-hd{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);flex-shrink:0}
+.chat-hd-l{display:flex;align-items:center;gap:9px}
+.chu-av{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.chu-name{font-weight:600;font-size:.83rem}
+.chu-st{font-size:.58rem;font-family:var(--mono);color:var(--p)}
+.chat-acts{display:flex;gap:6px}
+.ca-btn{width:30px;height:30px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.8rem;color:var(--muted);transition:all .15s}
+.ca-btn:hover{border-color:rgba(124,58,237,.4);color:#fff}
+.ca-btn.call{color:var(--p);background:rgba(0,255,178,.07);border-color:var(--border2)}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:7px}
+.chat-msgs::-webkit-scrollbar{width:3px}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.msg{display:flex;flex-direction:column;max-width:78%}
+.msg.s{align-self:flex-end;align-items:flex-end}
+.msg.r{align-self:flex-start;align-items:flex-start}
+.mbub{padding:9px 12px;border-radius:13px;font-size:.8rem;line-height:1.45}
+.msg.s .mbub{background:linear-gradient(135deg,var(--p2),#9F67FF);color:#fff;border-bottom-right-radius:4px}
+.msg.r .mbub{background:var(--bg2);border:1px solid var(--border);border-bottom-left-radius:4px}
+.mtime{font-size:.56rem;font-family:var(--mono);color:var(--muted);margin-top:3px}
+.msg-tx-card{background:rgba(0,255,178,.06);border:1px solid rgba(0,255,178,.2);border-radius:11px;padding:10px 12px}
+.mtx-amt{font-family:var(--head);font-size:.95rem;font-weight:800;color:var(--p)}
+.mtx-hash{font-size:.58rem;font-family:var(--mono);color:var(--muted);margin-top:3px}
+.mtx-st{font-size:.6rem;color:var(--p);margin-top:5px;display:flex;align-items:center;gap:4px}
+.chat-inp-row{padding:9px 11px;border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;background:var(--bg2);flex-shrink:0}
+.chat-inp{flex:1;padding:9px 13px;border-radius:9px;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:.8rem;outline:none}
+.chat-inp:focus{border-color:rgba(124,58,237,.4)}
+.chat-inp::placeholder{color:var(--muted)}
+.csend{width:36px;height:36px;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;background:var(--p2);color:#fff;flex-shrink:0;transition:background .15s}
+.csend:hover{background:#8B4FF5}
+.cattach{width:36px;height:36px;border-radius:9px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.8rem;color:var(--muted);transition:all .15s;flex-shrink:0}
+.cattach:hover{border-color:var(--border2);color:var(--p)}
 
-/* ── STATUS ── */
-.status {
-  text-align: center; margin-top: 16px;
-  font-size: 0.72rem; font-family: var(--font-mono);
-  color: var(--muted); min-height: 20px;
-}
-.status.ok  { color: var(--sol2); }
-.status.err { color: #ff4d6d; }
+/* ── VIDEO CALL ── */
+.vcall{position:fixed;inset:0;z-index:200;background:#000;display:none;flex-direction:column}
+.vcall.on{display:flex}
+.vrem{flex:1;background:#08080F;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.vrem::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(124,58,237,.12),transparent)}
+.vrem-name{position:absolute;top:14px;left:14px;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);padding:5px 11px;border-radius:7px;font-size:.68rem;font-family:var(--mono);border:1px solid var(--border)}
+.vcall-timer{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);padding:5px 11px;border-radius:7px;font-size:.68rem;font-family:var(--mono);color:var(--p);border:1px solid var(--border2)}
+.vloc{position:absolute;bottom:110px;right:14px;width:86px;height:124px;border-radius:12px;background:#10101A;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.vcall-ctrls{padding:14px 16px;background:rgba(0,0,0,.85);backdrop-filter:blur(20px);display:flex;align-items:flex-end;justify-content:center;gap:12px;border-top:1px solid var(--border)}
+.vctrl{display:flex;flex-direction:column;align-items:center;gap:4px}
+.vctrl-btn{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:transform .2s}
+.vctrl-btn:hover{transform:scale(1.08)}
+.vctrl-btn.mute{background:var(--bg3);border:1px solid var(--border)}
+.vctrl-btn.cam{background:var(--bg3);border:1px solid var(--border)}
+.vctrl-btn.sol{background:rgba(0,255,178,.12);border:1px solid var(--border2);color:var(--p);font-size:.65rem;font-family:var(--mono);font-weight:700}
+.vctrl-btn.share{background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.25);color:var(--p5);font-size:.8rem}
+.vctrl-btn.end{background:var(--p4);color:#fff;width:58px;height:58px}
+.vctrl-lbl{font-size:.52rem;font-family:var(--mono);color:var(--muted)}
 
-/* ── PHANTOM NOTICE ── */
-.phantom-notice {
-  margin-top: 20px; padding: 12px;
-  background: rgba(153,69,255,0.07); border: 1px solid var(--border);
-  border-radius: 10px; font-size: 0.7rem; font-family: var(--font-mono);
-  color: var(--muted); text-align: center; line-height: 1.5;
-}
-.phantom-notice a { color: var(--sol); }
+/* ── INCOMING CALL ── */
+.incall{position:fixed;inset:0;z-index:190;background:rgba(0,0,0,.88);backdrop-filter:blur(12px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+.incall.on{display:flex;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.inc-av{width:86px;height:86px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 0 50px rgba(124,58,237,.5);animation:gring 1.5s ease infinite}
+@keyframes gring{0%,100%{box-shadow:0 0 30px rgba(124,58,237,.4)}50%{box-shadow:0 0 70px rgba(124,58,237,.85)}}
+.inc-name{font-family:var(--head);font-size:1.5rem;font-weight:800}
+.inc-sub{font-size:.7rem;font-family:var(--mono);color:var(--muted)}
+.inc-acts{display:flex;gap:22px;margin-top:8px}
+.inc-btn{width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:transform .2s}
+.inc-btn:hover{transform:scale(1.1)}
+.inc-btn.rej{background:var(--p4);color:#fff}
+.inc-btn.acc{background:var(--p);color:#000}
 
-/* scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+/* ── TX HISTORY ── */
+.tx-list{display:flex;flex-direction:column;gap:7px}
+.txrow{background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px}
+.txicn{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.txicn.in{background:rgba(0,255,178,.1)}
+.txicn.out{background:rgba(239,68,68,.1)}
+.txicn.p2p{background:rgba(124,58,237,.1)}
+.txicn.swap{background:rgba(6,182,212,.1)}
+.txicn.stake{background:rgba(245,158,11,.1)}
+.txdet{flex:1;min-width:0}
+.txdesc{font-size:.8rem;font-weight:600}
+.txdate{font-size:.6rem;font-family:var(--mono);color:var(--muted);margin-top:2px}
+.txsig{font-size:.56rem;font-family:var(--mono);color:var(--muted)}
+.txsig a{color:var(--p2)}
+.txamt{text-align:right;flex-shrink:0}
+.txsol{font-family:var(--head);font-size:.9rem;font-weight:700}
+.txsol.in{color:var(--p)}
+.txsol.out{color:var(--p4)}
+.txusd{font-size:.6rem;font-family:var(--mono);color:var(--muted)}
+.txbadge{font-size:.53rem;font-family:var(--mono);padding:2px 6px;border-radius:4px;font-weight:700;margin-top:3px;display:inline-block}
+.txbadge.ok{background:rgba(0,255,178,.1);color:var(--p)}
+.txbadge.pend{background:rgba(245,158,11,.1);color:var(--p3)}
 
-/* spinner */
-.spin {
-  display: inline-block; width: 14px; height: 14px;
-  border: 2px solid rgba(255,255,255,.2);
-  border-top-color: #fff; border-radius: 50%;
-  animation: spin .6s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+/* ── CONNECT SCREEN ── */
+.cxscreen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:32px 22px;gap:18px;text-align:center}
+.cx-icon{font-size:3.5rem;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.cx-title{font-family:var(--head);font-size:1.75rem;font-weight:800;letter-spacing:-.5px;line-height:1.15}
+.cx-sub{font-size:.8rem;color:var(--muted);line-height:1.65;max-width:280px}
+.cx-features{display:flex;flex-direction:column;gap:6px;width:100%;max-width:300px}
+.cx-feat{display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--bg1);border:1px solid var(--border);border-radius:10px;font-size:.72rem;text-align:left}
+.cx-feat-icon{font-size:1rem;flex-shrink:0}
+.cx-feat-text{color:var(--muted)}
+.cx-feat-text strong{color:var(--text)}
+.btn-cx{width:100%;max-width:300px;padding:17px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--p2),#9F67FF);color:#fff;font-family:var(--head);font-size:1rem;font-weight:800;box-shadow:0 6px 28px rgba(124,58,237,.5);transition:all .25s;display:flex;align-items:center;justify-content:center;gap:9px}
+.btn-cx:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(124,58,237,.65)}
+.phantom-tip{font-size:.65rem;font-family:var(--mono);color:var(--muted);background:var(--bg1);border:1px solid var(--border);border-radius:9px;padding:9px 13px;max-width:300px;line-height:1.6}
+.phantom-tip a{color:var(--p2)}
+
+/* ── STATUS TOAST ── */
+.toast{position:fixed;bottom:0;left:0;right:0;padding:10px 16px;z-index:300;font-size:.68rem;font-family:var(--mono);text-align:center;display:none;transition:all .3s;border-top:1px solid transparent}
+.toast.on{display:block}
+.toast.ok{background:rgba(0,255,178,.1);color:var(--p);border-color:rgba(0,255,178,.2)}
+.toast.err{background:rgba(239,68,68,.1);color:var(--p4);border-color:rgba(239,68,68,.2)}
+.toast.info{background:rgba(124,58,237,.1);color:#A78BFA;border-color:rgba(124,58,237,.2)}
+
+/* ── MISC ── */
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spinr .6s linear infinite;vertical-align:middle}
+@keyframes spinr{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:36px 16px}
+.empty-ico{font-size:2.2rem;display:block;margin-bottom:8px}
+.empty-txt{font-size:.75rem;color:var(--muted);font-family:var(--mono)}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.divider{height:1px;background:var(--border);margin:4px 0}
+
+/* ── EARN / YIELD ── */
+.yield-card{background:var(--bg1);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.yield-top{display:flex;align-items:center;gap:10px}
+.yield-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.yield-name{font-weight:700;font-size:.85rem}
+.yield-prot{font-size:.6rem;font-family:var(--mono);color:var(--muted)}
+.yield-apy{margin-left:auto;text-align:right}
+.yield-apy-num{font-family:var(--head);font-size:1.1rem;font-weight:800;color:var(--p)}
+.yield-apy-lbl{font-size:.56rem;font-family:var(--mono);color:var(--muted)}
+.yield-tvl{display:flex;justify-content:space-between;font-size:.62rem;font-family:var(--mono);color:var(--muted)}
+.yield-tvl span{color:var(--text)}
+.risk-bar{display:flex;gap:3px;align-items:center}
+.risk-seg{width:14px;height:4px;border-radius:2px;background:var(--bg3)}
+.risk-seg.fill.low{background:var(--p)}
+.risk-seg.fill.med{background:var(--p3)}
+.risk-seg.fill.hi{background:var(--p4)}
+
+/* ── QR CODE ── */
+.qr-wrap{text-align:center;padding:16px}
+.qr-frame{width:160px;height:160px;margin:0 auto;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-family:var(--mono);color:#333;padding:8px}
+.qr-addr{font-size:.62rem;font-family:var(--mono);color:var(--muted);margin-top:8px;word-break:break-all;max-width:220px;margin-left:auto;margin-right:auto}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.on{display:flex;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-sheet{background:var(--bg1);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px;max-height:90vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;background:var(--bg3);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-family:var(--head);font-size:1rem;font-weight:800;margin-bottom:14px}
+.modal-close{position:absolute;top:16px;right:16px;font-size:.9rem;cursor:pointer;color:var(--muted)}
 </style>
 </head>
 <body>
 
-<div class="card">
-  <!-- LOGO -->
-  <div class="logo-area">
-    <span class="rocket">🚀</span>
-    <div class="logo">BitcoinDobmoney</div>
-    <div class="sub">Powered by Solana · Phantom Wallet</div>
-  </div>
+<div class="glow a"></div>
+<div class="glow b"></div>
+<div class="glow c"></div>
 
-  <!-- NETWORK -->
-  <div class="net-badge">
-    <div class="dot"></div>
-    <span id="net-label">Devnet · Lista para conectar</span>
-  </div>
-
-  <!-- CONNECT BUTTON -->
-  <button class="btn-connect" id="btn-main" onclick="handleConnect()">
-    <span>🟣</span> <span id="btn-text">CONECTAR PHANTOM</span>
-  </button>
-
-  <!-- WALLET INFO (shown after connect) -->
-  <div class="wallet-box" id="wallet-box">
-    <div class="wlabel">Dirección de tu cuenta</div>
-    <div class="waddr">
-      <span id="addr-text">—</span>
-      <button class="copy-btn" onclick="copyAddr()" title="Copiar">📋</button>
+<!-- ════════ CONNECT SCREEN ════════ -->
+<div id="cx-screen" class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">⚡</div>
+      <div><div class="brand-name">SolPay<span style="color:var(--p);font-size:.7em"> P2P</span></div><span class="brand-sub">DeFi · NFT · Swap · Yield</span></div>
     </div>
-
-    <div class="wlabel">Saldo disponible</div>
-    <div class="bal-row">
-      <div class="bal-num" id="bal-num">0.000</div>
-      <div class="bal-unit">◎ SOL</div>
+    <div class="netpill"><div class="dot"></div>Devnet</div>
+  </div>
+  <div class="cxscreen">
+    <div class="cx-icon">⚡</div>
+    <div class="cx-title">El banco del<br>futuro es Solana</div>
+    <div class="cx-sub">Swap, staking, NFTs, yield farming y pagos P2P — todo en una app profesional.</div>
+    <div class="cx-features">
+      <div class="cx-feat"><span class="cx-feat-icon">⇄</span><div class="cx-feat-text"><strong>Swap instantáneo</strong> · Jupiter DEX agregador</div></div>
+      <div class="cx-feat"><span class="cx-feat-icon">🏦</span><div class="cx-feat-text"><strong>Staking real</strong> · APY hasta 7.8% en validators</div></div>
+      <div class="cx-feat"><span class="cx-feat-icon">🖼</span><div class="cx-feat-text"><strong>NFT Marketplace</strong> · Tensor, ME, Solanart</div></div>
+      <div class="cx-feat"><span class="cx-feat-icon">📈</span><div class="cx-feat-text"><strong>Yield Farming</strong> · Marinade, Raydium, Orca</div></div>
+      <div class="cx-feat"><span class="cx-feat-icon">📹</span><div class="cx-feat-text"><strong>Video P2P</strong> · Paga SOL durante llamadas</div></div>
     </div>
-    <div class="bal-usd" id="bal-usd">≈ $0.00 USD</div>
-
-    <button class="btn-airdrop" id="btn-airdrop" onclick="airdrop()">
-      🪂 Solicitar 1 SOL gratis (Devnet)
+    <button class="btn-cx" onclick="handleConnect()">
+      <span>👻</span><span id="cx-btn-txt">CONECTAR PHANTOM</span>
     </button>
-
-    <div class="tx-section">
-      <div class="tx-title">Transacciones</div>
-      <div class="tx-log" id="tx-log">
-        <div class="tx-item" style="color:var(--muted)">Sin transacciones aún...</div>
-      </div>
-    </div>
-
-    <button class="btn-disconnect" onclick="disconnect()">🔌 Desconectar Wallet</button>
-  </div>
-
-  <div class="status" id="status-msg"></div>
-
-  <!-- PHANTOM NOTICE -->
-  <div class="phantom-notice" id="phantom-notice">
-    💡 En móvil, abre esta página desde el <strong>browser interno de Phantom</strong><br>
-    o instala <a href="https://phantom.app/" target="_blank">phantom.app</a> en desktop
+    <div class="phantom-tip">💡 Móvil: abre desde el <strong>browser de Phantom</strong><br>Desktop: instala <a href="https://phantom.app" target="_blank">phantom.app</a></div>
   </div>
 </div>
 
+<!-- ════════ MAIN APP ════════ -->
+<div id="main-app" class="app" style="display:none">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">⚡</div>
+      <div><div class="brand-name">SolPay<span style="color:var(--p);font-size:.7em"> P2P</span></div><span class="brand-sub">DeFi Suite</span></div>
+    </div>
+    <div class="topbar-r">
+      <div class="netpill"><div class="dot"></div><span id="net-lbl">Devnet</span></div>
+      <div class="icon-btn" onclick="openQR()">📲</div>
+      <div class="icon-btn" onclick="showToast('Sin notificaciones nuevas','info')">🔔<span class="badge">3</span></div>
+    </div>
+  </div>
+
+  <div class="wbar">
+    <div class="wbar-l">
+      <div class="wlbl">Wallet conectada</div>
+      <div class="waddr" id="w-addr" onclick="copyAddr()" title="Copiar dirección">—</div>
+      <div style="font-size:.58rem;font-family:var(--mono);color:var(--muted);margin-top:1px" id="w-rank">⭐ Cuenta verificada · 0 txs</div>
+    </div>
+    <div class="wbar-r">
+      <div class="wsol"><span id="w-sol">0.0000</span> ◎</div>
+      <div class="wusd" id="w-usd">≈ $0.00 USD</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="swTab('home',this)">🏠 Inicio</button>
+    <button class="tab" onclick="swTab('send',this)">↗ Enviar</button>
+    <button class="tab" onclick="swTab('swap',this)">⇄ Swap</button>
+    <button class="tab" onclick="swTab('earn',this)">🏦 Ganar</button>
+    <button class="tab" onclick="swTab('nft',this)">🖼 NFTs</button>
+    <button class="tab" onclick="swTab('p2p',this)">⇄ P2P</button>
+    <button class="tab" onclick="swTab('chat',this)">💬 Chat</button>
+    <button class="tab" onclick="swTab('portfolio',this)">📊 Portfolio</button>
+  </div>
+
+  <!-- ═══ HOME ═══ -->
+  <div id="panel-home" class="panel active">
+    <div class="market-card">
+      <div class="mkt-top">
+        <div>
+          <div class="sol-lbl">SOLANA / USD</div>
+          <div class="sol-price">$<span id="sol-p">—</span></div>
+        </div>
+        <div style="text-align:right">
+          <div class="change-badge up" id="sol-ch">+0.00%</div>
+          <div style="font-size:.56rem;font-family:var(--mono);color:var(--muted);margin-top:4px">Últimas 24h</div>
+        </div>
+      </div>
+      <svg class="sparkline" viewBox="0 0 240 44" preserveAspectRatio="none">
+        <defs><linearGradient id="spg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00FFB2" stop-opacity=".35"/><stop offset="100%" stop-color="#00FFB2" stop-opacity="0"/></linearGradient></defs>
+        <path id="sp-line" fill="none" stroke="#00FFB2" stroke-width="2" d="M0,36 L24,28 L48,31 L72,18 L96,22 L120,14 L144,19 L168,9 L192,12 L216,7 L240,4"/>
+        <path id="sp-area" fill="url(#spg)" d="M0,36 L24,28 L48,31 L72,18 L96,22 L120,14 L144,19 L168,9 L192,12 L216,7 L240,4 L240,44 L0,44 Z"/>
+      </svg>
+      <div class="mkt-stats">
+        <div class="mkt-stat"><div class="mkt-stat-v" id="mkt-vol">—</div><div class="mkt-stat-l">Vol 24h</div></div>
+        <div class="mkt-stat"><div class="mkt-stat-v" id="mkt-mcap">—</div><div class="mkt-stat-l">Market Cap</div></div>
+        <div class="mkt-stat"><div class="mkt-stat-v" id="mkt-tps">~65K</div><div class="mkt-stat-l">TPS actual</div></div>
+      </div>
+    </div>
+
+    <div class="sh"><div class="sh-title">Acciones rápidas</div></div>
+    <div class="features-grid">
+      <div class="feat-card" onclick="swTab('send',document.querySelectorAll('.tab')[1])">
+        <div class="feat-icon">↗</div>
+        <div class="feat-name">Enviar SOL</div>
+        <div class="feat-desc">Transferencia instantánea a cualquier wallet</div>
+        <span class="feat-badge live">LIVE</span>
+      </div>
+      <div class="feat-card" onclick="swTab('swap',document.querySelectorAll('.tab')[2])">
+        <div class="feat-icon">⇄</div>
+        <div class="feat-name">Swap Tokens</div>
+        <div class="feat-desc">Jupiter DEX · mejor precio garantizado</div>
+        <span class="feat-badge live">LIVE</span>
+      </div>
+      <div class="feat-card" onclick="swTab('earn',document.querySelectorAll('.tab')[3])">
+        <div class="feat-icon">🏦</div>
+        <div class="feat-name">Staking</div>
+        <div class="feat-desc">Valida la red y gana recompensas</div>
+        <span class="feat-badge live">LIVE</span>
+      </div>
+      <div class="feat-card" onclick="swTab('earn',document.querySelectorAll('.tab')[3]);setTimeout(()=>showYieldTab(),100)">
+        <div class="feat-icon">📈</div>
+        <div class="feat-name">Yield Farming</div>
+        <div class="feat-desc">Marinade mSOL · Raydium pools</div>
+        <span class="feat-badge new">NUEVO</span>
+      </div>
+      <div class="feat-card" onclick="swTab('nft',document.querySelectorAll('.tab')[4])">
+        <div class="feat-icon">🖼</div>
+        <div class="feat-name">NFT Gallery</div>
+        <div class="feat-desc">Tensor · Magic Eden · Solanart</div>
+        <span class="feat-badge live">LIVE</span>
+      </div>
+      <div class="feat-card" onclick="requestAirdrop()">
+        <div class="feat-icon">🪂</div>
+        <div class="feat-name">Airdrop</div>
+        <div class="feat-desc">1 SOL gratis en Devnet</div>
+        <span class="feat-badge live">GRATIS</span>
+      </div>
+    </div>
+
+    <!-- Network stats -->
+    <div class="card">
+      <div class="sh" style="margin-bottom:10px"><div class="sh-title">Red Solana en vivo</div><div class="sh-act" onclick="fetchNetStats()">↻ Actualizar</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="mkt-stat"><div class="mkt-stat-v" id="net-slot">—</div><div class="mkt-stat-l">Slot actual</div></div>
+        <div class="mkt-stat"><div class="mkt-stat-v" id="net-epoch">—</div><div class="mkt-stat-l">Época actual</div></div>
+        <div class="mkt-stat"><div class="mkt-stat-v" id="net-validators">1,900+</div><div class="mkt-stat-l">Validators</div></div>
+        <div class="mkt-stat"><div class="mkt-stat-v" id="net-finality">400ms</div><div class="mkt-stat-l">Finalidad</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SEND ═══ -->
+  <div id="panel-send" class="panel">
+    <div class="market-card" style="padding:12px 14px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:.62rem;font-family:var(--mono);color:var(--muted)">SOL/USD · Devnet</div>
+        <div style="font-family:var(--head);font-size:1.1rem;font-weight:700">$<span id="sp2">—</span> <span class="change-badge up" id="sp2ch" style="font-size:.6rem">+0%</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sh" style="margin-bottom:14px">
+        <div class="sh-title">Enviar SOL</div>
+        <div class="sh-act" onclick="requestAirdrop()">🪂 Airdrop</div>
+      </div>
+      <div class="inp-group">
+        <label class="lbl">Dirección destinatario</label>
+        <input class="inp" id="to-addr" placeholder="Wallet address (Base58)...">
+      </div>
+      <div class="inp-group">
+        <label class="lbl">Cantidad</label>
+        <div class="amt-row">
+          <input class="inp" type="number" id="to-amt" placeholder="0.000" step="0.01" min="0" oninput="updUsdPrev()">
+          <div class="cur-badge" onclick="showToast('USDC/USDT support próximamente','info')">◎ SOL</div>
+        </div>
+        <div class="quick-row">
+          <button class="qbtn" onclick="setAmt(.1)">0.1</button>
+          <button class="qbtn" onclick="setAmt(.25)">0.25</button>
+          <button class="qbtn" onclick="setAmt(.5)">0.5</button>
+          <button class="qbtn" onclick="setAmt(1)">1 SOL</button>
+          <button class="qbtn" onclick="setAmt('max')">MAX</button>
+        </div>
+        <div style="font-size:.62rem;font-family:var(--mono);color:var(--muted);margin-top:5px" id="usd-prev"></div>
+      </div>
+      <div class="inp-group">
+        <label class="lbl">Memo / nota (opcional)</label>
+        <input class="inp" id="to-memo" placeholder="Para: renta, café, préstamo..." maxlength="80">
+      </div>
+      <div class="fee-row">
+        <span class="fee-l">Comisión estimada</span>
+        <span class="fee-v">~0.000005 SOL (~$0.001)</span>
+      </div>
+      <div class="fee-row" style="border-top:none;padding-top:0">
+        <span class="fee-l">Tiempo confirmación</span>
+        <span class="fee-v">~400ms</span>
+      </div>
+      <button class="btn btn-primary" id="btn-send" onclick="sendTx()">
+        <span id="send-txt">↗ ENVIAR SOL</span>
+      </button>
+    </div>
+
+    <!-- Recent TX -->
+    <div class="sh"><div class="sh-title">Recientes</div><div class="sh-act" onclick="swTab('portfolio',document.querySelectorAll('.tab')[7])">Ver todo</div></div>
+    <div id="recent-txs"><div class="empty"><span class="empty-ico">📋</span><div class="empty-txt">Sin transacciones aún</div></div></div>
+  </div>
+
+  <!-- ═══ SWAP ═══ -->
+  <div id="panel-swap" class="panel">
+    <div class="sh"><div class="sh-title">Swap de tokens</div><span class="feat-badge live" style="font-size:.6rem;padding:3px 8px">Jupiter DEX</span></div>
+    <div class="card">
+      <div style="font-size:.62rem;font-family:var(--mono);color:var(--muted);margin-bottom:10px">Mejor precio entre 20+ DEXs en Solana</div>
+
+      <label class="lbl">Envías</label>
+      <div class="swap-box">
+        <div class="swap-token-row">
+          <div class="token-selector" onclick="swapTokenMenu('from')">
+            <span class="token-icon" id="from-icon">◎</span>
+            <span id="from-token">SOL</span> ▾
+          </div>
+          <input class="inp" style="flex:1;margin-left:8px" type="number" id="swap-from-amt" placeholder="0.00" oninput="calcSwap()">
+        </div>
+        <div style="font-size:.6rem;font-family:var(--mono);color:var(--muted);margin-top:6px">Saldo: <span id="swap-from-bal">—</span></div>
+      </div>
+
+      <div class="swap-arrow">
+        <div class="swap-arrow-btn" onclick="flipSwap()">⇅</div>
+      </div>
+
+      <label class="lbl">Recibes</label>
+      <div class="swap-box">
+        <div class="swap-token-row">
+          <div class="token-selector" onclick="swapTokenMenu('to')">
+            <span class="token-icon" id="to-icon">💲</span>
+            <span id="to-token">USDC</span> ▾
+          </div>
+          <input class="inp" style="flex:1;margin-left:8px" type="number" id="swap-to-amt" placeholder="0.00" readonly style="opacity:.7">
+        </div>
+      </div>
+
+      <div class="swap-rate-info" id="swap-info">
+        <div class="swap-rate-row"><span>Tipo de cambio</span><span class="swap-rate-val" id="swap-rate">—</span></div>
+        <div class="swap-rate-row"><span>Price Impact</span><span class="price-impact-ok" id="swap-impact">—</span></div>
+        <div class="swap-rate-row"><span>Ruta</span><span class="swap-rate-val" id="swap-route">—</span></div>
+        <div class="swap-rate-row"><span>Slippage</span><span class="swap-rate-val">0.5%</span></div>
+      </div>
+
+      <div style="height:10px"></div>
+      <button class="btn btn-green" onclick="execSwap()"><span id="swap-btn-txt">⇄ CONFIRMAR SWAP</span></button>
+      <div style="font-size:.6rem;font-family:var(--mono);color:var(--muted);text-align:center;margin-top:8px">Conecta a mainnet para swaps reales via <a href="https://jup.ag" target="_blank" style="color:var(--p2)">jup.ag</a></div>
+    </div>
+
+    <!-- Token list -->
+    <div class="sh"><div class="sh-title">Tokens populares</div></div>
+    <div id="token-list" style="display:flex;flex-direction:column;gap:7px"></div>
+  </div>
+
+  <!-- ═══ EARN ═══ -->
+  <div id="panel-earn" class="panel">
+    <div style="display:flex;gap:8px;margin-bottom:2px">
+      <button class="btn btn-outline btn-sm active-earn-tab" id="earn-tab-stake" onclick="showEarnTab('stake')">🏦 Staking</button>
+      <button class="btn btn-outline btn-sm" id="earn-tab-yield" onclick="showEarnTab('yield')">📈 Yield</button>
+      <button class="btn btn-outline btn-sm" id="earn-tab-lend" onclick="showEarnTab('lend')">💰 Lending</button>
+    </div>
+
+    <!-- STAKING -->
+    <div id="earn-stake">
+      <div class="card" style="background:linear-gradient(135deg,rgba(0,255,178,.08),rgba(124,58,237,.08));border-color:rgba(0,255,178,.18);margin-bottom:12px">
+        <div style="font-size:.6rem;font-family:var(--mono);color:var(--muted);margin-bottom:4px">TUS RECOMPENSAS PENDIENTES</div>
+        <div style="font-family:var(--head);font-size:1.4rem;font-weight:800;color:var(--p)">+0.0000 ◎ SOL</div>
+        <div style="font-size:.62rem;font-family:var(--mono);color:var(--muted);margin-top:2px">Próxima distribución en ~2h 14m</div>
+        <button class="btn btn-green" style="margin-top:10px;padding:10px" onclick="showToast('Conecta a mainnet para claim real','info')">⬇ RECLAMAR RECOMPENSAS</button>
+      </div>
+      <div class="sh"><div class="sh-title">Validators activos</div><div class="sh-act" onclick="showToast('Buscando mejores validators...','info')">Optimizar</div></div>
+      <div id="validators-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <!-- YIELD -->
+    <div id="earn-yield" style="display:none">
+      <div class="sh" style="margin-bottom:10px"><div class="sh-title">Yield Farming</div><span class="feat-badge new">DeFi</span></div>
+      <div id="yield-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <!-- LENDING -->
+    <div id="earn-lend" style="display:none">
+      <div class="sh" style="margin-bottom:10px"><div class="sh-title">Lending / Borrowing</div><span class="feat-badge new">DeFi</span></div>
+      <div id="lend-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+
+  <!-- ═══ NFT ═══ -->
+  <div id="panel-nft" class="panel">
+    <div class="sh">
+      <div class="sh-title">Tu colección NFT</div>
+      <div class="sh-act" onclick="showToast('Abre Magic Eden o Tensor para comprar NFTs reales','info')">Explorar</div>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button class="qbtn" style="flex:1;padding:7px" onclick="filterNFT('all')">Todos</button>
+      <button class="qbtn" style="flex:1;padding:7px" onclick="filterNFT('defi')">DeFi</button>
+      <button class="qbtn" style="flex:1;padding:7px" onclick="filterNFT('art')">Arte</button>
+      <button class="qbtn" style="flex:1;padding:7px" onclick="filterNFT('gaming')">Gaming</button>
+    </div>
+    <div class="nft-grid" id="nft-grid"></div>
+    <div class="card" style="margin-top:4px;text-align:center">
+      <div style="font-size:.7rem;font-family:var(--mono);color:var(--muted);margin-bottom:8px">Marketplaces integrados</div>
+      <div style="display:flex;justify-content:center;gap:10px">
+        <a href="https://magiceden.io" target="_blank" class="sh-act">Magic Eden</a>
+        <a href="https://tensor.trade" target="_blank" class="sh-act">Tensor</a>
+        <a href="https://solanart.io" target="_blank" class="sh-act">Solanart</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ P2P ═══ -->
+  <div id="panel-p2p" class="panel">
+    <div class="sh"><div class="sh-title">Marketplace P2P</div><div class="sh-act" onclick="publishOffer()">+ Publicar</div></div>
+    <div style="display:flex;gap:6px;margin-bottom:4px">
+      <button class="qbtn" style="flex:1;padding:7px;color:var(--p);border-color:rgba(0,255,178,.25)" onclick="filtOffers('all')">Todos</button>
+      <button class="qbtn" style="flex:1;padding:7px" onclick="filtOffers('buy')">🟢 Comprar</button>
+      <button class="qbtn" style="flex:1;padding:7px" onclick="filtOffers('sell')">🔴 Vender</button>
+    </div>
+    <div class="offers-list" id="offers-list"></div>
+  </div>
+
+  <!-- ═══ CHAT ═══ -->
+  <div id="panel-chat" class="panel" style="padding-bottom:0;gap:10px">
+    <div class="chat-wrap">
+      <div class="contacts-row" id="contacts-row"></div>
+      <div class="chatbox">
+        <div class="chat-hd">
+          <div class="chat-hd-l">
+            <div class="chu-av" id="chu-av" style="background:linear-gradient(135deg,#7C3AED,#00FFB2)">👤</div>
+            <div>
+              <div class="chu-name" id="chu-name">Selecciona contacto</div>
+              <div class="chu-st" id="chu-st">—</div>
+            </div>
+          </div>
+          <div class="chat-acts">
+            <div class="ca-btn" onclick="chatSendSol()" title="Enviar SOL">◎</div>
+            <div class="ca-btn call" onclick="startCall()" title="Videollamada">📹</div>
+            <div class="ca-btn" onclick="showToast('Audio próximamente','info')" title="Audio">📞</div>
+          </div>
+        </div>
+        <div class="chat-msgs" id="chat-msgs">
+          <div class="empty"><span class="empty-ico">💬</span><div class="empty-txt">Selecciona un contacto</div></div>
+        </div>
+        <div class="chat-inp-row">
+          <div class="cattach" onclick="showToast('Adjuntos: imágenes, voz, docs — próximo','info')">📎</div>
+          <input class="chat-inp" id="chat-inp" placeholder="Escribe..." onkeydown="if(event.key==='Enter')sendMsg()">
+          <button class="csend" onclick="sendMsg()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PORTFOLIO ═══ -->
+  <div id="panel-portfolio" class="panel">
+    <div class="port-total">
+      <div class="pt-lbl">VALOR TOTAL PORTAFOLIO</div>
+      <div class="pt-val">$<span id="port-total">0.00</span></div>
+      <div class="pt-change up" id="port-change">+0.00% hoy</div>
+    </div>
+
+    <!-- Donut chart SVG -->
+    <div class="card">
+      <div class="sh" style="margin-bottom:10px"><div class="sh-title">Distribución</div></div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <svg width="90" height="90" viewBox="0 0 90 90" style="flex-shrink:0">
+          <circle cx="45" cy="45" r="35" fill="none" stroke="var(--bg3)" stroke-width="12"/>
+          <circle cx="45" cy="45" r="35" fill="none" stroke="#00FFB2" stroke-width="12" stroke-dasharray="132 88" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+          <circle cx="45" cy="45" r="35" fill="none" stroke="#7C3AED" stroke-width="12" stroke-dasharray="66 154" stroke-dashoffset="-132" transform="rotate(-90 45 45)"/>
+          <circle cx="45" cy="45" r="35" fill="none" stroke="#F59E0B" stroke-width="12" stroke-dasharray="22 198" stroke-dashoffset="-198" transform="rotate(-90 45 45)"/>
+          <text x="45" y="49" text-anchor="middle" fill="var(--text)" font-size="9" font-family="var(--mono)" font-weight="700">SOL</text>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1">
+          <div style="display:flex;align-items:center;gap:6px;font-size:.68rem;font-family:var(--mono)"><span style="width:10px;height:10px;border-radius:3px;background:#00FFB2;flex-shrink:0"></span><span style="flex:1">SOL</span><span id="port-sol-pct">60%</span></div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:.68rem;font-family:var(--mono)"><span style="width:10px;height:10px;border-radius:3px;background:#7C3AED;flex-shrink:0"></span><span style="flex:1">mSOL (Staked)</span><span>30%</span></div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:.68rem;font-family:var(--mono)"><span style="width:10px;height:10px;border-radius:3px;background:#F59E0B;flex-shrink:0"></span><span style="flex:1">NFTs</span><span>10%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sh"><div class="sh-title">Activos</div></div>
+    <div class="port-legend" id="port-assets"></div>
+
+    <div class="sh" style="margin-top:4px"><div class="sh-title">Historial completo</div><div class="sh-act" onclick="exportTxs()">↓ Exportar</div></div>
+    <div class="tx-list" id="tx-list"><div class="empty"><span class="empty-ico">📋</span><div class="empty-txt">Sin transacciones</div></div></div>
+  </div>
+
+</div><!-- /main-app -->
+
+<!-- ════════ VIDEO CALL ════════ -->
+<div id="vcall" class="vcall">
+  <div class="vrem" id="vrem">
+    <div class="vrem-name" id="vcall-name">—</div>
+    <div class="vcall-timer" id="vcall-timer">00:00</div>
+    <span style="position:relative;z-index:1;font-size:5rem" id="vcall-emoji">👤</span>
+  </div>
+  <div class="vloc">🤳</div>
+  <div class="vcall-ctrls">
+    <div class="vctrl"><button class="vctrl-btn mute" id="vmute" onclick="togMic()">🎙️</button><span class="vctrl-lbl">Mic</span></div>
+    <div class="vctrl"><button class="vctrl-btn cam" id="vcam" onclick="togCam()">📷</button><span class="vctrl-lbl">Cam</span></div>
+    <div class="vctrl"><button class="vctrl-btn sol" onclick="callSendSol()">◎<br>SOL</button><span class="vctrl-lbl">Pagar</span></div>
+    <div class="vctrl"><button class="vctrl-btn share" onclick="showToast('Screen share próximamente','info')">🖥</button><span class="vctrl-lbl">Screen</span></div>
+    <div class="vctrl"><button class="vctrl-btn end" onclick="endCall()">📵</button><span class="vctrl-lbl">Colgar</span></div>
+  </div>
+</div>
+
+<!-- ════════ INCOMING CALL ════════ -->
+<div id="incall" class="incall">
+  <div class="inc-av" id="inc-av">👤</div>
+  <div class="inc-name" id="inc-name">—</div>
+  <div class="inc-sub">Videollamada entrante…</div>
+  <div class="inc-acts">
+    <button class="inc-btn rej" onclick="rejectCall()">📵</button>
+    <button class="inc-btn acc" onclick="acceptCall()">📹</button>
+  </div>
+</div>
+
+<!-- ════════ MODAL (generic) ════════ -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">—</div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
+/* ══════════════════════════════════════
+   CONSTANTS & STATE
+══════════════════════════════════════ */
 const DEVNET = 'https://api.devnet.solana.com';
 const EXPLORER = 'https://explorer.solana.com/tx/';
-let pubkey = null;
-let solPrice = 0;
 
-// ── STATUS HELPER ──────────────────────────────────────
-function setStatus(msg, type = '') {
-  const el = document.getElementById('status-msg');
-  el.textContent = msg;
-  el.className = 'status ' + type;
+let pubkey = null, solPrice = 0, balance = 0;
+let callSecs = 0, callTmr = null, mutMic = false, mutCam = false;
+let activeContact = null;
+
+const contacts = [
+  {id:'alex',name:'Alex',emoji:'👨‍💻',grad:'linear-gradient(135deg,#7C3AED,#00FFB2)',online:true,addr:'GkALEX4bJPF86kvgt3KPC2hYZzFJewPMj7RW1XgwGHinV'},
+  {id:'sara',name:'Sara',emoji:'👩‍🦱',grad:'linear-gradient(135deg,#F59E0B,#EF4444)',online:true,addr:'SaraXP2F86kvgt3KPC2hYZzFJewPMj7RW1XgwGHinVoo'},
+  {id:'mike',name:'Mike',emoji:'👨',grad:'linear-gradient(135deg,#0EA5E9,#6366F1)',online:false,addr:'MikeP2P4bJPF86kvgt3KPC2hYZzFJewPMj7RW1Xgwoo'},
+  {id:'luna',name:'Luna',emoji:'🌙',grad:'linear-gradient(135deg,#EC4899,#8B5CF6)',online:true,addr:'LunaSOL4bJPF86kvgt3KPC2hYZzFJewPMj7RW1Xgwoo'},
+];
+const chatHist = {
+  alex:[
+    {t:'r',text:'Hola! Necesito que me envíes 0.5 SOL.',time:'13:10'},
+    {t:'s',text:'Claro, lo mando ahora mismo 👌',time:'13:11'},
+    {t:'tx',from:'yo',to:'Alex',amount:'0.5',sig:'TX5HjK2aRealSig01dev',time:'13:11'},
+    {t:'r',text:'✅ Perfecto, recibido. ¡Gracias!',time:'13:12'},
+  ],
+  sara:[
+    {t:'r',text:'¿Tienes SOL disponible para P2P?',time:'10:05'},
+    {t:'s',text:'Sí, tengo 2 SOL. ¿A qué precio?',time:'10:06'},
+  ],
+  mike:[],
+  luna:[{t:'r',text:'Buenas! Vi tu oferta P2P 👀',time:'09:30'}],
+};
+const txHistory = [];
+
+const p2pOffers = [
+  {id:1,name:'CryptoAlex',emoji:'👨‍💻',grad:'linear-gradient(135deg,#7C3AED,#9F67FF)',type:'buy',rate:'$149.20',min:.1,max:5,rep:4.9,trades:234,pay:'USDT/USDC'},
+  {id:2,name:'SolQueenSara',emoji:'👩‍🦱',grad:'linear-gradient(135deg,#F59E0B,#EF4444)',type:'sell',rate:'$151.50',min:.5,max:10,rep:5.0,trades:89,pay:'PayPal/Wire'},
+  {id:3,name:'MikeTrader',emoji:'👨‍💼',grad:'linear-gradient(135deg,#0EA5E9,#6366F1)',type:'buy',rate:'$148.80',min:.2,max:3,rep:4.7,trades:412,pay:'SEPA/Wire'},
+  {id:4,name:'LunaCrypto',emoji:'🌙',grad:'linear-gradient(135deg,#EC4899,#8B5CF6)',type:'sell',rate:'$152.10',min:1,max:20,rep:4.8,trades:156,pay:'USDT/Cripto'},
+  {id:5,name:'SolValidator',emoji:'⚡',grad:'linear-gradient(135deg,#00FFB2,#06B6D4)',type:'buy',rate:'$150.05',min:.5,max:50,rep:4.95,trades:891,pay:'Todos los métodos'},
+];
+
+const validators = [
+  {name:'Marinade Finance',icon:'🌊',grad:'linear-gradient(135deg,#0EA5E9,#06B6D4)',apy:7.8,commission:0,stake:'2.1M SOL',uptime:'99.9%',desc:'mSOL liquid staking'},
+  {name:'Lido Finance',icon:'🔵',grad:'linear-gradient(135deg,#3B82F6,#1E40AF)',apy:7.4,commission:10,stake:'1.4M SOL',uptime:'99.8%',desc:'stSOL · Multi-chain'},
+  {name:'Jito Foundation',icon:'🎯',grad:'linear-gradient(135deg,#8B5CF6,#EC4899)',apy:8.1,commission:4,stake:'3.2M SOL',uptime:'99.95%',desc:'jitoSOL + MEV rewards'},
+  {name:'SolBlaze',icon:'🔥',grad:'linear-gradient(135deg,#F59E0B,#EF4444)',apy:7.6,commission:7,stake:'890K SOL',uptime:'99.7%',desc:'bSOL · High yield'},
+];
+
+const yieldPools = [
+  {name:'SOL-USDC Pool',protocol:'Raydium',icon:'💧',grad:'linear-gradient(135deg,#7C3AED,#00FFB2)',apy:24.5,tvl:'$45M',risk:'med',tokens:'SOL+USDC'},
+  {name:'mSOL Vault',protocol:'Marinade',icon:'🌊',grad:'linear-gradient(135deg,#0EA5E9,#06B6D4)',apy:9.2,tvl:'$320M',risk:'low',tokens:'mSOL'},
+  {name:'SOL-RAY LP',protocol:'Raydium',icon:'⚡',grad:'linear-gradient(135deg,#F59E0B,#8B5CF6)',apy:38.7,tvl:'$12M',risk:'hi',tokens:'SOL+RAY'},
+  {name:'Orca USDC Stable',protocol:'Orca',icon:'🐋',grad:'linear-gradient(135deg,#06B6D4,#3B82F6)',apy:6.8,tvl:'$89M',risk:'low',tokens:'USDC+USDT'},
+];
+
+const lendProtos = [
+  {name:'Solend',icon:'🏦',grad:'linear-gradient(135deg,#7C3AED,#06B6D4)',supplyApy:4.2,borrowApy:8.1,tvl:'$180M',ltv:'80%'},
+  {name:'Marginfi',icon:'📊',grad:'linear-gradient(135deg,#F59E0B,#EF4444)',supplyApy:5.1,borrowApy:9.3,tvl:'$95M',ltv:'75%'},
+  {name:'Kamino Finance',icon:'🌿',grad:'linear-gradient(135deg,#10B981,#059669)',supplyApy:3.8,borrowApy:7.4,tvl:'$240M',ltv:'85%'},
+];
+
+const nfts = [
+  {name:'Mad Lads #2847',coll:'Mad Lads',price:'12.5',icon:'🦹',bg:'linear-gradient(135deg,#7C3AED,#EC4899)',cat:'art'},
+  {name:'Okay Bears #1204',coll:'Okay Bears',price:'8.2',icon:'🐻',bg:'linear-gradient(135deg,#F59E0B,#EF4444)',cat:'art'},
+  {name:'Solana Monkey #445',coll:'SMB Gen2',price:'22.0',icon:'🐒',bg:'linear-gradient(135deg,#0EA5E9,#7C3AED)',cat:'art'},
+  {name:'DeGods #9018',coll:'DeGods',price:'35.5',icon:'⚡',bg:'linear-gradient(135deg,#000,#7C3AED)',cat:'art'},
+  {name:'y00ts #3312',coll:'y00ts',price:'5.8',icon:'🐐',bg:'linear-gradient(135deg,#10B981,#0EA5E9)',cat:'gaming'},
+  {name:'Tensorian #77',coll:'Tensorians',price:'3.2',icon:'🤖',bg:'linear-gradient(135deg,#06B6D4,#3B82F6)',cat:'defi'},
+];
+
+const tokens = [
+  {sym:'SOL',name:'Solana',icon:'◎',price:null,change:null,bal:null,color:'#00FFB2'},
+  {sym:'USDC',name:'USD Coin',icon:'💲',price:1.00,change:0.01,bal:0,color:'#2775CA'},
+  {sym:'RAY',name:'Raydium',icon:'⚡',price:2.34,change:5.2,bal:0,color:'#9945FF'},
+  {sym:'mSOL',name:'Marinade SOL',icon:'🌊',price:null,change:null,bal:0,color:'#00C2FF'},
+  {sym:'JTO',name:'Jito',icon:'🎯',price:3.12,change:-1.8,bal:0,color:'#8B5CF6'},
+  {sym:'JUP',name:'Jupiter',icon:'🪐',price:0.87,change:3.4,bal:0,color:'#E8704A'},
+];
+
+/* ══════════════════════════════════════
+   CONNECT
+══════════════════════════════════════ */
+async function handleConnect() {
+  const ph = window.solana;
+  if (!ph?.isPhantom) { showToast('❌ Phantom no detectada. Usa el browser de Phantom.','err'); return; }
+  document.getElementById('cx-btn-txt').innerHTML = '<span class="spin"></span> Conectando...';
+  try {
+    const r = await ph.connect();
+    pubkey = r.publicKey.toString();
+    bootApp();
+  } catch(e) {
+    document.getElementById('cx-btn-txt').textContent = 'CONECTAR PHANTOM';
+    showToast(e.code===4001 ? '⚠️ Rechazado':'❌ '+e.message,'err');
+  }
 }
 
-// ── FETCH SOL PRICE ────────────────────────────────────
+function bootApp() {
+  document.getElementById('cx-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'flex';
+  const s = pubkey.slice(0,6)+'...'+pubkey.slice(-4);
+  document.getElementById('w-addr').textContent = s;
+  fetchSolPrice();
+  fetchBalance();
+  fetchNetStats();
+  setInterval(fetchBalance, 15000);
+  setInterval(fetchSolPrice, 60000);
+  renderContacts();
+  renderOffers('all');
+  renderValidators();
+  renderYield();
+  renderLend();
+  renderNFTs('all');
+  renderTokenList();
+  showToast('✅ Wallet conectada · '+s,'ok');
+  // Simulate incoming call after 10s
+  setTimeout(triggerIncoming, 10000);
+}
+
+/* ══════════════════════════════════════
+   PRICE & BALANCE
+══════════════════════════════════════ */
 async function fetchSolPrice() {
   try {
-    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true');
     const d = await r.json();
-    solPrice = d?.solana?.usd || 0;
-  } catch { solPrice = 0; }
+    solPrice = d?.solana?.usd || 150;
+    const ch = d?.solana?.usd_24h_change || 0;
+    const vol = d?.solana?.usd_24h_vol || 0;
+    const mc = d?.solana?.usd_market_cap || 0;
+    ['sol-p','sp2'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent = solPrice.toFixed(2); });
+    ['sol-ch','sp2ch'].forEach(id => {
+      const el = document.getElementById(id); if(!el)return;
+      el.textContent = (ch>=0?'+':'')+ch.toFixed(2)+'%';
+      el.className = 'change-badge '+(ch>=0?'up':'down');
+    });
+    const fmt = v => v >= 1e9 ? '$'+(v/1e9).toFixed(1)+'B' : v >= 1e6 ? '$'+(v/1e6).toFixed(0)+'M' : '$'+v.toFixed(0);
+    const ve = document.getElementById('mkt-vol'); if(ve) ve.textContent = fmt(vol);
+    const me = document.getElementById('mkt-mcap'); if(me) me.textContent = fmt(mc);
+    // update token list
+    tokens[0].price = solPrice; tokens[0].change = ch;
+    tokens[3].price = solPrice * 1.018; // mSOL slight premium
+    renderTokenList();
+    updatePortfolio();
+  } catch { solPrice = 150; }
 }
 
-// ── FETCH BALANCE ──────────────────────────────────────
 async function fetchBalance() {
   if (!pubkey) return;
   try {
-    const r = await fetch(DEVNET, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0', id: 1,
-        method: 'getBalance',
-        params: [pubkey]
-      })
-    });
+    const r = await fetch(DEVNET,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({jsonrpc:'2.0',id:1,method:'getBalance',params:[pubkey]})});
     const d = await r.json();
-    const sol = (d?.result?.value || 0) / 1e9;
-    document.getElementById('bal-num').textContent = sol.toFixed(4);
-    if (solPrice > 0) {
-      document.getElementById('bal-usd').textContent =
-        '≈ $' + (sol * solPrice).toFixed(2) + ' USD';
-    }
-    return sol;
-  } catch(e) {
-    console.warn('Balance fetch error:', e);
-    return 0;
-  }
-}
-
-// ── CONNECT ────────────────────────────────────────────
-async function handleConnect() {
-  const phantom = window.solana;
-
-  if (!phantom?.isPhantom) {
-    setStatus('❌ Phantom no encontrada. Ábrela desde el browser de Phantom o instálala.', 'err');
-    document.getElementById('phantom-notice').style.display = 'block';
-    return;
-  }
-
-  const btn = document.getElementById('btn-main');
-  const btnText = document.getElementById('btn-text');
-  btnText.innerHTML = '<span class="spin"></span> Conectando...';
-  btn.disabled = true;
-  setStatus('Esperando aprobación en Phantom...', '');
-
-  try {
-    const resp = await phantom.connect();
-    pubkey = resp.publicKey.toString();
-
-    // Update UI
-    btn.classList.add('connected');
-    btnText.textContent = '✅ CONECTADO';
-    btn.disabled = false;
-    btn.onclick = null; // disable reconnect
-
-    document.getElementById('addr-text').textContent = pubkey;
-    document.getElementById('wallet-box').classList.add('show');
-    document.getElementById('phantom-notice').style.display = 'none';
-    document.getElementById('net-label').textContent = 'Devnet · Wallet Conectada ✅';
-
-    setStatus('✅ Billetera conectada correctamente', 'ok');
-
-    await fetchSolPrice();
-    await fetchBalance();
-
-    // Auto-refresh balance every 15s
-    setInterval(fetchBalance, 15000);
-
-  } catch(e) {
-    btn.disabled = false;
-    btnText.textContent = 'CONECTAR PHANTOM';
-    if (e.code === 4001) {
-      setStatus('⚠️ Conexión rechazada por el usuario', 'err');
-    } else {
-      setStatus('❌ Error: ' + e.message, 'err');
-    }
-  }
-}
-
-// ── DISCONNECT ─────────────────────────────────────────
-async function disconnect() {
-  try {
-    await window.solana?.disconnect();
+    balance = (d?.result?.value||0)/1e9;
+    document.getElementById('w-sol').textContent = balance.toFixed(4);
+    if (solPrice) document.getElementById('w-usd').textContent = '≈ $'+(balance*solPrice).toFixed(2)+' USD';
+    document.getElementById('w-rank').textContent = `⭐ Devnet · ${balance.toFixed(4)} ◎ disponible`;
+    tokens[0].bal = balance;
+    updatePortfolio();
   } catch {}
-  pubkey = null;
-
-  const btn = document.getElementById('btn-main');
-  const btnText = document.getElementById('btn-text');
-  btn.classList.remove('connected');
-  btnText.textContent = 'CONECTAR PHANTOM';
-  btn.onclick = handleConnect;
-  btn.disabled = false;
-
-  document.getElementById('wallet-box').classList.remove('show');
-  document.getElementById('bal-num').textContent = '0.000';
-  document.getElementById('bal-usd').textContent = '≈ $0.00 USD';
-  document.getElementById('addr-text').textContent = '—';
-  document.getElementById('net-label').textContent = 'Devnet · Lista para conectar';
-  document.getElementById('phantom-notice').style.display = 'block';
-  setStatus('🔌 Wallet desconectada', '');
 }
 
-// ── AIRDROP ────────────────────────────────────────────
-async function airdrop() {
-  if (!pubkey) return;
-  const btn = document.getElementById('btn-airdrop');
-  btn.disabled = true;
-  btn.textContent = '⏳ Solicitando airdrop...';
-  setStatus('Solicitando 1 SOL de Devnet...', '');
-
+async function fetchNetStats() {
   try {
-    const r = await fetch(DEVNET, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0', id: 1,
-        method: 'requestAirdrop',
-        params: [pubkey, 1000000000]
-      })
-    });
+    const [slotR, epochR] = await Promise.all([
+      fetch(DEVNET,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'getSlot'})}),
+      fetch(DEVNET,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'getEpochInfo'})}),
+    ]);
+    const slot = await slotR.json();
+    const epoch = await epochR.json();
+    const se = document.getElementById('net-slot'); if(se) se.textContent = (slot?.result||0).toLocaleString();
+    const ee = document.getElementById('net-epoch'); if(ee) ee.textContent = epoch?.result?.epoch || '—';
+    showToast('↻ Red actualizada','info');
+  } catch {}
+}
+
+/* ══════════════════════════════════════
+   SEND TX
+══════════════════════════════════════ */
+async function sendTx() {
+  const to = document.getElementById('to-addr').value.trim();
+  const amt = parseFloat(document.getElementById('to-amt').value);
+  const memo = document.getElementById('to-memo').value.trim();
+  if (!to || to.length < 32) { showToast('❌ Dirección inválida','err'); return; }
+  if (!amt || amt <= 0) { showToast('❌ Ingresa una cantidad','err'); return; }
+  if (amt > balance) { showToast('❌ Saldo insuficiente','err'); return; }
+  const btn = document.getElementById('btn-send');
+  document.getElementById('send-txt').innerHTML = '<span class="spin"></span> Firmando...';
+  btn.disabled = true;
+  try {
+    const ph = window.solana;
+    if (window.solanaWeb3) {
+      const {Connection,PublicKey,Transaction,SystemProgram,LAMPORTS_PER_SOL,clusterApiUrl} = window.solanaWeb3;
+      const conn = new Connection(clusterApiUrl('devnet'));
+      const tx = new Transaction().add(SystemProgram.transfer({
+        fromPubkey: new PublicKey(pubkey), toPubkey: new PublicKey(to),
+        lamports: Math.floor(amt * LAMPORTS_PER_SOL),
+      }));
+      tx.feePayer = new PublicKey(pubkey);
+      const {blockhash} = await conn.getRecentBlockhash();
+      tx.recentBlockhash = blockhash;
+      const signed = await ph.signTransaction(tx);
+      const sig = await conn.sendRawTransaction(signed.serialize());
+      addTx({type:'out',desc:memo||'Envío SOL',addr:to,amount:amt,sig,status:'confirmed'});
+      showToast('✅ '+amt+' SOL enviados!','ok');
+    } else {
+      // Devnet simulation
+      await new Promise(r=>setTimeout(r,1600));
+      const sig = 'SIM'+Math.random().toString(36).slice(2,14).toUpperCase();
+      addTx({type:'out',desc:memo||'Envío SOL',addr:to,amount:amt,sig,status:'confirmed'});
+      showToast('✅ '+amt+' SOL enviados (devnet sim)','ok');
+    }
+    document.getElementById('to-addr').value='';
+    document.getElementById('to-amt').value='';
+    document.getElementById('to-memo').value='';
+    document.getElementById('usd-prev').textContent='';
+    await fetchBalance();
+  } catch(e) {
+    showToast('❌ '+(e.message||'Error'),'err');
+  } finally {
+    document.getElementById('send-txt').textContent='↗ ENVIAR SOL';
+    btn.disabled=false;
+  }
+}
+
+async function requestAirdrop() {
+  if (!pubkey) return;
+  showToast('🪂 Solicitando 1 SOL gratis…','info');
+  try {
+    const r = await fetch(DEVNET,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({jsonrpc:'2.0',id:1,method:'requestAirdrop',params:[pubkey,1000000000]})});
     const d = await r.json();
     if (d.result) {
-      addTx('🪂 AIRDROP 1 SOL', d.result, true);
-      setStatus('✅ 1 SOL recibido en Devnet!', 'ok');
-      setTimeout(fetchBalance, 2500);
-    } else {
-      setStatus('❌ Airdrop falló: ' + JSON.stringify(d.error?.message || d.error), 'err');
-    }
-  } catch(e) {
-    setStatus('❌ Error: ' + e.message, 'err');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '🪂 Solicitar 1 SOL gratis (Devnet)';
-  }
+      addTx({type:'in',desc:'🪂 Airdrop Devnet',addr:'Devnet Faucet',amount:1,sig:d.result,status:'confirmed'});
+      showToast('✅ 1 SOL recibido!','ok');
+      setTimeout(fetchBalance,2500);
+    } else showToast('❌ Airdrop falló: '+(d.error?.message||JSON.stringify(d.error)),'err');
+  } catch(e) { showToast('❌ '+e.message,'err'); }
 }
 
-// ── TX LOG ─────────────────────────────────────────────
-function addTx(label, sig, ok) {
-  const log = document.getElementById('tx-log');
-  // Remove placeholder
-  if (log.children.length === 1 && log.children[0].textContent.includes('Sin transacciones')) {
-    log.innerHTML = '';
-  }
-  const item = document.createElement('div');
-  item.className = 'tx-item';
-  if (ok && sig && sig.length > 20) {
-    item.innerHTML = `<span class="tx-ok">✅</span> ${label} — <a href="${EXPLORER}${sig}?cluster=devnet" target="_blank">${sig.slice(0,10)}...</a>`;
-  } else {
-    item.innerHTML = `<span class="tx-err">❌</span> ${label}`;
-  }
-  log.prepend(item);
+/* ══════════════════════════════════════
+   TX HISTORY
+══════════════════════════════════════ */
+function addTx({type,desc,addr,amount,sig,status}) {
+  txHistory.unshift({type,desc,addr,amount,sig,status,ts:new Date()});
+  renderTxHistory();
+  renderRecentTxs();
 }
 
-// ── COPY ADDRESS ───────────────────────────────────────
-function copyAddr() {
-  if (!pubkey) return;
-  navigator.clipboard.writeText(pubkey).then(() => {
-    setStatus('📋 Dirección copiada', 'ok');
-    setTimeout(() => setStatus('', ''), 2000);
-  });
-}
-
-// ── AUTO-CONNECT if already authorized ────────────────
-window.addEventListener('load', async () => {
-  if (window.solana?.isPhantom) {
-    try {
-      const resp = await window.solana.connect({ onlyIfTrusted: true });
-      if (resp.publicKey) {
-        pubkey = resp.publicKey.toString();
-        document.getElementById('btn-main').click();
-      }
-    } catch {} // not previously authorized, that's fine
-  }
-});
-</script>
-</body>
-</html>
+const txIcon = {in:'⬇',out:'↗',swap:'⇄',stake:'🏦',p2p:'⇄'};
+function renderTxHistory() {
+  const list = document.getElementById('tx-list');
+  if (!list) return;
+  if (!txHistory.length) { list.in
