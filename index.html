@@ -8,6 +8,8 @@
 
 <!-- Solana Web3.js -->
 <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.js"></script>
+<!-- SPL Token -->
+<script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/lib/index.iife.js"></script>
 <!-- Phantom integration -->
 <script src="https://phantom.app/phantom.js"></script>
 
@@ -34,7 +36,7 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden}
 
-body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' result='noise'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='noise' scale='1' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23050510' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");background-size:400%;background-attachment:fixed;opacity:0.6}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");background-size:cover}
 .glow{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(90px);opacity:.1}
 .glow.a{width:450px;height:450px;background:var(--p2);top:-120px;right:-80px}
 .glow.b{width:320px;height:320px;background:var(--p);bottom:50px;left:-100px}
@@ -51,9 +53,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 .netpill{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;background:rgba(0,255,178,.07);border:1px solid var(--border2);font-size:.6rem;font-family:var(--mono);color:var(--p)}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--p);animation:pulse 1.8s ease infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.icon-btn{width:34px;height:34px;border-radius:9px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;position:relative;transition:all .2s}
+.icon-btn{width:34px;height:34px;border-radius:9px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;position:relative;transition:all .15s}
 .icon-btn:hover{border-color:rgba(124,58,237,.4)}
-.badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--p4);font-size:.48rem;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
+.badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--p4);font-size:.48rem;display:flex;align-items:center;justify-content:center;font-family:var(--mono);color:#000}
 
 .wbar{margin:12px 14px;background:linear-gradient(135deg,rgba(124,58,237,.13),rgba(0,255,178,.07));border:1px solid rgba(124,58,237,.25);border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
 .wbar-l{display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -65,7 +67,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 
 .tabs{display:flex;padding:0 14px;gap:2px;border-bottom:1px solid var(--border);background:rgba(5,5,10,.7);backdrop-filter:blur(12px);position:sticky;top:62px;z-index:50;overflow-x:auto}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex-shrink:0;padding:11px 10px;font-size:.68rem;font-weight:600;text-align:center;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab{flex-shrink:0;padding:11px 10px;font-size:.68rem;font-weight:600;text-align:center;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
 .tab.active{color:var(--p);border-bottom-color:var(--p)}
 
 .panel{display:none;flex-direction:column;flex:1;padding:14px;gap:12px;padding-bottom:80px}
@@ -86,7 +88,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 .inp-group{margin-bottom:12px}
 .amt-row{display:flex;gap:8px;align-items:flex-end}
 .amt-row .inp{flex:1;font-family:var(--head);font-size:1.15rem;font-weight:700}
-.cur-badge{padding:12px 11px;border-radius:11px;background:rgba(0,255,178,.07);border:1px solid var(--border2);font-family:var(--mono);font-size:.72rem;color:var(--p);font-weight:700;white-space:nowrap;cursor:pointer}
+.cur-badge{padding:12px 11px;border-radius:11px;background:rgba(0,255,178,.07);border:1px solid var(--border2);font-family:var(--mono);font-size:.72rem;color:var(--p);font-weight:700;white-space:nowrap;cursor:pointer;transition:all .15s}
 .cur-badge:hover{background:rgba(0,255,178,.12)}
 .quick-row{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
 .qbtn{padding:4px 9px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:.62rem;font-family:var(--mono);cursor:pointer;transition:all .15s}
@@ -128,7 +130,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 .cx-feat-icon{font-size:1rem;flex-shrink:0}
 .cx-feat-text{color:var(--muted)}
 .cx-feat-text strong{color:var(--text)}
-.btn-cx{width:100%;max-width:300px;padding:17px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--p2),#9F67FF);color:#fff;font-family:var(--head);font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .3s;box-shadow:0 8px 24px rgba(124,58,237,.4)}
+.btn-cx{width:100%;max-width:300px;padding:17px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--p2),#9F67FF);color:#fff;font-family:var(--head);font-size:1rem;font-weight:700;transition:all .2s}
 .btn-cx:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(124,58,237,.65)}
 .btn-cx:disabled{opacity:.5;cursor:not-allowed}
 .phantom-tip{font-size:.65rem;font-family:var(--mono);color:var(--muted);background:var(--bg1);border:1px solid var(--border);border-radius:9px;padding:9px 13px;max-width:300px;line-height:1.6}
@@ -150,6 +152,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 .network-indicator{display:flex;align-items:center;gap:6px;font-size:.65rem;font-family:var(--mono);padding:6px 10px;border-radius:8px;background:rgba(0,255,178,.08);border:1px solid var(--border2)}
 .network-indicator.devnet{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--p3)}
 .network-indicator.mainnet{background:rgba(0,255,178,.1);border-color:var(--border2);color:var(--p)}
+
+.token-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.token-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between}
+.token-info{display:flex;align-items:center;gap:8px}
+.token-icon{font-size:1.5rem}
+.token-details h4{font-size:.75rem;font-family:var(--mono);color:var(--text);margin:0}
+.token-details p{font-size:.62rem;color:var(--muted);margin:2px 0 0;font-family:var(--mono)}
+.token-amount{text-align:right;font-family:var(--mono);font-size:.75rem;color:var(--p);font-weight:700}
 </style>
 </head>
 <body>
@@ -322,6 +332,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
         <div class="sh-title">Tu saldo</div>
       </div>
       <div class="port-legend" id="port-assets"></div>
+      
+      <div class="sh" style="margin-top:16px;margin-bottom:10px">
+        <div class="sh-title">Tokens SPL</div>
+      </div>
+      <div class="token-grid" id="token-assets"></div>
     </div>
   </div>
 
@@ -348,6 +363,31 @@ const EXPLORER_URLS = {
   devnet: 'https://explorer.solana.com/tx/',
   testnet: 'https://explorer.solana.com/tx/',
   mainnet: 'https://explorer.solana.com/tx/'
+};
+
+/* CONFIGURACIÓN DE TOKENS SPL */
+const TOKENS = {
+  USDC: {
+    devnet: '4zMMC9sZgA8m84scBw3c3zIV1weEoGr57E3Ma2d2D24', // USDC en Devnet
+    mainnet: 'EPjFWaJy47glebZayE5G1ZzJsKScD9RRaJQJCm1sSgV', // USDC en Mainnet
+    decimals: 6,
+    icon: '💵',
+    name: 'USDC'
+  },
+  BONK: {
+    devnet: 'DezXAZ8z7PnrnRJjz3wXBoRgixVLatest', // BONK puede variar
+    mainnet: 'DezXAZ8z7PnrnRJjz3wXBoRgixVk6FYbMfbUUWScU9ZM', // BONK Mainnet
+    decimals: 5,
+    icon: '🐶',
+    name: 'BONK'
+  },
+  RAY: {
+    devnet: '8J8vfSfAk3Qzpnf7G6WXw1wqT2xq2sK8c1v6r3p5tQ5', // RAY puede variar
+    mainnet: '4k3Dyjzvzp8eMZWUXbBCjEvwSERRmWNaD8PcLMsqUxa', // RAY Mainnet
+    decimals: 6,
+    icon: '🌅',
+    name: 'RAY'
+  }
 };
 
 /* ══════════════════════════════════════
@@ -418,10 +458,12 @@ function bootApp() {
   // Actualizar datos
   fetchSolPrice();
   fetchBalance();
+  loadTokenBalances();
   
   // Actualizar periódicamente
   setInterval(fetchBalance, 10000);
   setInterval(fetchSolPrice, 60000);
+  setInterval(loadTokenBalances, 15000);
   
   showToast(`✅ Conectado a ${currentNetwork} · ${shortAddr}`, 'ok');
 }
@@ -455,13 +497,14 @@ function switchNetwork(network) {
     label.textContent = network.charAt(0).toUpperCase() + network.slice(1);
     
     fetchBalance();
+    loadTokenBalances();
     showToast(`✅ Cambiado a ${network}`, 'ok');
   }
 }
 
 /* ══════════════════════════════════════
    PRECIO Y BALANCE
-��═════════════════════════════════════ */
+══════════════════════════════════════ */
 async function fetchSolPrice() {
   try {
     const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true');
@@ -501,6 +544,81 @@ async function fetchBalance() {
     updatePortfolio();
   } catch (e) {
     console.error('Error fetching balance:', e);
+  }
+}
+
+/* ══════════════════════════════════════
+   CARGAR SALDOS DE TOKENS SPL
+══════════════════════════════════════ */
+async function loadTokenBalances() {
+  if (!pubkey || !connection) return;
+  
+  const gridContainer = document.getElementById('token-assets');
+  let html = '';
+  
+  for (const [tokenName, tokenData] of Object.entries(TOKENS)) {
+    try {
+      const mintAddress = currentNetwork === 'mainnet' ? tokenData.mainnet : tokenData.devnet;
+      const balance = await getTokenBalance(new window.solanaWeb3.PublicKey(pubkey), new window.solanaWeb3.PublicKey(mintAddress), tokenData.decimals);
+      
+      html += `
+        <div class="token-card">
+          <div class="token-info">
+            <div class="token-icon">${tokenData.icon}</div>
+            <div class="token-details">
+              <h4>${tokenName}</h4>
+              <p>${balance.toFixed(tokenData.decimals)}</p>
+            </div>
+          </div>
+          <div class="token-amount">${balance.toFixed(2)}</div>
+        </div>
+      `;
+    } catch (e) {
+      console.warn(`Error cargando ${tokenName}:`, e);
+      html += `
+        <div class="token-card" style="opacity:.5">
+          <div class="token-info">
+            <div class="token-icon">${tokenData.icon}</div>
+            <div class="token-details">
+              <h4>${tokenName}</h4>
+              <p>No disponible</p>
+            </div>
+          </div>
+          <div class="token-amount">0.00</div>
+        </div>
+      `;
+    }
+  }
+  
+  gridContainer.innerHTML = html;
+}
+
+/* ══════════════════════════════════════
+   OBTENER SALDO DE TOKEN SPL
+══════════════════════════════════════ */
+async function getTokenBalance(ownerPublicKey, mintPublicKey, decimals) {
+  try {
+    const splToken = window.splToken;
+    
+    // Obtener cuenta de token asociada
+    const associatedTokenAccount = await splToken.getAssociatedTokenAddress(
+      mintPublicKey,
+      ownerPublicKey
+    );
+
+    // Obtener información de la cuenta
+    const tokenAccountInfo = await connection.getAccountInfo(associatedTokenAccount);
+
+    if (tokenAccountInfo) {
+      const account = splToken.AccountLayout.decode(tokenAccountInfo.data);
+      const amount = Number(account.amount);
+      return amount / (10 ** decimals);
+    } else {
+      return 0;
+    }
+  } catch (error) {
+    console.warn('Error obteniendo saldo de token:', error);
+    return 0;
   }
 }
 
