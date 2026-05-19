@@ -1,1 +1,7 @@
 
+# Opción A: GitHub CLI
+gh repo create nextalk-p2p --public --clone
+cd nextalk-p2p
+
+# Opción B: Desde github.com
+# Crea un repo nuevo → público → clónalo
