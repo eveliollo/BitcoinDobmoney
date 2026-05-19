@@ -3,265 +3,424 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BitcoinDobmor • Solana P2P Live</title>
-    <!-- BIBLIOTECAS REALES -->
+    <title>BitcoinDobmoney • Solana</title>
+    <!-- LIBRERÍAS REALES Y OFICIALES DE SOLANA -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.6/lib/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.8/lib/index.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
     <script src="https://unpkg.com/socket.io-client@4.7.2/dist/socket.io.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: 'Arial', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
-            --bg-principal: #050510;
-            --bg-tarjeta: #0d0d22;
-            --borde: rgba(153, 69, 255, 0.3);
-            --borde-verde: rgba(20, 241, 149, 0.25);
-            --texto: #e8e8ff;
-            --texto-suave: #7070a0;
-            --sol-morado: #9945FF;
-            --sol-verde: #14F195;
-            --sol-azul: #00C2FF;
-            --rojo: #ff4d6d;
-            --gris-oscuro: #1a1a2e;
+            --fondo-principal: #000000;
+            --fondo-tarjeta: #0A0A12;
+            --borde-color: #2D2D44;
+            --color-morado: #9945FF;
+            --color-verde: #14F195;
+            --color-naranja: #FF9500;
+            --color-amarillo: #E6E200;
+            --color-texto: #FFFFFF;
+            --color-texto-suave: #8A8A9E;
+            --color-enlace: #FF9500;
+            --color-rojo: #FF4D6D;
+            --color-azul: #00C2FF;
+            --color-gris: #1E1E30;
+            --color-negro-suave: #07070F;
         }
 
         body {
-            background: var(--bg-principal);
-            color: var(--texto);
+            background-color: var(--fondo-principal);
+            color: var(--color-texto);
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 24px 16px;
-            position: relative;
-            overflow-x: hidden;
+            padding: 20px 16px;
+            background-image: 
+                linear-gradient(rgba(153, 69, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(153, 69, 255, 0.04) 1px, transparent 1px);
+            background-size: 32px 32px;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(153,69,255,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(153,69,255,0.04) 1px, transparent 1px);
-            background-size: 36px 36px;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .contenedor {
+        .contenedor-principal {
             width: 100%;
-            max-width: 480px;
-            background: rgba(13, 13, 34, 0.85);
-            border: 1px solid var(--borde);
+            max-width: 420px;
+            background-color: var(--fondo-tarjeta);
+            border: 2px solid var(--borde-color);
             border-radius: 28px;
-            padding: 36px 28px;
-            backdrop-filter: blur(24px);
-            box-shadow: 0 0 60px rgba(153, 69, 255, 0.1);
+            padding: 40px 28px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.6);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contenedor-principal::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(153, 69, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* LOGO Y NOMBRE */
+        .icono-cohete {
+            font-size: 55px;
+            display: block;
+            margin-bottom: 15px;
+            animation: flotar 3s ease-in-out infinite;
             position: relative;
             z-index: 2;
         }
 
-        /* LOGO */
-        .seccion-logo {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        .icono-cohete {
-            font-size: 3.5rem;
-            display: block;
-            margin-bottom: 12px;
-            animation: flotar 3s ease-in-out infinite;
-        }
         @keyframes flotar {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
+
         .nombre-logo {
-            font-size: 2rem;
-            font-weight: 800;
+            font-size: 42px;
+            font-weight: 900;
             letter-spacing: -1px;
-            background: linear-gradient(135deg, var(--sol-morado), var(--sol-azul), var(--sol-verde));
+            background: linear-gradient(90deg, var(--color-naranja), var(--color-amarillo), var(--color-verde));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 8px;
-        }
-        .sub-logo {
-            font-size: 0.85rem;
-            color: var(--texto-suave);
-            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
         }
 
-        /* ESTADO DE RED SOLANA */
+        .subtitulo {
+            font-size: 16px;
+            color: var(--color-texto-suave);
+            margin-bottom: 30px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ETIQUETA DE RED */
         .etiqueta-red {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            background: rgba(20, 241, 149, 0.08);
-            border: 1px solid var(--borde-verde);
-            border-radius: 20px;
-            padding: 8px 18px;
-            font-size: 0.85rem;
-            color: var(--sol-verde);
-            margin-bottom: 24px;
-            width: 100%;
-        }
-        .punto-activo {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--sol-verde);
-            animation: parpadeo 1.5s ease infinite;
-        }
-        @keyframes parpadeo {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            gap: 10px;
+            background-color: #0F172A;
+            border: 1px solid var(--color-verde);
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: var(--color-verde);
+            font-weight: 600;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        /* BOTON CONECTAR PHANTOM */
+        .etiqueta-red.cambiando {
+            border-color: var(--color-azul);
+            color: var(--color-azul);
+            transform: scale(1.05);
+        }
+
+        .punto-verde {
+            width: 12px;
+            height: 12px;
+            background-color: var(--color-verde);
+            border-radius: 50%;
+            animation: parpadeo 1.5s ease-in-out infinite;
+        }
+
+        @keyframes parpadeo {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .icono-check {
+            color: var(--color-verde);
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        /* NOTIFICACIONES */
+        .notificacion {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--color-gris);
+            border: 1px solid var(--color-verde);
+            color: var(--color-verde);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            z-index: 9999;
+            display: none;
+            animation: entrada 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+        }
+
+        .notificacion.error { border-color: var(--color-rojo); color: var(--color-rojo); }
+        .notificacion.azul { border-color: var(--color-azul); color: var(--color-azul); }
+        .notificacion.naranja { border-color: var(--color-naranja); color: var(--color-naranja); }
+
+        @keyframes entrada {
+            from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* BOTON CONECTAR */
         .boton-conectar {
             width: 100%;
-            padding: 18px;
-            border-radius: 14px;
-            border: none;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 1.2rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            background: linear-gradient(135deg, var(--sol-morado), #7b2fff);
+            background: linear-gradient(135deg, var(--color-morado), #7b2fff);
             color: white;
-            box-shadow: 0 4px 24px rgba(153, 69, 255, 0.45);
+            border: none;
+            border-radius: 18px;
+            padding: 22px;
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(153, 69, 255, 0.4);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
         }
+
         .boton-conectar.conectado {
-            background: linear-gradient(135deg, #0a8f5a, var(--sol-verde));
-            box-shadow: 0 4px 24px rgba(20, 241, 149, 0.35);
+            background: linear-gradient(135deg, #0a8f5a, var(--color-verde));
+            box-shadow: 0 0 30px rgba(20, 241, 149, 0.3);
         }
+
+        .boton-conectar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 40px rgba(153, 69, 255, 0.6);
+        }
+
         .circulo-boton {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: var(--sol-morado);
+            background-color: var(--color-morado);
             border: 2px solid white;
         }
-        .boton-conectar.conectado .circulo-boton { background: var(--sol-verde); }
 
-        /* INFORMACION BILLETERA SOLANA */
-        .info-billetera {
+        .boton-conectar.conectado .circulo-boton {
+            background-color: var(--color-verde);
+        }
+
+        /* NAVEGACIÓN */
+        .navegacion {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .btn-navegacion {
+            flex: 0 0 auto;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            background-color: var(--color-gris);
+            color: var(--color-texto-suave);
+            border: 1px solid transparent;
+        }
+
+        .btn-navegacion.activo {
+            background: linear-gradient(135deg, var(--color-morado), #7b2fff);
+            color: white;
+            border-color: var(--color-morado);
+        }
+
+        /* SECCIONES GENERALES */
+        .seccion {
             display: none;
-            background: rgba(20, 241, 149, 0.05);
-            border: 1px solid var(--borde-verde);
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 2;
             animation: aparecer 0.4s ease;
         }
-        .info-billetera.mostrar { display: block; }
-        @keyframes aparecer { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        .etiqueta-dato { font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--texto-suave); margin-bottom: 8px; font-weight: 600; }
-        .direccion-campo { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px; margin-bottom: 15px; }
-        .direccion-texto { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--sol-azul); word-break: break-all; }
-        .boton-copiar { background: none; border: none; color: var(--texto-suave); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
-        .boton-copiar:hover { color: var(--sol-verde); }
-        .saldo-fila { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
-        .saldo-numero { font-size: 2rem; font-weight: 800; background: linear-gradient(90deg, var(--sol-verde), var(--sol-azul)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Space Mono', monospace; }
-        .saldo-unidad { font-size: 1rem; color: var(--texto-suave); }
-        .saldo-usd { font-size: 0.85rem; color: var(--texto-suave); font-family: 'Space Mono', monospace; }
 
-        /* SECCION P2P - SOLANA VIDEO LLAMADA */
-        .seccion-p2p { background: rgba(0,0,0,0.2); border: 1px solid var(--borde); border-radius: 14px; padding: 20px; margin-bottom: 20px; display: none; }
-        .seccion-p2p.mostrar { display: block; }
-        .titulo-p2p { text-align: center; margin-bottom: 15px; color: var(--sol-verde); font-size: 1.2rem; }
-        .contenedor-codigo { display: flex; gap: 10px; margin-bottom: 15px; }
-        .input-codigo { flex:1; padding: 12px; background: var(--gris-oscuro); border: 1px solid var(--borde); border-radius: 8px; color: white; font-size: 0.9rem; }
-        .btn-copiar-codigo { padding: 12px 15px; background: var(--sol-morado); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .fila-botones { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn-p2p { flex:1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; }
-        .btn-crear { background: var(--sol-morado); color: white; }
-        .btn-unir { background: var(--sol-azul); color: white; }
-        .btn-p2p:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .seccion.mostrar {
+            display: block;
+        }
 
-        /* VIDEOS EN TIEMPO REAL */
-        .contenedor-videos { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .contenedor-videos.activo { display: grid; }
-        .video-box { background: black; border-radius: 10px; overflow: hidden; aspect-ratio: 16/9; border: 2px solid var(--sol-verde); }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .video-titulo { font-size: 0.7rem; text-align: center; margin-top: 4px; color: var(--texto-suave); }
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        /* CHAT EN TIEMPO REAL */
-        .contenedor-chat { display: none; margin-top: 15px; }
-        .contenedor-chat.activo { display: block; }
-        .caja-mensajes { height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); border: 1px solid var(--borde); border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 0.85rem; }
-        .mensaje { margin-bottom: 6px; padding: 6px 10px; border-radius: 6px; max-width: 80%; line-height: 1.4; }
-        .mensaje-propio { background: var(--sol-morado); margin-left: auto; text-align: right; }
-        .mensaje-otro { background: var(--gris-oscuro); margin-right: auto; }
-        .enviar-mensaje { display: flex; gap: 8px; }
-        .input-chat { flex:1; padding: 12px; background: var(--gris-oscuro); border: 1px solid var(--borde); border-radius: 8px; color: white; font-size: 0.9rem; }
-        .btn-enviar { padding: 12px 18px; background: var(--sol-verde); color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        /* TARJETAS Y CONTENEDORES */
+        .tarjeta {
+            background-color: #0F172A;
+            border: 1px solid var(--borde-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
 
-        /* ESTADO GENERAL */
-        .estado { text-align: center; font-size: 0.8rem; font-family: 'Space Mono', monospace; margin-top: 16px; min-height: 20px; }
-        .estado.exito { color: var(--sol-verde); }
-        .estado.error { color: var(--rojo); }
-        .estado.info { color: var(--sol-azul); }
+        .tarjeta.t-verde { border-color: var(--color-verde); }
+        .tarjeta.t-morado { border-color: var(--color-morado); }
+        .tarjeta.t-azul { border-color: var(--color-azul); }
+        .tarjeta.t-naranja { border-color: var(--color-naranja); }
 
-        /* AVISO PHANTOM */
-        .aviso-phantom { margin-top: 20px; padding: 14px; background: rgba(153, 69, 255, 0.07); border: 1px solid var(--borde); border-radius: 10px; font-size: 0.8rem; color: var(--texto-suave); text-align: center; line-height: 1.5; }
-        .enlace { color: var(--sol-morado); text-decoration: none; font-weight: 700; }
-    </style>
-</head>
-<body>
-    <div class="contenedor">
-        <!-- LOGO -->
-        <div class="seccion-logo">
-            <span class="icono-cohete">🚀</span>
-            <h1 class="nombre-logo">BitcoinDobmor</h1>
-            <p class="sub-logo">Powered by Solana • P2P Live</p>
-        </div>
+        .titulo-tarjeta {
+            font-size: 16px;
+            color: var(--color-texto-suave);
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-        <!-- ESTADO DE RED SOLANA -->
-        <div class="etiqueta-red">
-            <span class="punto-activo"></span>
-            <span id="textoRed">Devnet • Conectado</span>
-        </div>
+        .titulo-tarjeta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-        <!-- BOTON CONECTAR PHANTOM -->
-        <button class="boton-conectar" id="btnConectar">
-            <span class="circulo-boton"></span>
-            <span id="textoBoton">CONECTAR PHANTOM</span>
-        </button>
+        /* DATOS DE BILLETERA */
+        .fila-dato {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--borde-color);
+        }
 
-        <!-- INFORMACION BILLETERA SOLANA -->
-        <div class="info-billetera" id="infoBilletera">
-            <div class="etiqueta-dato">Dirección de tu cuenta</div>
-            <div class="direccion-campo">
-                <span class="direccion-texto" id="direccionTexto">...</span>
-                <button class="boton-copiar" id="btnCopiar">📋</button>
-            </div>
+        .fila-dato:last-child { border-bottom: none; }
 
-            <div class="etiqueta-dato">Saldo disponible</div>
-            <div class="saldo-fila">
-                <span class="saldo-numero" id="saldoNumero">0.0000</span>
-                <span class="saldo-unidad">◎ SOL</span>
-            </div>
-            <div class="saldo-usd" id="saldoUSD">≈ $0.00 USD</div>
-        </div>
+        .etiqueta {
+            color: var(--color-texto-suave);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-        <!-- SECCION P2P VIDEO LLAMADA -->
-        <div class="seccion-p2p" id="seccionP2P">
-            <h2 class="titulo-p2p">📡 VIDEOLAMADA P2P • SOLANA
+        .valor {
+            color: var(--color-texto);
+            font-weight: bold;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .valor.verde { color: var(--color-verde); }
+        .valor.rojo { color: var(--color-rojo); }
+        .valor.azul { color: var(--color-azul); }
+        .valor.naranja { color: var(--color-naranja); }
+
+        .btn-icono {
+            background: none;
+            border: none;
+            color: var(--color-texto-suave);
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .btn-icono:hover { color: var(--color-verde); }
+
+        /* PRECIOS Y GRÁFICOS */
+        .precio-actual {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .precio-numero {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--color-verde);
+        }
+
+        .variacion {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .variacion.verde { background-color: rgba(20, 241, 149, 0.15); color: var(--color-verde); }
+        .variacion.rojo { background-color: rgba(255, 77, 109, 0.15); color: var(--color-rojo); }
+
+        .grafico-contenedor {
+            height: 180px;
+            width: 100%;
+        }
+
+        /* FORMULARIOS DE ENVÍO/RECIBO */
+        .grupo-input {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .etiqueta-input {
+            display: block;
+            font-size: 13px;
+            color: var(--color-texto-suave);
+            margin-bottom: 6px;
+        }
+
+        .input-estilo {
+            width: 100%;
+            padding: 12px 14px;
+            background-color: var(--color-gris);
+            border: 1px solid var(--borde-color);
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+        }
+
+        .input-estilo:focus {
+            outline: none;
+            border-color: var(--color-morado);
+            box-shadow: 0 0 0 2px rgba(153, 69, 255, 0.1);
+        }
+
+        .info-comision {
+            font-size: 12px;
+            color: var(--color-naranja);
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .btn-principal {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--color-verde), #00cc88);
+            color: black;
+            border: none;
