@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>BitcoinDobmoney | Solana P2P</title>
+  <title>BitcoinDobmoney | Solana</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
 </head>
@@ -16,8 +17,8 @@
   <div class="logo">
     <span>₿</span><span class="b">Bitcoin</span><span class="d">Dob</span>money
   </div>
-  <div class="net-badge">MAINNET</div>
-  <button id="walletBtn">👻 Conectar</button>
+  <div class="net-badge">⚡ MAINNET</div>
+  <button id="wallet-btn">Conectar</button>
 </header>
 
 <!-- HERO -->
@@ -45,15 +46,15 @@
   <div id="wallet-panel">
     <div class="wallet-row">
       <span class="wallet-label">Dirección</span>
-      <span class="wallet-value addr" id="walletAddress">—</span>
+      <span class="wallet-value addr" id="disp-address">—</span>
     </div>
     <div class="wallet-row">
       <span class="wallet-label">Balance</span>
-      <span class="wallet-value green" id="walletBalance">0 SOL</span>
+      <span class="wallet-value green" id="disp-balance">0 ◎ SOL</span>
     </div>
     <div class="wallet-row">
       <span class="wallet-label">Red</span>
-      <span class="wallet-value" id="networkStatus" style="color:var(--accent2);">Solana Mainnet</span>
+      <span class="wallet-value" style="color:var(--accent2);">Solana Mainnet</span>
     </div>
     <button id="disconnect-btn">🔌 Desconectar</button>
   </div>
@@ -93,7 +94,7 @@
   <div class="feature-card">
     <div class="feature-icon">⚡</div>
     <div class="feature-title">Velocidad</div>
-    <div class="feature-desc">Confirmaciones en menos de 1 segundo.</div>
+    <div class="feature-desc">Confirmaciones en menos de 1 segundo con Solana.</div>
   </div>
   <div class="feature-card">
     <div class="feature-icon">🌐</div>
@@ -102,41 +103,40 @@
   </div>
   <div class="feature-card">
     <div class="feature-icon">📊</div>
-    <div class="feature-title">Saldo Real</div>
-    <div class="feature-desc">Balance en vivo directo de blockchain.</div>
+    <div class="feature-title">Saldo real</div>
+    <div class="feature-desc">Balance en vivo directo de la blockchain.</div>
   </div>
 </div>
 
-<!-- CAMERA SECTION -->
-<div class="camera-card">
-  <h3>📹 Cámara Web</h3>
-  <video id="video"></video>
-  <button id="cameraBtn">🎥 Activar Cámara</button>
+<!-- P2P SECTION -->
+<div class="p2p-section">
+  <div class="section-label">▸ Plataforma Avanzada</div>
+
+  <a href="solana-p2p.html" class="p2p-btn">
+    <div class="p2p-btn-icon">🎥</div>
+    <div class="p2p-btn-text">
+      <span class="p2p-btn-title">NexTrade P2P</span>
+      <span class="p2p-btn-sub">Video · Chat · SOL · SPL · NFT</span>
+    </div>
+    <div class="p2p-btn-arrow">→</div>
+    <div class="p2p-new-badge">NUEVO</div>
+  </a>
+
+  <a href="https://explorer.solana.com" target="_blank" class="p2p-btn">
+    <div class="p2p-btn-icon">🔍</div>
+    <div class="p2p-btn-text">
+      <span class="p2p-btn-title">Solana Explorer</span>
+      <span class="p2p-btn-sub">Verifica transacciones on-chain</span>
+    </div>
+    <div class="p2p-btn-arrow">↗</div>
+  </a>
 </div>
 
-<!-- CHAT SECTION -->
-<div class="chat-card">
-  <h3>💬 Chat P2P</h3>
-  <div id="chatBox"></div>
-  <div class="chat-input">
-    <input 
-      type="text" 
-      id="msgInput" 
-      placeholder="Escribe tu mensaje..."
-      autocomplete="off"
-    >
-    <button id="sendBtn">Enviar</button>
-  </div>
-</div>
-
-<!-- FOOTER -->
 <footer>
-  ₿ BitcoinDobmoney · Solana Mainnet · Sin custodia<br>
-  🔓 Código abierto · GitHub Pages · MIT License
+  BitcoinDobmoney · Solana Mainnet · Sin custodia<br>
+  Código abierto · GitHub Pages
 </footer>
 
-<!-- SCRIPTS -->
 <script src="app.js"></script>
-
 </body>
 </html>
