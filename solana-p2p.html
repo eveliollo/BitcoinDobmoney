@@ -37,18 +37,16 @@ const TARIFAS = {
 function formatSOL(amount) {
   return (amount / 1e9).toFixed(4);
 }
-
 function shortAddress(addr) {
   if (!addr) return "";
   return addr.slice(0, 4) + "..." + addr.slice(-4);
 }
-
 function calcComision(monto, tipo) {
   return (monto * TARIFAS[tipo]).toFixed(4);
 }
 
 // ============================================================
-// HOOKS PERSONALIZADOS
+// HOOKS
 // ============================================================
 function usePhantom() {
   const [wallet, setWallet] = useState(null);
@@ -178,24 +176,6 @@ function useMarketData() {
   return { prices, loading };
 }
 
-function useNotificaciones() {
-  const [notifs, setNotifs] = useState([]);
-
-  const push = useCallback((texto, tipo = "info") => {
-    const id = Date.now();
-    setNotifs(n => [{ id, texto, tipo, ts: new Date() }, ...n.slice(0, 19)]);
-    setTimeout(() => setNotifs(n => n.map(x => x.id === id ? {...x, visto: true} : x)), 4000);
-  }, []);
-
-  const marcarVisto = useCallback((id) => {
-    setNotifs(n => n.map(x => x.id === id ? {...x, visto: true} : x));
-  }, []);
-
-  const limpiar = useCallback(() => setNotifs([]), []);
-
-  return { notifs, push, marcarVisto, limpiar };
-}
-
 // ============================================================
 // COMPONENTES UI BASE
 // ============================================================
@@ -300,33 +280,6 @@ function Tab({ label, icon, active, onClick }) {
   );
 }
 
-function ToastBar({ notifs, onDismiss }) {
-  const reciente = notifs.find(n => !n.visto);
-  if (!reciente) return null;
-  const colorMap = { ok: COLORS.verde, error: COLORS.rojo, warn: COLORS.naranja, info: COLORS.lila };
-  const iconMap = { ok: "✅", error: "⚠️", warn: "⚡", info: "ℹ️" };
-  const c = colorMap[reciente.tipo] || COLORS.lila;
-  return (
-    <div style={{
-      position: "fixed", top: 70, left: "50%", transform: "translateX(-50%)",
-      zIndex: 200, width: "calc(100% - 40px)", maxWidth: 440,
-      background: COLORS.fondoCard,
-      border: `1px solid ${c}60`,
-      borderLeft: `4px solid ${c}`,
-      borderRadius: 12,
-      padding: "12px 16px",
-      display: "flex", alignItems: "center", gap: 10,
-      boxShadow: `0 8px 32px #00000080`,
-      animation: "slideDown 0.3s ease",
-    }}>
-      <span style={{ fontSize: 18, flexShrink: 0 }}>{iconMap[reciente.tipo]}</span>
-      <span style={{ color: COLORS.texto, fontSize: 13, flex: 1, lineHeight: 1.4 }}>{reciente.texto}</span>
-      <button onClick={() => onDismiss(reciente.id)}
-        style={{ background: "none", border: "none", color: COLORS.textoSub, cursor: "pointer", fontSize: 16, padding: 0 }}>✕</button>
-    </div>
-  );
-}
-
 // ============================================================
 // SECCIÓN: CONEXIÓN Y WALLET
 // ============================================================
@@ -372,4 +325,1328 @@ function WalletSection({ phantom }) {
                   {balance !== null ? formatSOL(balance) : "—"}
                 </div>
               </div>
-              <div style={{ background: COLORS.fondoCard2, borderRadius: 10
+              <div style={{ background: COLORS.fondoCard2, borderRadius: 10, padding: 14 }}>
+                <div style={{ color: COLORS.textoSub, fontSize: 10, letterSpacing: "0.1em" }}>CUSTODIA</div>
+                <div style={{ color: COLORS.verde, fontWeight: 800, fontSize: 14, marginTop: 4 }}>Sin custodia ✓</div>
+              </div>
+            </div>
+            <Btn color={COLORS.rojo} outline onClick={disconnect} style={{ width: "100%" }}>
+              Desconectar Wallet
+            </Btn>
+          </div>
+        ) : (
+          <div>
+            {error && (
+              <div style={{
+                background: `${COLORS.rojo}15`, border: `1px solid ${COLORS.rojo}40`,
+                borderRadius: 10, padding: 12, marginBottom: 14, color: COLORS.rojo, fontSize: 13,
+              }}>⚠️ {error}</div>
+            )}
+            <Btn
+              color={COLORS.lila}
+              loading={connecting}
+              onClick={connect}
+              style={{ width: "100%", fontSize: 16 }}
+            >
+              🔗 CONECTAR PHANTOM
+            </Btn>
+            <p style={{ color: COLORS.textoSub, fontSize: 11, textAlign: "center", marginTop: 10 }}>
+              Detecta automáticamente en móvil y PC · Memoria de sesión activa
+            </p>
+          </div>
+        )}
+      </Card>
+
+      <Card>
+        <div style={{ color: COLORS.textoSub, fontSize: 11, letterSpacing: "0.1em", marginBottom: 12 }}>PROTOCOLO</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {[
+            ["⚡", "Solana Mainnet", COLORS.lila],
+            ["🔒", "Sin Custodia · P2P", COLORS.verde],
+            ["🧠", "Firma Neural", COLORS.naranja],
+            ["🌐", "Multi-RPC (3 nodos)", COLORS.texto],
+          ].map(([icon, label, color]) => (
+            <div key={label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span>{icon}</span>
+              <span style={{ color, fontSize: 13, fontWeight: 600 }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// ============================================================
+// SECCIÓN: SALA DE NEGOCIACIÓN — SISTEMA MULTICÁMARA
+// ============================================================
+
+// Detecta todas las cámaras disponibles en el dispositivo
+async function enumerarCamaras() {
+  try {
+    await navigator.mediaDevices.getUserMedia({ video: true });
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices.filter(d => d.kind === "videoinput");
+  } catch {
+    return [];
+  }
+}
+
+function VideoSlot({ label, streamRef, active, pip, onTogglePip }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (ref.current) ref.current.srcObject = streamRef?.current || null;
+  }, [active, streamRef?.current]);
+
+  return (
+    <div style={{
+      position: "relative",
+      background: "#000",
+      borderRadius: 10,
+      overflow: "hidden",
+      aspectRatio: pip ? "1/1" : "16/9",
+      border: active ? `2px solid ${COLORS.lila}` : `1px solid ${COLORS.borde}`,
+      flex: pip ? "0 0 90px" : "1",
+      cursor: "pointer",
+      transition: "all 0.25s",
+    }} onClick={onTogglePip}>
+      <video ref={ref} autoPlay playsInline muted
+        style={{ width: "100%", height: "100%", objectFit: "cover", display: active ? "block" : "none" }} />
+      {!active && (
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: COLORS.textoSub }}>
+          <span style={{ fontSize: pip ? 18 : 28 }}>📷</span>
+          {!pip && <span style={{ fontSize: 11, marginTop: 4 }}>Inactiva</span>}
+        </div>
+      )}
+      {active && (
+        <div style={{
+          position: "absolute", top: 6, left: 6,
+          background: `${COLORS.rojo}DD`, borderRadius: 5,
+          padding: "2px 7px", fontSize: 9, fontWeight: 800, color: "#fff",
+          display: "flex", alignItems: "center", gap: 4,
+          letterSpacing: "0.08em",
+        }}>
+          <span style={{ width: 5, height: 5, background: "#fff", borderRadius: "50%", animation: "pulse 1s infinite" }} />
+          LIVE
+        </div>
+      )}
+      <div style={{
+        position: "absolute", bottom: 6, right: 6,
+        background: "#00000099", borderRadius: 5,
+        padding: "2px 6px", fontSize: 9, color: COLORS.textoSub, fontWeight: 700,
+      }}>{label}</div>
+    </div>
+  );
+}
+
+function NegociacionSection({ pubkey }) {
+  // Estado multicámara
+  const [camaras, setCamaras] = useState([]); // lista de devices
+  const [slots, setSlots] = useState([        // hasta 4 slots
+    { id: 0, deviceId: null, label: "CAM 1", active: false },
+    { id: 1, deviceId: null, label: "CAM 2", active: false },
+    { id: 2, deviceId: null, label: "CAM 3", active: false },
+    { id: 3, deviceId: null, label: "CAM 4", active: false },
+  ]);
+  const [principal, setPrincipal] = useState(0); // qué slot va en grande
+  const [grabando, setGrabando] = useState(false);
+  const [grabError, setGrabError] = useState(null);
+  const [camError, setCamError] = useState(null);
+  const [expanded, setExpanded] = useState(false);
+
+  const streamRefs = useRef([
+    { current: null }, { current: null },
+    { current: null }, { current: null },
+  ]);
+  const mediaRecorderRef = useRef(null);
+  const recordedChunksRef = useRef([]);
+
+  // Chat
+  const [messages, setMessages] = useState([
+    { from: "sistema", text: "🎥 Sala multicámara activa. Puedes conectar hasta 4 cámaras simultáneamente.", time: nowTime() },
+  ]);
+  const [input, setInput] = useState("");
+  const chatEndRef = useRef(null);
+
+  function nowTime() {
+    const d = new Date();
+    return `${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`;
+  }
+
+  // Cargar lista de cámaras
+  useEffect(() => {
+    enumerarCamaras().then(devs => {
+      setCamaras(devs);
+      // Asignar automáticamente los primeros deviceIds disponibles a los slots
+      setSlots(prev => prev.map((s, i) => ({
+        ...s,
+        deviceId: devs[i]?.deviceId || null,
+        label: devs[i]?.label || `CAM ${i + 1}`,
+      })));
+    });
+    return () => {
+      streamRefs.current.forEach(r => r.current?.getTracks().forEach(t => t.stop()));
+    };
+  }, []);
+
+  const activarSlot = async (idx) => {
+    setCamError(null);
+    const slot = slots[idx];
+    if (slots[idx].active) {
+      // Apagar
+      streamRefs.current[idx].current?.getTracks().forEach(t => t.stop());
+      streamRefs.current[idx].current = null;
+      setSlots(prev => prev.map((s, i) => i === idx ? { ...s, active: false } : s));
+      return;
+    }
+    if (!slot.deviceId) {
+      setCamError(`No hay cámara asignada al slot ${idx + 1}.`);
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: { exact: slot.deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: idx === 0, // solo audio en slot principal
+      });
+      streamRefs.current[idx].current = stream;
+      setSlots(prev => prev.map((s, i) => i === idx ? { ...s, active: true } : s));
+    } catch (e) {
+      setCamError(`Slot ${idx + 1}: ${e.message}`);
+    }
+  };
+
+  const asignarCamara = (slotIdx, deviceId) => {
+    const dev = camaras.find(d => d.deviceId === deviceId);
+    setSlots(prev => prev.map((s, i) =>
+      i === slotIdx ? { ...s, deviceId, label: dev?.label?.split("(")[0]?.trim() || `CAM ${slotIdx + 1}` } : s
+    ));
+  };
+
+  const apagarTodas = () => {
+    streamRefs.current.forEach(r => r.current?.getTracks().forEach(t => t.stop()));
+    streamRefs.current.forEach(r => r.current = null);
+    setSlots(prev => prev.map(s => ({ ...s, active: false })));
+    setGrabando(false);
+  };
+
+  const toggleGrabacion = () => {
+    if (grabando) {
+      mediaRecorderRef.current?.stop();
+      setGrabando(false);
+      return;
+    }
+    const activeStream = streamRefs.current[principal].current;
+    if (!activeStream) { setGrabError("Activa primero la cámara principal."); return; }
+    setGrabError(null);
+    recordedChunksRef.current = [];
+    try {
+      const mr = new MediaRecorder(activeStream, { mimeType: "video/webm;codecs=vp9" });
+      mr.ondataavailable = e => { if (e.data.size > 0) recordedChunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = `negociacion_${Date.now()}.webm`; a.click();
+        setMessages(m => [...m, { from: "sistema", text: "✅ Grabación guardada como prueba visual del acuerdo.", time: nowTime() }]);
+      };
+      mr.start(200);
+      mediaRecorderRef.current = mr;
+      setGrabando(true);
+      setMessages(m => [...m, { from: "sistema", text: "🔴 Grabación iniciada. Queda registrada como prueba del acuerdo.", time: nowTime() }]);
+    } catch (e) {
+      setGrabError("No se pudo iniciar la grabación: " + e.message);
+    }
+  };
+
+  const sendMsg = () => {
+    if (!input.trim()) return;
+    setMessages(m => [...m, { from: "yo", text: input.trim(), time: nowTime() }]);
+    setInput("");
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+  };
+
+  const activas = slots.filter(s => s.active).length;
+  const slotsVisibles = expanded ? slots : slots.slice(0, 2);
+
+  return (
+    <div style={{ padding: "24px 0" }}>
+      {/* HEADER */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <div>
+          <h2 style={{ color: COLORS.texto, margin: 0, fontWeight: 800 }}>🎥 Multicámara</h2>
+          <p style={{ color: COLORS.textoSub, fontSize: 12, marginTop: 2 }}>
+            {camaras.length} cámara{camaras.length !== 1 ? "s" : ""} detectada{camaras.length !== 1 ? "s" : ""} · {activas} activa{activas !== 1 ? "s" : ""}
+          </p>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          {activas > 0 && (
+            <Btn color={grabando ? COLORS.rojo : COLORS.verde} small onClick={toggleGrabacion}>
+              {grabando ? "⏹ Grabar" : "⏺ Grabar"}
+            </Btn>
+          )}
+          <Btn color={COLORS.rojo} outline small onClick={apagarTodas} disabled={activas === 0}>
+            ✕ Apagar
+          </Btn>
+        </div>
+      </div>
+
+      {/* VISTA PRINCIPAL */}
+      <Card style={{ marginBottom: 12, padding: 12 }} glow={activas > 0 ? COLORS.lila : undefined}>
+        {/* Video grande (slot principal) */}
+        <div style={{ marginBottom: 10 }}>
+          <VideoSlot
+            label={slots[principal].label}
+            streamRef={streamRefs.current[principal]}
+            active={slots[principal].active}
+            pip={false}
+            onTogglePip={() => {}}
+          />
+        </div>
+
+        {/* Miniaturas de los otros slots */}
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+          {slots.map((s, i) => i !== principal && (
+            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <VideoSlot
+                label={s.label}
+                streamRef={streamRefs.current[i]}
+                active={s.active}
+                pip={true}
+                onTogglePip={() => setPrincipal(i)}
+              />
+              <span style={{ color: COLORS.textoSub, fontSize: 9, textAlign: "center" }}>tap para ampliar</span>
+            </div>
+          ))}
+        </div>
+
+        {(camError || grabError) && (
+          <div style={{ color: COLORS.rojo, fontSize: 12, marginTop: 8 }}>
+            ⚠️ {camError || grabError}
+          </div>
+        )}
+      </Card>
+
+      {/* CONTROLES POR SLOT */}
+      <Card style={{ marginBottom: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div style={{ color: COLORS.textoSub, fontSize: 11, letterSpacing: "0.1em" }}>CONTROL DE CÁMARAS</div>
+          {slots.length > 2 && (
+            <button onClick={() => setExpanded(e => !e)}
+              style={{ background: "none", border: "none", color: COLORS.lila, fontSize: 11, cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>
+              {expanded ? "▲ Menos" : "▼ Más slots"}
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {slotsVisibles.map((slot, i) => (
+            <div key={i} style={{
+              background: COLORS.fondoCard2, borderRadius: 10, padding: 12,
+              border: `1px solid ${slot.active ? COLORS.lila + "50" : COLORS.borde}`,
+              display: "flex", alignItems: "center", gap: 10,
+            }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 8,
+                background: slot.active ? `${COLORS.lila}20` : COLORS.fondoCard,
+                border: `1px solid ${slot.active ? COLORS.lila : COLORS.borde}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 16, flexShrink: 0,
+              }}>
+                {slot.active ? "🟢" : "📷"}
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: COLORS.texto, fontWeight: 700, fontSize: 12, marginBottom: 4 }}>
+                  {slot.label}
+                  {principal === i && <span style={{ color: COLORS.lila, marginLeft: 6, fontSize: 10 }}>● PRINCIPAL</span>}
+                </div>
+                {camaras.length > 1 && (
+                  <select value={slot.deviceId || ""}
+                    onChange={e => asignarCamara(i, e.target.value)}
+                    style={{
+                      background: COLORS.fondoCard, border: `1px solid ${COLORS.borde}`,
+                      borderRadius: 6, padding: "4px 8px", color: COLORS.textoSub,
+                      fontSize: 10, fontFamily: "inherit", width: "100%", outline: "none",
+                    }}>
+                    <option value="">— Seleccionar —</option>
+                    {camaras.map(d => (
+                      <option key={d.deviceId} value={d.deviceId}>
+                        {d.label?.split("(")[0]?.trim() || d.deviceId?.slice(0, 12)}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                {i !== principal && slot.active && (
+                  <Btn color={COLORS.naranja} outline small onClick={() => setPrincipal(i)}>🔍</Btn>
+                )}
+                <Btn
+                  color={slot.active ? COLORS.rojo : COLORS.verde}
+                  small
+                  onClick={() => activarSlot(i)}
+                  disabled={!slot.deviceId && !slot.active}
+                >
+                  {slot.active ? "Off" : "On"}
+                </Btn>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {camaras.length === 0 && (
+          <div style={{ color: COLORS.textoSub, fontSize: 12, textAlign: "center", padding: "10px 0" }}>
+            Sin cámaras detectadas. Activa una cámara primero para enumerarlas.
+          </div>
+        )}
+
+        <div style={{ marginTop: 12, padding: "10px 12px", background: `${COLORS.verde}10`, borderRadius: 8, border: `1px solid ${COLORS.verde}25` }}>
+          <div style={{ color: COLORS.verde, fontSize: 11, fontWeight: 700, marginBottom: 4 }}>🔒 SEGURIDAD CONTRACTUAL</div>
+          <div style={{ color: COLORS.textoSub, fontSize: 11, lineHeight: 1.5 }}>
+            El video debe estar activo antes y durante la confirmación del contrato. Solo se libera el activo cuando la verificación visual es confirmada por ambas partes.
+          </div>
+        </div>
+      </Card>
+
+      {/* CHAT */}
+      <Card>
+        <div style={{ color: COLORS.textoSub, fontSize: 11, letterSpacing: "0.1em", marginBottom: 10 }}>CHAT DE NEGOCIACIÓN</div>
+        <div style={{ height: 180, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, marginBottom: 10 }}>
+          {messages.map((m, i) => (
+            <div key={i} style={{ alignSelf: m.from === "yo" ? "flex-end" : "flex-start", maxWidth: "82%" }}>
+              <div style={{
+                background: m.from === "yo" ? `${COLORS.lila}25` : m.from === "sistema" ? `${COLORS.verde}15` : COLORS.fondoCard2,
+                border: `1px solid ${m.from === "yo" ? COLORS.lila + "40" : m.from === "sistema" ? COLORS.verde + "30" : COLORS.borde}`,
+                borderRadius: 10, padding: "8px 12px",
+                color: m.from === "sistema" ? COLORS.verde : COLORS.texto, fontSize: 12,
+              }}>{m.text}</div>
+              <div style={{ color: COLORS.textoSub, fontSize: 10, textAlign: m.from === "yo" ? "right" : "left", marginTop: 2 }}>{m.time}</div>
+            </div>
+          ))}
+          <div ref={chatEndRef} />
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input value={input} onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && sendMsg()}
+            placeholder="Oferta, mensaje o acuerdo..."
+            style={{
+              flex: 1, background: COLORS.fondoCard2, border: `1px solid ${COLORS.borde}`,
+              borderRadius: 10, padding: "10px 14px", color: COLORS.texto,
+              fontSize: 13, fontFamily: "inherit", outline: "none",
+            }} />
+          <Btn color={COLORS.lila} onClick={sendMsg} small>➤</Btn>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// ============================================================
+// SECCIÓN: INTELIGENCIA ARTIFICIAL
+// ============================================================
+function IASection({ prices }) {
+  const [pregunta, setPregunta] = useState("");
+  const [historial, setHistorial] = useState([
+    { role: "assistant", content: "¡Hola! Soy tu Negociador IA. Puedo sugerirte precios justos, generar ofertas equilibradas y analizar riesgos en tiempo real. ¿En qué te ayudo?" }
+  ]);
+  const [loading, setLoading] = useState(false);
+  const chatRef = useRef(null);
+
+  const contextoMercado = `
+    Precios actuales: SOL=$${prices.SOL || "N/A"}, BTC=$${prices.BTC || "N/A"}, USDC=$1.
+    Eres "El Negociador", asistente IA de Bitcoin Dob Money, plataforma P2P en Solana Mainnet.
+    Tu rol: sugerir precios justos, generar ofertas equilibradas, detectar estancamientos, 
+    analizar riesgos, proponer contraofertas automáticas. Responde siempre en español, 
+    de forma concisa, profesional y con emojis cuando sea apropiado. Max 3 párrafos.
+  `;
+
+  const enviar = async () => {
+    if (!pregunta.trim() || loading) return;
+    const nuevos = [...historial, { role: "user", content: pregunta }];
+    setHistorial(nuevos);
+    setPregunta("");
+    setLoading(true);
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: contextoMercado,
+          messages: nuevos,
+        }),
+      });
+      const data = await res.json();
+      const texto = data.content?.[0]?.text || "No se pudo obtener respuesta.";
+      setHistorial(h => [...h, { role: "assistant", content: texto }]);
+    } catch (e) {
+      setHistorial(h => [...h, { role: "assistant", content: "Error al conectar con IA. Intenta de nuevo." }]);
+    }
+    setLoading(false);
+    setTimeout(() => chatRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+  };
+
+  const sugerencias = [
+    "¿Cuál es el precio justo de SOL hoy?",
+    "Analiza el riesgo de esta oferta: 10 SOL por servicio de diseño",
+    "Genera una contraoferta al 80% del precio pedido",
+    "¿Qué contrato recomiendas para un trabajo freelance?",
+  ];
+
+  return (
+    <div style={{ padding: "24px 0" }}>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ color: COLORS.texto, margin: "0 0 4px", fontWeight: 800 }}>🤖 Negociador IA</h2>
+        <p style={{ color: COLORS.textoSub, fontSize: 13, margin: 0 }}>Precios en vivo · Análisis de riesgo · Contraofertas automáticas</p>
+      </div>
+
+      {/* Precios en vivo */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 16 }}>
+        {[
+          ["SOL", prices.SOL, "◎"],
+          ["BTC", prices.BTC, "₿"],
+          ["USDC", 1, "$"],
+        ].map(([name, price, sym]) => (
+          <Card key={name} style={{ padding: 12, textAlign: "center" }}>
+            <div style={{ color: COLORS.textoSub, fontSize: 10, letterSpacing: "0.1em" }}>{sym} {name}</div>
+            <div style={{ color: COLORS.lila, fontWeight: 800, fontSize: 16, marginTop: 4 }}>
+              ${price ? price.toLocaleString() : "—"}
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Chat IA */}
+      <Card style={{ marginBottom: 16 }}>
+        <div style={{ height: 280, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, marginBottom: 12 }}>
+          {historial.map((m, i) => (
+            <div key={i} style={{ alignSelf: m.role === "user" ? "flex-end" : "flex-start", maxWidth: "85%" }}>
+              {m.role === "assistant" && (
+                <div style={{ color: COLORS.lila, fontSize: 11, fontWeight: 700, marginBottom: 4 }}>🤖 IA NEGOCIADORA</div>
+              )}
+              <div style={{
+                background: m.role === "user" ? `${COLORS.lila}20` : `${COLORS.verde}10`,
+                border: `1px solid ${m.role === "user" ? COLORS.lila + "30" : COLORS.verde + "20"}`,
+                borderRadius: 12, padding: "10px 14px",
+                color: COLORS.texto, fontSize: 13, lineHeight: 1.5,
+              }}>{m.content}</div>
+            </div>
+          ))}
+          {loading && (
+            <div style={{ alignSelf: "flex-start" }}>
+              <div style={{ background: COLORS.fondoCard2, borderRadius: 12, padding: "10px 14px" }}>
+                <Spinner size={16} />
+              </div>
+            </div>
+          )}
+          <div ref={chatRef} />
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            value={pregunta}
+            onChange={e => setPregunta(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && enviar()}
+            placeholder="Pregunta al Negociador IA..."
+            style={{
+              flex: 1, background: COLORS.fondoCard2, border: `1px solid ${COLORS.borde}`,
+              borderRadius: 10, padding: "10px 14px", color: COLORS.texto,
+              fontSize: 13, fontFamily: "inherit", outline: "none",
+            }}
+          />
+          <Btn color={COLORS.lila} onClick={enviar} loading={loading} small>➤</Btn>
+        </div>
+      </Card>
+
+      {/* Sugerencias */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {sugerencias.map((s, i) => (
+          <button key={i} onClick={() => { setPregunta(s); }}
+            style={{
+              background: COLORS.fondoCard2, border: `1px solid ${COLORS.borde}`,
+              borderRadius: 10, padding: "10px 14px",
+              color: COLORS.textoSub, fontSize: 12,
+              cursor: "pointer", textAlign: "left", fontFamily: "inherit",
+              transition: "all 0.2s",
+            }}
+          >💬 {s}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SECCIÓN: CONTRATOS INTELIGENTES
+// ============================================================
+function ContratosSection({ pubkey, prices }) {
+  const [activo, setActivo] = useState(null);
+  const [monto, setMonto] = useState("");
+  const [contrapartida, setContrapartida] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [procesando, setProcesando] = useState(false);
+  const [contratos, setContratos] = useState([]);
+  const [msg, setMsg] = useState(null);
+
+  const tipos = [
+    { id: "garantia", nombre: "Garantía / Escrow", icon: "🔒", comision: "0.5%", color: COLORS.lila, desc: "Guarda fondos hasta que ambas partes confirmen el trato." },
+    { id: "hitos", nombre: "Pago por Hitos", icon: "📊", comision: "0.7%", color: COLORS.verde, desc: "Pago en partes: inicio, avance y finalización confirmados por video." },
+    { id: "prestamo", nombre: "Préstamo / Garantía", icon: "🏦", comision: "1%", color: COLORS.naranja, desc: "Presta o pide prestado con garantía asegurada en la plataforma." },
+    { id: "nft", nombre: "Intercambio NFT/Token", icon: "🎨", comision: "2%", color: COLORS.rojo, desc: "Intercambia arte, licencias y activos digitales de forma segura." },
+  ];
+
+  const crearContrato = async () => {
+    if (!pubkey) { setMsg({ tipo: "error", texto: "Conecta tu wallet primero." }); return; }
+    if (!monto || !contrapartida || !activo) { setMsg({ tipo: "error", texto: "Completa todos los campos." }); return; }
+    setProcesando(true);
+    await new Promise(r => setTimeout(r, 1500));
+    const comision = calcComision(parseFloat(monto), activo);
+    const nuevo = {
+      id: Date.now(),
+      tipo: activo,
+      monto: parseFloat(monto),
+      contrapartida,
+      descripcion,
+      comision,
+      estado: "activo",
+      fecha: new Date().toLocaleDateString("es"),
+    };
+    setContratos(c => [nuevo, ...c]);
+    setMsg({ tipo: "ok", texto: `✅ Contrato ${activo} creado. Comisión: ${comision} SOL enviada automáticamente.` });
+    setMonto(""); setContrapartida(""); setDescripcion(""); setActivo(null);
+    setProcesando(false);
+  };
+
+  return (
+    <div style={{ padding: "24px 0" }}>
+      <h2 style={{ color: COLORS.texto, margin: "0 0 16px", fontWeight: 800 }}>📑 Contratos Inteligentes</h2>
+
+      {/* Selector de tipo */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+        {tipos.map(t => (
+          <button key={t.id} onClick={() => setActivo(t.id)}
+            style={{
+              background: activo === t.id ? `${t.color}20` : COLORS.fondoCard,
+              border: `2px solid ${activo === t.id ? t.color : COLORS.borde}`,
+              borderRadius: 12, padding: 14,
+              cursor: "pointer", textAlign: "left", fontFamily: "inherit",
+              transition: "all 0.2s",
+            }}>
+            <div style={{ fontSize: 22, marginBottom: 6 }}>{t.icon}</div>
+            <div style={{ color: COLORS.texto, fontWeight: 700, fontSize: 13 }}>{t.nombre}</div>
+            <div style={{ color: t.color, fontSize: 11, fontWeight: 700, marginTop: 2 }}>Comisión {t.comision}</div>
+            <div style={{ color: COLORS.textoSub, fontSize: 11, marginTop: 4, lineHeight: 1.4 }}>{t.desc}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* Formulario */}
+      {activo && (
+        <Card style={{ marginBottom: 16 }} glow={tipos.find(t => t.id === activo)?.color}>
+          <div style={{ color: COLORS.lila, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 14 }}>
+            CREAR CONTRATO · {tipos.find(t => t.id === activo)?.nombre.toUpperCase()}
+          </div>
+          {[
+            ["Monto (SOL)", monto, setMonto, "0.00", "number"],
+            ["Wallet contrapartida", contrapartida, setContrapartida, "ABC...XYZ", "text"],
+            ["Descripción del acuerdo", descripcion, setDescripcion, "Describe el trato...", "text"],
+          ].map(([label, val, setter, ph, type]) => (
+            <div key={label} style={{ marginBottom: 12 }}>
+              <div style={{ color: COLORS.textoSub, fontSize: 11, letterSpacing: "0.08em", marginBottom: 6 }}>{label}</div>
+              <input value={val} onChange={e => setter(e.target.value)} placeholder={ph} type={type}
+                style={{
+                  width: "100%", background: COLORS.fondoCard2, border: `1px solid ${COLORS.borde}`,
+                  borderRadius: 8, padding: "10px 12px", color: COLORS.texto,
+                  fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box",
+                }}
+              />
+            </div>
+          ))}
+          {monto && (
+            <div style={{ background: `${COLORS.verde}10`, border: `1px solid ${COLORS.verde}30`, borderRadius: 8, padding: 10, marginBottom: 12 }}>
+              <div style={{ color: COLORS.verde, fontSize: 12 }}>
+                💰 Comisión estimada: <strong>{calcComision(parseFloat(monto) || 0, activo)} SOL</strong>
+                {prices.SOL ? ` (~$${(calcComision(parseFloat(monto) || 0, activo) * prices.SOL).toFixed(2)} USD)` : ""}
+              </div>
+            </div>
+          )}
+          {msg && (
+            <div style={{
+              background: msg.tipo === "ok" ? `${COLORS.verde}15` : `${COLORS.rojo}15`,
+              border: `1px solid ${msg.tipo === "ok" ? COLORS.verde : COLORS.rojo}40`,
+              borderRadius: 8, padding: 10, marginBottom: 12,
+              color: msg.tipo === "ok" ? COLORS.verde : COLORS.rojo, fontSize: 13,
+            }}>{msg.texto}</div>
+          )}
+          <Btn color={COLORS.lila} onClick={crearContrato} loading={procesando} style={{ width: "100%" }}>
+            🔐 Crear y Firmar Contrato
+          </Btn>
+        </Card>
+      )}
+
+      {/* Contratos activos */}
+      {contratos.length > 0 && (
+        <div>
+          <div style={{ color: COLORS.textoSub, fontSize: 11, letterSpacing: "0.1em", marginBottom: 10 }}>MIS CONTRATOS ACTIVOS</div>
+          {contratos.map(c => (
+            <Card key={c.id} style={{ marginBottom: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <div style={{ color: COLORS.texto, fontWeight: 700, fontSize: 14 }}>
+                    {tipos.find(t => t.id === c.tipo)?.icon} {tipos.find(t => t.id === c.tipo)?.nombre}
+                  </div>
+                  <div style={{ color: COLORS.textoSub, fontSize: 12, marginTop: 4 }}>
+                    {shortAddress(c.contrapartida)} · {c.fecha}
+                  </div>
+                  <div style={{ color: COLORS.textoSub, fontSize: 12 }}>{c.descripcion}</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ color: COLORS.lila, fontWeight: 800, fontSize: 16 }}>{c.monto} SOL</div>
+                  <Badge color={COLORS.verde}>ACTIVO</Badge>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// SECCIÓN: PANEL DE ADMINISTRACIÓN
+// ============================================================
+function AdminSection({ contratos }) {
+  const [autenticado, setAutenticado] = useState(false);
+  const [pass, setPass] = useState("");
+  const [error, setError] = useState("");
+
+  const stats = {
+    gananciaTotal: contratos.reduce((s, c) => s + parseFloat(c.comision || 0), 0).toFixed(4),
+    transacciones: contratos.length,
+    activas: contratos.filter(c => c.estado === "activo").length,
+  };
+
+  const verificar = () => {
+    if (pass === "admin123") { setAutenticado(true); setError(""); }
+    else setError("Contraseña incorrecta.");
+  };
+
+  if (!autenticado) return (
+    <div style={{ padding: "24px 0" }}>
+      <h2 style={{ color: COLORS.texto, margin: "0 0 16px", fontWeight: 800 }}>💼 Panel Admin</h2>
+      <Card glow={COLORS.lila}>
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <div style={{ fontSize: 40 }}>🔐</div>
+          <div style={{ color: COLORS.textoSub, fontSize: 13, marginTop: 6 }}>Acceso exclusivo del administrador</div>
+        </div>
+        <input type="password" value={pass} onChange={e => setPass(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && verificar()}
+          placeholder="Contraseña de administrador"
+          style={{
+            width: "100%", background: COLORS.fondoCard2, border: `1px solid ${COLORS.borde}`,
+            borderRadius: 8, padding: "12px 14px", color: COLORS.texto,
+            fontSize: 14, fontFamily: "inherit", outline: "none",
+            marginBottom: 12, boxSizing: "border-box",
+          }}
+        />
+        {error && <div style={{ color: COLORS.rojo, fontSize: 12, marginBottom: 10 }}>⚠️ {error}</div>}
+        <Btn color={COLORS.lila} onClick={verificar} style={{ width: "100%" }}>Entrar</Btn>
+      </Card>
+    </div>
+  );
+
+  return (
+    <div style={{ padding: "24px 0" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <h2 style={{ color: COLORS.texto, margin: 0, fontWeight: 800 }}>💼 Panel Admin</h2>
+        <Btn color={COLORS.rojo} outline small onClick={() => setAutenticado(false)}>Cerrar</Btn>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+        {[
+          ["💰 Ganancias", `${stats.gananciaTotal} SOL`, COLORS.verde],
+          ["📊 Transacciones", stats.transacciones, COLORS.lila],
+          ["⚡ Activas", stats.activas, COLORS.naranja],
+          ["🌐 Estado Red", "Mainnet OK", COLORS.verde],
+        ].map(([label, valor, color]) => (
+          <Card key={label} style={{ padding: 14 }}>
+            <div style={{ color: COLORS.textoSub, fontSize: 10, letterSpacing: "0.08em" }}>{label}</div>
+            <div style={{ color, fontWeight: 800, fontSize: 18, marginTop: 4 }}>{valor}</div>
+          </Card>
+        ))}
+      </div>
+
+      <Card>
+        <div style={{ color: COLORS.textoSub, fontSize: 11, letterSpacing: "0.1em", marginBottom: 12 }}>HISTORIAL DE COMISIONES</div>
+        {contratos.length === 0 ? (
+          <div style={{ color: COLORS.textoSub, fontSize: 13, textAlign: "center", padding: 20 }}>
+            Sin transacciones aún.
+          </div>
+        ) : (
+          contratos.map(c => (
+            <div key={c.id} style={{
+              display: "flex", justifyContent: "space-between",
+              borderBottom: `1px solid ${COLORS.borde}`, padding: "10px 0",
+            }}>
+              <div>
+                <div style={{ color: COLORS.texto, fontSize: 13, fontWeight: 600 }}>{c.tipo}</div>
+                <div style={{ color: COLORS.textoSub, fontSize: 11 }}>{c.fecha}</div>
+              </div>
+              <div style={{ color: COLORS.verde, fontWeight: 700 }}>+{c.comision} SOL</div>
+            </div>
+          ))
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// ============================================================
+// HOOK: NOTIFICACIONES
+// ============================================================
+function useNotificaciones() {
+  const [notifs, setNotifs] = useState([]);
+
+  const push = useCallback((texto, tipo = "info") => {
+    const id = Date.now();
+    setNotifs(n => [{ id, texto, tipo, ts: new Date() }, ...n.slice(0, 19)]);
+    // Auto-dismiss toast después de 4s
+    setTimeout(() => setNotifs(n => n.filter(x => x.id !== id || x.visto)), 4000);
+  }, []);
+
+  const marcarVisto = useCallback((id) => {
+    setNotifs(n => n.map(x => x.id === id ? { ...x, visto: true } : x));
+  }, []);
+
+  const limpiar = useCallback(() => setNotifs([]), []);
+
+  return { notifs, push, marcarVisto, limpiar };
+}
+
+// ============================================================
+// COMPONENTE: TOAST DE NOTIFICACIÓN
+// ============================================================
+function ToastBar({ notifs, onDismiss }) {
+  const reciente = notifs.find(n => !n.visto);
+  if (!reciente) return null;
+  const colorMap = { ok: COLORS.verde, error: COLORS.rojo, warn: COLORS.naranja, info: COLORS.lila };
+  const iconMap = { ok: "✅", error: "⚠️", warn: "⚡", info: "ℹ️" };
+  const c = colorMap[reciente.tipo] || COLORS.lila;
+  return (
+    <div style={{
+      position: "fixed", top: 70, left: "50%", transform: "translateX(-50%)",
+      zIndex: 200, width: "calc(100% - 40px)", maxWidth: 440,
+      background: COLORS.fondoCard,
+      border: `1px solid ${c}60`,
+      borderLeft: `4px solid ${c}`,
+      borderRadius: 12,
+      padding: "12px 16px",
+      display: "flex", alignItems: "center", gap: 10,
+      boxShadow: `0 8px 32px #00000080`,
+      animation: "slideDown 0.3s ease",
+    }}>
+      <span style={{ fontSize: 18, flexShrink: 0 }}>{iconMap[reciente.tipo]}</span>
+      <span style={{ color: COLORS.texto, fontSize: 13, flex: 1, lineHeight: 1.4 }}>{reciente.texto}</span>
+      <button onClick={() => onDismiss(reciente.id)}
+        style={{ background: "none", border: "none", color: COLORS.textoSub, cursor: "pointer", fontSize: 16, padding: 0 }}>✕</button>
+    </div>
+  );
+}
+
+// ============================================================
+// SECCIÓN: CALCULADORA DE OPERACIÓN
+// ============================================================
+function CalculadoraSection({ prices }) {
+  const [monto, setMonto] = useState("");
+  const [tipoContrato, setTipoContrato] = useState("garantia");
+  const [moneda, setMoneda] = useState("SOL");
+  const [resultado, setResultado] = useState(null);
+
+  const SOL_FEE = 0.000005; // fee típico de transacción Solana
+
+  const calcular = () => {
+    const m = parseFloat(monto);
+    if (!m || m <= 0) return;
+    const comisionPct = TARIFAS[tipoContrato];
+    const comisionMonto = m * comisionPct;
+    const feeSOL = moneda === "SOL" ? SOL_FEE : SOL_FEE / (prices.SOL || 142);
+    const neto = m - comisionMonto - feeSOL;
+    const precioUSD = moneda === "SOL" ? (prices.SOL || 142.5) : 1;
+    setResultado({
+      bruto: m,
+      comision: comisionMonto,
+      fee: feeSOL,
+      neto: neto > 0 ? neto : 0,
+      brutoUSD: m * precioUSD,
+      comisionUSD: comisionMonto * precioUSD,
+      netoUSD: neto > 0 ? neto * precioUSD : 0,
+      pct: comisionPct * 100,
+    });
+  };
+
+  const tiposOpts = [
+    { id: "simple", label: "Transacción simple (0.2%)" },
+    { id: "garantia", label: "Escrow / Garantía (0.5%)" },
+    { id: "hitos", label: "Hitos / Pasos (0.7%)" },
+    { id: "prestamo", label: "Préstamo (1%)" },
+    { id: "nft", label: "NFT / Activos (2%)" },
+  ];
+
+  return (
+    <div style={{ padding: "24px 0" }}>
+      <h2 style={{ color: COLORS.texto, margin: "0 0 6px", fontWeight: 800 }}>🧮 Calculadora</h2>
+      <p style={{ color: COLORS.textoSub, fontSize: 13, marginBottom: 20 }}>
+        Calcula exactamente cuánto recibes después de comisión y fee de red.
+      </p>
+
+      <Card style={{ marginBottom: 14 }}>
+        {/* Moneda */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+          {["SOL", "USDC"].map(m => (
+            <button key={m} onClick={() => setMoneda(m)}
+              style={{
+                flex: 1, padding: "10px", borderRadius: 10,
+                border: `2px solid ${moneda === m ? COLORS.lila : COLORS.borde}`,
+                background: moneda === m ? `${COLORS.lila}15` : COLORS.fondoCard2,
+                color: moneda === m ? COLORS.lila : COLORS.textoSub,
+                fontWeight: 800, fontSize: 14, cursor: "pointer", fontFamily: "inherit",
+              }}>{m}</button>
+          ))}
+        </div>
+
+        {/* Monto */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ color: COLORS.textoSub, fontSize: 11, letterSpacing: "0.08em", marginBottom: 6 }}>MONTO</div>
+          <input type="number" value={monto} onChange={e => setMonto(e.target.value)}
+            placeholder={`0.00 ${moneda}`}
+            style={{
+              width: "100%", background: COLORS.fondoCard2, border: `1px solid ${COLORS.borde}`,
+              borderRadius: 8, padding: "12px 14px", color: COLORS.texto,
+              fontSize: 18, fontWeight: 700, fontFamily: "inherit", outline: "none", boxSizing: "border-box",
+            }} />
+          {monto && prices.SOL && moneda === "SOL" && (
+            <div style={{ color: COLORS.textoSub, fontSize: 11, marginTop: 4 }}>
+              ≈ ${(parseFloat(monto) * prices.SOL).toFixed(2)} USD
+            </div>
+          )}
+        </div>
+
+        {/* Tipo de contrato */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ color: COLORS.textoSub, fontSize: 11, letterSpacing: "0.08em", marginBottom: 6 }}>TIPO DE CONTRATO</div>
+          <select value={tipoContrato} onChange={e => setTipoContrato(e.target.value)}
+            style={{
+              width: "100%", background: COLORS.fondoCard2, border: `1px solid ${COLORS.borde}`,
+              borderRadius: 8, padding: "10px 12px", color: COLORS.texto,
+              fontSize: 13, fontFamily: "inherit", outline: "none",
+            }}>
+            {tiposOpts.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+          </select>
+        </div>
+
+        <Btn color={COLORS.lila} onClick={calcular} style={{ width: "100%" }}>
+          ⚡ Calcular
+        </Btn>
+      </Card>
+
+      {resultado && (
+        <Card glow={COLORS.verde}>
+          <div style={{ color: COLORS.verde, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", marginBottom: 14 }}>
+            RESULTADO DE LA OPERACIÓN
+          </div>
+
+          {/* Barra visual */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: "flex", height: 8, borderRadius: 4, overflow: "hidden", marginBottom: 6 }}>
+              <div style={{ flex: resultado.neto, background: COLORS.verde }} />
+              <div style={{ flex: resultado.comision, background: COLORS.naranja }} />
+              <div style={{ flex: resultado.fee * 100, background: COLORS.rojo }} />
+            </div>
+            <div style={{ display: "flex", gap: 12, fontSize: 10 }}>
+              <span style={{ color: COLORS.verde }}>■ Neto</span>
+              <span style={{ color: COLORS.naranja }}>■ Comisión</span>
+              <span style={{ color: COLORS.rojo }}>■ Fee red</span>
+            </div>
+          </div>
+
+          {[
+            ["Monto bruto", resultado.bruto, resultado.brutoUSD, COLORS.texto],
+            ["Comisión plataforma", `-${resultado.comision.toFixed(6)}`, `-${resultado.comisionUSD.toFixed(4)}`, COLORS.naranja],
+            ["Fee de red Solana", `-${resultado.fee.toFixed(6)}`, "~$0.001", COLORS.rojo],
+          ].map(([label, val, usd, color]) => (
+            <div key={label} style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              borderBottom: `1px solid ${COLORS.borde}`, padding: "10px 0",
+            }}>
+              <span style={{ color: COLORS.textoSub, fontSize: 13 }}>{label}</span>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ color, fontWeight: 700, fontSize: 14 }}>{val} {moneda}</div>
+                <div style={{ color: COLORS.textoSub, fontSize: 10 }}>{usd} USD</div>
+              </div>
+            </div>
+          ))}
+
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            marginTop: 12, padding: "12px 14px",
+            background: `${COLORS.verde}15`, borderRadius: 10,
+            border: `1px solid ${COLORS.verde}30`,
+          }}>
+            <span style={{ color: COLORS.verde, fontWeight: 800, fontSize: 14 }}>✅ Recibes</span>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ color: COLORS.verde, fontWeight: 900, fontSize: 22 }}>
+                {resultado.neto.toFixed(6)} {moneda}
+              </div>
+              <div style={{ color: COLORS.textoSub, fontSize: 12 }}>
+                ≈ ${resultado.netoUSD.toFixed(2)} USD
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// SECCIÓN: ESTADO DE RED SOLANA EN VIVO
+// ============================================================
+function RedSection() {
+  const [stats, setStats] = useState(null);
+  const [historial, setHistorial] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [ultimaAct, setUltimaAct] = useState(null);
+
+  const fetchStats = useCallback(async () => {
+    for (const rpc of RPC_ENDPOINTS) {
+      try {
+        const [perfRes, slotRes, feeRes] = await Promise.all([
+          fetch(rpc, { method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "getRecentPerformanceSamples", params: [4] }) }),
+          fetch(rpc, { method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "getSlot" }) }),
+          fetch(rpc, { method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jsonrpc: "2.0", id: 3, method: "getFees" }) }),
+        ]);
+        const [perf, slot, fee] = await Promise.all([perfRes.json(), slotRes.json(), feeRes.json()]);
+
+        const samples = perf.result || [];
+        const avgTPS = samples.length
+          ? Math.round(samples.reduce((s, x) => s + (x.numTransactions / x.samplePeriodSecs), 0) / samples.length)
+          : null;
+
+        const nuevoStat = {
+          tps: avgTPS,
+          slot: slot.result,
+          feeMin: fee.result?.feeCalculator?.lamportsPerSignature || 5000,
+          ts: Date.now(),
+          rpc: rpc.replace("https://", "").split("/")[0],
+        };
+        setStats(nuevoStat);
+        setHistorial(h => [...h.slice(-19), { tps: avgTPS, ts: Date.now() }]);
+        setUltimaAct(new Date());
+        setLoading(false);
+        return;
+      } catch {}
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+    const iv = setInterval(fetchStats, 10000);
+    return () => clearInterval(iv);
+  }, [fetchStats]);
+
+  const nivelCongest = (tps) => {
+    if (!tps) return { label: "Desconocido", color: COLORS.textoSub, icon: "❓" };
+    if (tps > 2000) return { label: "Alta actividad", color: COLORS.naranja, icon: "🔶" };
+    if (tps > 800) return { label: "Normal", color: COLORS.verde, icon: "✅" };
+    return { label: "Red tranquila", color: COLORS.lila, icon: "🟣" };
+  };
+
+  const nivel = nivelCongest(stats?.tps);
+  const maxTPS = Math.max(...historial.map(h => h.tps || 0), 1);
+
+  return (
+    <div style={{ padding: "24px 0" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <div>
+          <h2 style={{ color: COLORS.texto, margin: 0, fontWeight: 800 }}>🌐 Red Solana</h2>
+          <p style={{ color: COLORS.textoSub, fontSize: 12, marginTop: 2 }}>
+            {ultimaAct ? `Actualizado ${ultimaAct.toLocaleTimeString("es")}` : "Cargando..."}
+          </p>
+        </div>
+        <Btn color={COLORS.lila} outline small onClick={fetchStats} loading={loading}>↻ Actualizar</Btn>
+      </div>
+
+      {/* Stats principales */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+        <Card style={{ padding: 16 }} glow={nivel.color}>
+          <div style={{ color: COLORS.textoSub, fontSize: 10, letterSpacing: "0.1em", marginBottom: 6 }}>TPS ACTUAL</div>
+          <div style={{ color: nivel.color, fontWeight: 900, fontSize: 28 }}>
+            {loading ? <Spinner size={24} color={nivel.color} /> : (stats?.tps?.toLocaleString() || "—")}
+          </div>
+          <div style={{ color: nivel.color, fontSize: 11, marginTop: 4 }}>{nivel.icon} {nivel.label}</div>
+        </Card>
+        <Card style={{ padding: 16 }}>
+          <div style={{ color: COLORS.textoSub, fontSize: 10, letterSpacing: "0.1em", marginBottom: 6 }}>SLOT ACTUAL</div>
+          <div style={{ color: COLORS.texto, fontWeight: 800, fontSize: 18 }}>
+            {stats?.slot ? `#${stats.slot.toLocaleString()}` : "—"}
+          </div>
+          <div style={{ color: COLORS.textoSub, fontSize: 11, marginTop: 4 }}>🔗 {stats?.rpc || "—"}</div>
+        </Card>
+        <Card style={{ padding: 16 }}>
+          <div style={{ color: COLORS.textoSub, fontSize: 10, letterSpacing: "0.1em", marginBottom: 6 }}>FEE MÍNIMO</div>
+          <div style={{ color: COLORS.verde, fontWeight: 800, fontSize: 18 }}>
+            {stats ? `${(stats.feeMin / 1e9).toFixed(6)} SOL` : "—"}
+          </div>
+          <div style={{ color: COLORS.textoSub, fontSize: 11, marginTop: 4 }}>~$0.001 USD</div>
+        </Card>
+        <Card style={{ padding: 16 }}>
+          <div style={{ color: COLORS.textoSub, fontSize: 10, letterSpacing: "0.1em", marginBottom: 6 }}>RECOMENDACIÓN</div>
+          <div style={{ color: nivel.color, fontWeight: 800, fontSize: 13, lineHeight: 1.3 }}>
+            {stats?.tps > 2000
+              ? "Espera un momento antes de operar"
+              : stats?.tps > 0
+              ? "Buen momento para operar"
+              : "Verificando red..."}
+          </div>
+        </Card>
+      </div>
+
+      {/* Gráfico TPS histórico */}
+      {historial.length > 1 && (
+        <Card>
+          <div style={{ color: COLORS.textoSub, fontSize: 11, letterSpacing: "0.1em", marginBottom: 12 }}>
+            TPS ÚLTIMOS {historial.length} REGISTROS
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 60 }}>
+            {historial.map((h, i) => {
+              const pct = maxTPS > 0 ? (h.tps || 0) / maxTPS : 0;
+              const barColor = h.tps > 2000 ? COLORS.naranja : h.tps > 800 ? COLORS.verde : COLORS.lila;
+              return (
+                <div key={i} title={`${h.tps} TPS`} style={{
+                  flex: 1, borderRadius: "3px 3px 0 0",
+                  height: `${Math.max(pct * 100, 4)}%`,
+                  background: i === historial.length - 1 ? barColor : `${barColor}60`,
+                  transition: "height 0.3s",
+                }} />
+              );
+            })}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+            <span style={{ color: COLORS.textoSub, fontSize: 10 }}>← Antes</span>
+            <span style={{ color: COLORS.textoSub, fontSize: 10 }}>Ahora →</span>
+          </div>
+        </Card>
+      )}
+
+      {/* Info de nodos */}
+      <Card style={{ marginTop: 14 }}>
+        <div style={{ color: COLORS.textoSub, fontSize: 11, letterSpacing: "0.1em", marginBottom: 12 }}>NODOS CONFIGURADOS</div>
+        {RPC_ENDPOINTS.map((rpc, i) => (
+          <div key={i} style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            borderBottom: i < RPC_ENDPOINTS.length - 1 ? `1px solid ${COLORS.borde}` : "none",
+            padding: "8px 0",
+          }}>
+            <span style={{ color: COLORS.textoSub, fontSize: 12, fontFamily: "monospace" }}>
+              {rpc.replace("https://", "").split("/")[0].slice(0, 30)}
+            </span>
+            {stats?.rpc === rpc.replace("https://", "").split("/")[0]
+              ? <Badge color={COLORS.verde}>ACTIVO</Badge>
+              : <Badge color={COLORS.textoSub}>RESPALDO</Badge>}
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+// ============================================================
+// APP PRINCIPAL
+// ============================================================
+export default function App() {
+  const phantom = usePhantom();
+  const { prices } = useMarketData();
+  const [tab, setTab] = useState("wallet");
+  const [contratos, setContratos] = useState([]);
+  const { notifs, push, marcarVisto, limpiar } = useNotificaciones();
+
+  // Notificaciones automáticas por eventos de wallet
+  useEffect(() => {
+    if (phantom.pubkey) push("✅ Wallet conectada correctamente a Mainnet", "ok");
+  }, [phantom.pubkey]);
+  useEffect(() => {
+    if (phantom.error) push(phantom.error, "error");
+  }, [phantom.error]);
+  useEffect(() => {
+    if (phantom.network === "error") push("⚠️ Problemas con la red Solana. Cambiando nodo...", "warn");
+  }, [phantom.network]);
+
+  const [showNotifs, setShowNotifs] = useState(false);
+
+  const tabs = [
+    { id: "wallet", icon: "👻", label: "Wallet" },
+    { id: "negociar", icon: "🎥", label: "Negociar" },
+    { id: "ia", icon: "🤖", label: "IA" },
+    { id: "contratos", icon: "📑", label: "Contratos" },
+    { id: "calc", icon: "🧮", label: "Calcular" },
+    { id: "red", icon: "🌐", label: "Red" },
+    { id: "admin", icon: "💼", label: "Admin" },
+  ];
+
+  const sinLeer = notifs.filter(n => !n.visto).length;
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: COLORS.fondo,
+      fontFamily: "'Syne', 'Space Grotesk', sans-serif",
+      color: COLORS.texto,
+      maxWidth: 480,
+      margin: "0 auto",
+      position: "relative",
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: ${COLORS.fondoCard}; }
+        ::-webkit-scrollbar-thumb { background: ${COLORS.borde}; border-radius: 2px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+        @keyframes slideDown { from { opacity:0; transform:translateX(-50%) translateY(-10px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+        input::placeholder { color: ${COLORS.textoSub}; }
+        select option { background: ${COLORS.fondoCard}; }
+        button:hover:not(:disabled) { filter: brightness(1.1); }
+      `}</style>
+
+      {/* HEADER */}
+      <div style={{
+        background: `${COLORS.fondoCard}F0`,
+        backdropFilter: "blur(12px)",
+        borderBottom: `1px solid ${COLORS.borde}`,
+        padding: "14px 20px",
+        position: "sticky", top: 0, zIndex: 100,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 22 }}>₿</span>
+          <div>
+            <span style={{ color: COLORS.naranja, fontWeight: 800 }}>Bitcoin</span>
+            <span style={{ color: COLORS.lila, fontWeight: 800 }}>Dob</span>
+            <span style={{ color: COLORS.texto, fontWeight: 800 }}>money</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button onClick={() => setTab("red")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <StatusDot status={phantom.network} />
+              <span style={{ color: COLORS.verde, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em" }}>MAINNET</span>
+            </div>
+          </button>
+          <button onClick={() => setShowNotifs(n => !n)} style={{
+            position: "relative", background: "none", border: "none",
+            cursor: "pointer", fontSize: 18, padding: 0, lineHeight: 1,
+          }}>
+            🔔
+            {sinLeer > 0 && (
+              <span style={{
+                position: "absolute", top: -4, right: -4,
+                background: COLORS.rojo, borderRadius: "50%",
+                width: 15, height: 15, fontSize: 8, fontWeight: 900,
+                color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+              }}>{sinLeer}</span>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* TOAST */}
+      <ToastBar notifs={notifs} onDismiss={marcarVisto} />
+
+      {/* PANEL NOTIFICACIONES */}
+      {showNotifs && (
+        <div onClick={() => setShowNotifs(false)} style={{
+          position: "fixed", inset: 0, zIndex: 149, background: "transparent",
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            position: "absolute", top: 58, right: 0,
+            width: 290, maxHeight: 340, overflowY: "auto",
+            background: COLORS.fondoCard,
+            border: `1px solid ${COLORS.borde}`,
+            borderRadius: "0 0 0 14px",
+            boxShadow: "0 8px 32px #00000090",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", borderBottom: `1px solid ${COLORS.borde}` }}>
+              <span style={{ color: COLORS.texto, fontWeight: 800, fontSize: 12 }}>Notificaciones</span>
+              <button onClick={limpiar} style={{ background: "none", border: "none", color: COLORS.textoSub, cursor: "pointer", fontSize: 10, fontFamily: "inherit" }}>Limpiar todo</button>
+            </div>
+            {notifs.length === 0
+              ? <div style={{ color: COLORS.textoSub, fontSize: 12, textAlign: "center", padding: 16 }}>Sin notificaciones</div>
+              : notifs.map(n => {
+                  const cMap = { ok: COLORS.verde, error: COLORS.rojo, warn: COLORS.naranja, info: COLORS.lila };
+                  return (
+                    <div key={n.id} onClick={() => marcarVisto(n.id)} style={{
+                      padding: "9px 14px", borderBottom: `1px solid ${COLORS.borde}`,
+                      opacity: n.visto ? 0.45 : 1, cursor: "pointer",
+                      borderLeft: `3px solid ${cMap[n.tipo] || COLORS.lila}`,
+                    }}>
+                      <div style={{ color: COLORS.texto, fontSize: 11, lineHeight: 1.4 }}>{n.texto}</div>
+                      <div style={{ color: COLORS.textoSub, fontSize: 9, marginTop: 2 }}>{n.ts.toLocaleTimeString("es")}</div>
+                    </div>
+                  );
+                })
+            }
+          </div>
+        </div>
+      )}
+
+      {/* HERO (solo en wallet sin conectar) */}
+      {tab === "wallet" && !phantom.pubkey && (
+        <div style={{ padding: "32px 20px 0", textAlign: "center" }}>
+          <Badge color={COLORS.lila}>⚡ SOLANA · SIN CUSTODIA · P2P</Badge>
+          <h1 style={{ fontSize: 36, fontWeight: 800, lineHeight: 1.1, margin: "20px 0 12px" }}>
+            Opera cripto<br />
+            <span style={{ color: COLORS.lila }}>en tiempo</span><br />
+            <span style={{ color: COLORS.verde }}>real</span>
+          </h1>
+          <p style={{ color: COLORS.textoSub, fontSize: 14, lineHeight: 1.6 }}>
+            Conecta Phantom y opera SOL, tokens SPL y NFTs directamente, sin intermediarios en <span style={{color:COLORS.naranja}}>Bitcoin</span><span style={{color:COLORS.lila}}>Dob</span><span style={{color:COLORS.texto}}>money</span>.
+          </p>
+        </div>
+      )}
+
+      {/* CONTENIDO PRINCIPAL */}
+      <div style={{ padding: "0 20px", paddingBottom: 100 }}>
+        {tab === "wallet" && <WalletSection phantom={phantom} />}
+        {tab === "negociar" && <NegociacionSection pubkey={phantom.pubkey} />}
+        {tab === "ia" && <IASection prices={prices} />}
+        {tab === "contratos" && <ContratosSection pubkey={phantom.pubkey} prices={prices} />}
+        {tab === "calc" && <CalculadoraSection prices={prices} />}
+        {tab === "red" && <RedSection />}
+        {tab === "admin" && <AdminSection contratos={contratos} />}
+      </div>
+
+      {/* NAV BOTTOM — scrollable en móvil */}
+      <div style={{
+        position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+        width: "100%", maxWidth: 480,
+        background: `${COLORS.fondoCard}F5`,
+        backdropFilter: "blur(12px)",
+        borderTop: `1px solid ${COLORS.borde}`,
+        display: "flex", overflowX: "auto",
+        zIndex: 100,
+        scrollbarWidth: "none",
+      }}>
+        {tabs.map(t => (
+          <Tab key={t.id} label={t.label} icon={t.icon} active={tab === t.id} onClick={() => { setTab(t.id); setShowNotifs(false); }} />
+        ))}
+      </div>
+    </div>
+  );
+}
