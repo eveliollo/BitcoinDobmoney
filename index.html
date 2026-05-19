@@ -7,15 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <style>
 :root {
-  --sol: #9945FF;
-  --sol2: #14F195;
-  --sol3: #00C2FF;
-  --bg: #050510;
-  --bg2: #0d0d22;
-  --border: rgba(153,69,255,0.3);
-  --border2: rgba(20,241,149,0.25);
-  --text: #e8e8ff;
-  --muted: #7070a0;
+  --sol: #FF9500;
+  --sol2: #00FFA3;
+  --sol3: #14F195;
+  --bg: #000000;
+  --bg2: #0A0A0F;
+  --border: #1E1E2F;
+  --text: #FFFFFF;
+  --muted: #888899;
   --font-mono: 'Space Mono', monospace;
   --font-main: 'Syne', sans-serif;
 }
@@ -46,63 +45,87 @@ body::before {
   pointer-events: none;
 }
 
-body::after {
-  content: '';
-  position: fixed;
-  top: -100px; left: 50%; transform: translateX(-50%);
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(153,69,255,0.12) 0%, transparent 70%);
-  pointer-events: none;
-}
-
 /* ── CARD ── */
 .card {
   position: relative; z-index: 1;
   width: 100%; max-width: 420px;
-  background: rgba(13,13,34,0.85);
+  background: rgba(10,10,15,0.9);
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 36px 28px;
-  backdrop-filter: blur(24px);
-  box-shadow: 0 0 60px rgba(153,69,255,0.1);
+  box-shadow: 0 0 60px rgba(0,0,0,0.5);
 }
 
 /* ── LOGO ── */
 .logo-area { text-align: center; margin-bottom: 32px; }
 
-.logo { font-size: 1.6rem; font-weight: 800; letter-spacing: -1px;
-  background: linear-gradient(135deg, #FF9500, #00FFA3);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.rocket { font-size: 3rem; display: block; margin-bottom: 12px; }
 
-.sub { font-size: 0.75rem; color: var(--muted); font-family: var(--font-mono);
-  margin-top: 6px; letter-spacing: 0.5px; }
+.logo { 
+  font-size: 2.2rem; 
+  font-weight: 800; 
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--sol), var(--sol2));
+  -webkit-background-clip: text; 
+  -webkit-text-fill-color: transparent;
+}
+
+.sub { 
+  font-size: 0.9rem; 
+  color: var(--muted); 
+  font-family: var(--font-mono);
+  margin-top: 8px; 
+  letter-spacing: 0.5px; 
+}
 
 /* ── NETWORK BADGE ── */
 .net-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(20,241,149,0.08);
-  border: 1px solid var(--border2);
-  border-radius: 20px; padding: 6px 14px;
-  font-size: 0.7rem; font-family: var(--font-mono);
-  color: var(--sol2); margin-bottom: 24px;
-  width: 100%; justify-content: center;
+  display: inline-flex; 
+  align-items: center; 
+  gap: 8px;
+  background: #0F172A;
+  border: 1px solid #1E293B;
+  border-radius: 20px; 
+  padding: 8px 18px;
+  font-size: 0.9rem; 
+  font-family: var(--font-mono);
+  color: var(--sol2); 
+  margin-bottom: 30px;
+  width: 100%; 
+  justify-content: center;
 }
-.dot { width: 7px; height: 7px; border-radius: 50%;
-  background: var(--sol2); animation: pulse 1.5s ease infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.dot { 
+  width: 8px; 
+  height: 8px; 
+  border-radius: 50%;
+  background: var(--sol2); 
+  animation: pulse 1.5s ease infinite; 
+}
+@keyframes pulse { 
+  0%,100%{opacity:1} 
+  50%{opacity:.3} 
+}
 
 /* ── CONNECT BUTTON ── */
 .btn-connect {
   width: 100%;
-  padding: 16px;
-  border-radius: 14px; border: none; cursor: pointer;
-  font-family: var(--font-main); font-weight: 800; font-size: 1rem;
-  letter-spacing: .3px;
-  background: linear-gradient(135deg, var(--sol), #7b2fff);
+  padding: 20px;
+  border-radius: 16px; 
+  border: none; 
+  cursor: pointer;
+  font-family: var(--font-main); 
+  font-weight: 800; 
+  font-size: 1.3rem;
+  letter-spacing: .5px;
+  background: linear-gradient(135deg, #9945FF, #7b2fff);
   color: #fff;
   box-shadow: 0 4px 24px rgba(153,69,255,0.45);
   transition: all .25s;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 12px;
+  text-transform: uppercase;
 }
 .btn-connect:hover:not(:disabled) {
   transform: translateY(-2px);
@@ -114,88 +137,42 @@ body::after {
   box-shadow: 0 4px 24px rgba(20,241,149,0.35);
 }
 
-/* ── WALLET INFO BOX ── */
-.wallet-box {
-  display: none;
-  margin-top: 20px;
-  background: rgba(20,241,149,0.05);
-  border: 1px solid var(--border2);
-  border-radius: 14px;
-  padding: 20px;
-}
-.wallet-box.show { display: block; animation: fadeIn .4s ease; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-
-.wlabel {
-  font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--muted); font-family: var(--font-mono); margin-bottom: 6px;
-}
-.waddr {
-  font-size: 0.78rem; font-family: var(--font-mono);
-  color: var(--sol3); word-break: break-all;
-  background: rgba(0,0,0,.3); border-radius: 8px;
-  padding: 8px 10px; margin-bottom: 14px;
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-}
-.copy-btn {
-  background: none; border: none; cursor: pointer;
-  color: var(--muted); font-size: 1rem; flex-shrink: 0;
-}
-.copy-btn:hover { color: var(--sol2); }
-
-.bal-row {
-  display: flex; align-items: baseline; gap: 8px;
-}
-.bal-num {
-  font-size: 2rem; font-weight: 800;
-  background: linear-gradient(90deg, var(--sol2), var(--sol3));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  font-family: var(--font-mono);
-}
-.bal-unit { font-size: 0.85rem; color: var(--muted); font-family: var(--font-mono); }
-
-.bal-usd {
-  font-size: 0.75rem; color: var(--muted);
-  font-family: var(--font-mono); margin-top: 4px;
-}
-
-/* ── DISCONNECT ── */
-.btn-disconnect {
-  width: 100%; margin-top: 10px;
-  padding: 10px; border-radius: 10px; border: none; cursor: pointer;
-  background: rgba(255,77,109,0.1); border: 1px solid rgba(255,77,109,0.25);
-  color: #ff4d6d; font-family: var(--font-main); font-weight: 700;
-  font-size: 0.85rem; transition: all .2s;
-}
-.btn-disconnect:hover { background: rgba(255,77,109,0.2); }
-
 /* ── STATUS ── */
 .status {
-  text-align: center; margin-top: 16px;
-  font-size: 0.72rem; font-family: var(--font-mono);
-  color: var(--muted); min-height: 20px;
+  text-align: center; 
+  margin-top: 20px;
+  font-size: 0.85rem; 
+  font-family: var(--font-mono);
+  color: var(--muted); 
+  min-height: 25px;
 }
 .status.ok  { color: var(--sol2); }
 .status.err { color: #ff4d6d; }
 
 /* ── PHANTOM NOTICE ── */
 .phantom-notice {
-  margin-top: 20px; padding: 12px;
-  background: rgba(153,69,255,0.07); border: 1px solid var(--border);
-  border-radius: 10px; font-size: 0.7rem; font-family: var(--font-mono);
-  color: var(--muted); text-align: center; line-height: 1.5;
+  margin-top: 25px; 
+  padding: 15px;
+  background: #0F172A; 
+  border: 1px solid #1E293B;
+  border-radius: 12px; 
+  font-size: 0.8rem; 
+  font-family: var(--font-mono);
+  color: var(--muted); 
+  text-align: center; 
+  line-height: 1.6;
 }
-.phantom-notice a { color: var(--sol); }
-
-/* scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.phantom-notice a { color: var(--sol); text-decoration: none; }
+.phantom-notice a:hover { text-decoration: underline; }
 
 /* spinner */
 .spin {
-  display: inline-block; width: 14px; height: 14px;
+  display: inline-block; 
+  width: 16px; 
+  height: 16px;
   border: 2px solid rgba(255,255,255,.2);
-  border-top-color: #fff; border-radius: 50%;
+  border-top-color: #fff; 
+  border-radius: 50%;
   animation: spin .6s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -206,7 +183,8 @@ body::after {
 <div class="card">
   <!-- LOGO -->
   <div class="logo-area">
-    <div class="logo">Bitcoin Dob Money</div>
+    <span class="rocket">🚀</span>
+    <div class="logo">BitcoinDobmoney</div>
     <div class="sub">Powered by Solana · Phantom Wallet</div>
   </div>
 
@@ -220,24 +198,6 @@ body::after {
   <button class="btn-connect" id="btn-main" onclick="handleConnect()">
     <span>🟣</span> <span id="btn-text">CONECTAR PHANTOM</span>
   </button>
-
-  <!-- WALLET INFO (shown after connect) -->
-  <div class="wallet-box" id="wallet-box">
-    <div class="wlabel">Dirección de tu cuenta</div>
-    <div class="waddr">
-      <span id="addr-text">—</span>
-      <button class="copy-btn" onclick="copyAddr()" title="Copiar">📋</button>
-    </div>
-
-    <div class="wlabel">Saldo disponible</div>
-    <div class="bal-row">
-      <div class="bal-num" id="bal-num">0.0000</div>
-      <div class="bal-unit">◎ SOL</div>
-    </div>
-    <div class="bal-usd" id="bal-usd">≈ $0.00 USD</div>
-
-    <button class="btn-disconnect" onclick="disconnect()">🔌 Desconectar Wallet</button>
-  </div>
 
   <div class="status" id="status-msg"></div>
 
@@ -260,42 +220,6 @@ function setStatus(msg, type = '') {
   el.className = 'status ' + type;
 }
 
-// ── FETCH SOL PRICE ────────────────────────────────────
-async function fetchSolPrice() {
-  try {
-    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
-    const d = await r.json();
-    solPrice = d?.solana?.usd || 0;
-  } catch { solPrice = 0; }
-}
-
-// ── FETCH BALANCE ──────────────────────────────────────
-async function fetchBalance() {
-  if (!pubkey) return;
-  try {
-    const r = await fetch(MAINNET, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0', id: 1,
-        method: 'getBalance',
-        params: [pubkey]
-      })
-    });
-    const d = await r.json();
-    const sol = (d?.result?.value || 0) / 1e9;
-    document.getElementById('bal-num').textContent = sol.toFixed(4);
-    if (solPrice > 0) {
-      document.getElementById('bal-usd').textContent =
-        '≈ $' + (sol * solPrice).toFixed(2) + ' USD';
-    }
-    return sol;
-  } catch(e) {
-    console.warn('Balance fetch error:', e);
-    return 0;
-  }
-}
-
 // ── CONNECT ────────────────────────────────────────────
 async function handleConnect() {
   const phantom = window.solana;
@@ -316,24 +240,13 @@ async function handleConnect() {
     const resp = await phantom.connect();
     pubkey = resp.publicKey.toString();
 
-    // Update UI
     btn.classList.add('connected');
     btnText.textContent = '✅ CONECTADO';
     btn.disabled = false;
     btn.onclick = null;
 
-    document.getElementById('addr-text').textContent = pubkey;
-    document.getElementById('wallet-box').classList.add('show');
-    document.getElementById('phantom-notice').style.display = 'none';
     document.getElementById('net-label').textContent = 'MAINNET · Conectada ✅';
-
     setStatus('✅ Billetera conectada correctamente', 'ok');
-
-    await fetchSolPrice();
-    await fetchBalance();
-
-    // Auto-refresh balance every 15s
-    setInterval(fetchBalance, 15000);
 
   } catch(e) {
     btn.disabled = false;
@@ -341,5 +254,10 @@ async function handleConnect() {
     if (e.code === 4001) {
       setStatus('⚠️ Conexión rechazada por el usuario', 'err');
     } else {
-      setStatus('❌ Error: ' + e.message,
-
+      setStatus('❌ Error: ' + e.message, 'err');
+    }
+  }
+}
+</script>
+</body>
+</html>
