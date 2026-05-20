@@ -12,6 +12,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/lib/index.iife.js"></script>
 <!-- Phantom integration -->
 <script src="https://phantom.app/phantom.js"></script>
+<!-- QR Code Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
 :root {
@@ -36,7 +38,7 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden}
 
-body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");background-size:cover}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.4' numOctaves='4' seed='2'/%3E%3C/filter%3E%3Crect fill='%23050510' width='200%' height='200%'/%3E%3Crect fill='%237C3AED' width='200%' height='200%' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");background-attachment:fixed}
 .glow{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(90px);opacity:.1}
 .glow.a{width:450px;height:450px;background:var(--p2);top:-120px;right:-80px}
 .glow.b{width:320px;height:320px;background:var(--p);bottom:50px;left:-100px}
@@ -55,7 +57,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .icon-btn{width:34px;height:34px;border-radius:9px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;position:relative;transition:all .15s}
 .icon-btn:hover{border-color:rgba(124,58,237,.4)}
-.badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--p4);font-size:.48rem;display:flex;align-items:center;justify-content:center;font-family:var(--mono);color:#000}
+.badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--p4);font-size:.48rem;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
 
 .wbar{margin:12px 14px;background:linear-gradient(135deg,rgba(124,58,237,.13),rgba(0,255,178,.07));border:1px solid rgba(124,58,237,.25);border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
 .wbar-l{display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -70,7 +72,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 .tab{flex-shrink:0;padding:11px 10px;font-size:.68rem;font-weight:600;text-align:center;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
 .tab.active{color:var(--p);border-bottom-color:var(--p)}
 
-.panel{display:none;flex-direction:column;flex:1;padding:14px;gap:12px;padding-bottom:80px}
+.panel{display:none;flex-direction:column;flex:1;padding:14px;gap:12px;padding-bottom:80px;overflow-y:auto}
 .panel.active{display:flex}
 
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
@@ -82,13 +84,13 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 .card.glow-border{border-color:rgba(0,255,178,.15)}
 
 .lbl{font-size:.6rem;font-family:var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;display:block}
-.inp{width:100%;padding:12px 14px;border-radius:11px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.85rem;outline:none;transition:border .2s}
+.inp{width:100%;padding:12px 14px;border-radius:11px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.85rem;outline:none;transition:border .15s}
 .inp:focus{border-color:rgba(124,58,237,.45)}
 .inp::placeholder{color:var(--muted)}
 .inp-group{margin-bottom:12px}
 .amt-row{display:flex;gap:8px;align-items:flex-end}
 .amt-row .inp{flex:1;font-family:var(--head);font-size:1.15rem;font-weight:700}
-.cur-badge{padding:12px 11px;border-radius:11px;background:rgba(0,255,178,.07);border:1px solid var(--border2);font-family:var(--mono);font-size:.72rem;color:var(--p);font-weight:700;white-space:nowrap;cursor:pointer;transition:all .15s}
+.cur-badge{padding:12px 11px;border-radius:11px;background:rgba(0,255,178,.07);border:1px solid var(--border2);font-family:var(--mono);font-size:.72rem;color:var(--p);font-weight:700;white-space:nowrap}
 .cur-badge:hover{background:rgba(0,255,178,.12)}
 .quick-row{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
 .qbtn{padding:4px 9px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:.62rem;font-family:var(--mono);cursor:pointer;transition:all .15s}
@@ -114,7 +116,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 .change-badge{font-size:.68rem;font-family:var(--mono);padding:3px 8px;border-radius:6px}
 .change-badge.up{background:rgba(0,255,178,.1);color:var(--p)}
 .change-badge.down{background:rgba(239,68,68,.1);color:var(--p4)}
-.sparkline{width:100%;height:44px}
 .mkt-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
 .mkt-stat{text-align:center;background:var(--bg2);border-radius:9px;padding:8px 6px}
 .mkt-stat-v{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--text)}
@@ -130,7 +131,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 .cx-feat-icon{font-size:1rem;flex-shrink:0}
 .cx-feat-text{color:var(--muted)}
 .cx-feat-text strong{color:var(--text)}
-.btn-cx{width:100%;max-width:300px;padding:17px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--p2),#9F67FF);color:#fff;font-family:var(--head);font-size:1rem;font-weight:700;transition:all .2s}
+.btn-cx{width:100%;max-width:300px;padding:17px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--p2),#9F67FF);color:#fff;font-family:var(--head);font-size:1rem;font-weight:700;box-shadow:0 4px 24px rgba(124,58,237,.45);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-cx:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(124,58,237,.65)}
 .btn-cx:disabled{opacity:.5;cursor:not-allowed}
 .phantom-tip{font-size:.65rem;font-family:var(--mono);color:var(--muted);background:var(--bg1);border:1px solid var(--border);border-radius:9px;padding:9px 13px;max-width:300px;line-height:1.6}
@@ -149,7 +150,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 .empty-txt{font-size:.75rem;color:var(--muted);font-family:var(--mono)}
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-.network-indicator{display:flex;align-items:center;gap:6px;font-size:.65rem;font-family:var(--mono);padding:6px 10px;border-radius:8px;background:rgba(0,255,178,.08);border:1px solid var(--border2)}
+.network-indicator{display:flex;align-items:center;gap:6px;font-size:.65rem;font-family:var(--mono);padding:6px 10px;border-radius:8px;background:rgba(0,255,178,.08);border:1px solid var(--border)}
 .network-indicator.devnet{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--p3)}
 .network-indicator.mainnet{background:rgba(0,255,178,.1);border-color:var(--border2);color:var(--p)}
 
@@ -160,6 +161,25 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
 .token-details h4{font-size:.75rem;font-family:var(--mono);color:var(--text);margin:0}
 .token-details p{font-size:.62rem;color:var(--muted);margin:2px 0 0;font-family:var(--mono)}
 .token-amount{text-align:right;font-family:var(--mono);font-size:.75rem;color:var(--p);font-weight:700}
+
+.modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal.active{display:flex}
+.modal-content{background:var(--bg1);border:1px solid var(--border);border-radius:18px;padding:24px;max-width:360px;width:90%;max-height:80dvh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-header{font-family:var(--head);font-size:1.2rem;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);padding:0}
+.modal-close:hover{color:var(--text)}
+
+.qr-container{text-align:center;padding:20px;background:var(--bg2);border-radius:12px;margin:12px 0}
+#qr-code{display:inline-block}
+
+.tx-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start}
+.tx-info{flex:1;min-width:0}
+.tx-type{font-size:.75rem;font-weight:600;text-transform:uppercase;font-family:var(--mono)}
+.tx-addr{font-size:.65rem;color:var(--muted);margin-top:4px;word-break:break-all}
+.tx-amount{text-align:right;font-size:.8rem;font-weight:700}
+.tx-status{font-size:.6rem;color:var(--muted);margin-top:4px}
+
+.swap-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:flex-end}
 </style>
 </head>
 <body>
@@ -220,6 +240,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
         <span id="net-lbl">Devnet</span>
       </div>
       <div class="icon-btn" onclick="toggleNetworkMenu()">🔧</div>
+      <div class="icon-btn" onclick="toggleSettings()">⚙️</div>
       <div class="icon-btn" onclick="disconnectWallet()">🔌</div>
     </div>
   </div>
@@ -239,7 +260,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
   <div class="tabs">
     <button class="tab active" onclick="swTab('home',this)">🏠 Inicio</button>
     <button class="tab" onclick="swTab('send',this)">↗ Enviar</button>
-    <button class="tab" onclick="swTab('portfolio',this)">📊 Portfolio</button>
+    <button class="tab" onclick="swTab('swap',this)">⇄ Swap</button>
+    <button class="tab" onclick="swTab('receive',this)">↙ Recibir</button>
+    <button class="tab" onclick="swTab('history',this)">📜 Historial</button>
   </div>
 
   <!-- HOME PANEL -->
@@ -273,6 +296,16 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
         <div style="font-size:1.5rem">🪂</div>
         <div style="font-size:.8rem;font-weight:600;margin-top:6px">Airdrop</div>
         <div style="font-size:.62rem;color:var(--muted);margin-top:2px">1 SOL gratis Devnet</div>
+      </div>
+      <div class="card" style="padding:12px;cursor:pointer;transition:all .2s" onclick="swTab('swap',document.querySelectorAll('.tab')[2])">
+        <div style="font-size:1.5rem">⇄</div>
+        <div style="font-size:.8rem;font-weight:600;margin-top:6px">Swap</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-top:2px">Intercambiar tokens</div>
+      </div>
+      <div class="card" style="padding:12px;cursor:pointer;transition:all .2s" onclick="swTab('receive',document.querySelectorAll('.tab')[3])">
+        <div style="font-size:1.5rem">↙</div>
+        <div style="font-size:.8rem;font-weight:600;margin-top:6px">Recibir</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-top:2px">QR y código</div>
       </div>
     </div>
   </div>
@@ -314,32 +347,119 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("d
         <span id="send-txt">↗ ENVIAR SOL</span>
       </button>
     </div>
-
-    <div class="sh"><div class="sh-title">Transacciones recientes</div></div>
-    <div id="recent-txs"><div class="empty"><span class="empty-ico">📋</span><div class="empty-txt">Sin transacciones</div></div></div>
   </div>
 
-  <!-- PORTFOLIO PANEL -->
-  <div id="panel-portfolio" class="panel">
+  <!-- SWAP PANEL -->
+  <div id="panel-swap" class="panel">
     <div class="card">
-      <div style="text-align:center;margin-bottom:16px">
-        <div style="font-size:.6rem;font-family:var(--mono);color:var(--muted);margin-bottom:4px">SALDO TOTAL</div>
-        <div style="font-family:var(--head);font-size:2rem;font-weight:800;background:linear-gradient(90deg,var(--p),var(--p5));-webkit-background-clip:text;-webkit-text-fill-color:transparent">
-          $<span id="port-total">0.00</span>
+      <div class="sh" style="margin-bottom:14px">
+        <div class="sh-title">Intercambiar Tokens</div>
+      </div>
+      <div class="inp-group">
+        <label class="lbl">Enviar</label>
+        <div class="swap-row">
+          <input class="inp" type="number" id="swap-from-amt" placeholder="0.000" step="0.01" min="0" oninput="calcSwapPrice()">
+          <select class="inp" id="swap-from-token" onchange="calcSwapPrice()">
+            <option value="SOL">◎ SOL</option>
+            <option value="USDC">💵 USDC</option>
+            <option value="BONK">🐶 BONK</option>
+            <option value="RAY">🌅 RAY</option>
+          </select>
         </div>
       </div>
-      <div class="sh" style="margin-top:16px;margin-bottom:10px">
-        <div class="sh-title">Tu saldo</div>
+      <div style="text-align:center;margin:8px 0">⇅</div>
+      <div class="inp-group">
+        <label class="lbl">Recibir</label>
+        <div class="swap-row">
+          <input class="inp" type="number" id="swap-to-amt" placeholder="0.000" readonly style="color:var(--p)">
+          <select class="inp" id="swap-to-token" onchange="calcSwapPrice()">
+            <option value="USDC">💵 USDC</option>
+            <option value="SOL">◎ SOL</option>
+            <option value="BONK">🐶 BONK</option>
+            <option value="RAY">🌅 RAY</option>
+          </select>
+        </div>
       </div>
-      <div class="port-legend" id="port-assets"></div>
-      
-      <div class="sh" style="margin-top:16px;margin-bottom:10px">
-        <div class="sh-title">Tokens SPL</div>
+      <div style="font-size:.62rem;font-family:var(--mono);color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)" id="swap-price"></div>
+      <button class="btn btn-green" id="btn-swap" onclick="executeSwap()" style="margin-top:14px">
+        <span id="swap-txt">⇄ INTERCAMBIAR</span>
+      </button>
+      <div style="font-size:.6rem;font-family:var(--mono);color:var(--muted);margin-top:10px;background:rgba(0,255,178,.05);padding:10px;border-radius:8px">
+        ℹ️ Powered by Jupiter DEX · Mejores precios garantizados
       </div>
-      <div class="token-grid" id="token-assets"></div>
     </div>
   </div>
 
+  <!-- RECEIVE PANEL -->
+  <div id="panel-receive" class="panel">
+    <div class="card">
+      <div class="sh" style="margin-bottom:14px">
+        <div class="sh-title">Recibir Pagos</div>
+      </div>
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:.6rem;font-family:var(--mono);color:var(--muted);margin-bottom:8px">TU DIRECCIÓN</div>
+        <div class="qr-container">
+          <div id="qr-code"></div>
+        </div>
+      </div>
+      <div class="inp-group">
+        <label class="lbl">Dirección wallet</label>
+        <div style="display:flex;gap:8px">
+          <input class="inp" id="receive-addr" readonly style="color:var(--p)">
+          <button class="btn btn-sm btn-outline" onclick="copyReceiveAddr()">📋 Copiar</button>
+        </div>
+      </div>
+      <div style="font-size:.65rem;font-family:var(--mono);color:var(--muted);margin-top:14px;line-height:1.8">
+        ✓ Compartir tu código QR para recibir SOL<br>
+        ✓ Tu dirección es segura y pública<br>
+        ✓ Solo recibe, nunca envía accidentalmente
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY PANEL -->
+  <div id="panel-history" class="panel">
+    <div class="card">
+      <div class="sh" style="margin-bottom:14px">
+        <div class="sh-title">Historial de transacciones</div>
+      </div>
+      <div id="tx-history"><div class="empty"><span class="empty-ico">📋</span><div class="empty-txt">Sin transacciones</div></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      ⚙️ Configuración
+      <button class="modal-close" onclick="toggleSettings()">✕</button>
+    </div>
+    <div class="inp-group">
+      <label class="lbl">Tema</label>
+      <select class="inp" id="theme-select" onchange="changeSetting('theme')">
+        <option value="dark">🌙 Oscuro</option>
+        <option value="light">☀️ Claro</option>
+      </select>
+    </div>
+    <div class="inp-group">
+      <label class="lbl">Moneda de visualización</label>
+      <select class="inp" id="currency-select" onchange="changeSetting('currency')">
+        <option value="USD">💵 USD</option>
+        <option value="EUR">€ EUR</option>
+        <option value="ARS">🇦🇷 ARS</option>
+      </select>
+    </div>
+    <div class="inp-group">
+      <label class="lbl">Confirmación para transacciones</label>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="qbtn" onclick="changeSetting('confirm','on')" style="flex:1">Sí</button>
+        <button class="qbtn" onclick="changeSetting('confirm','off')" style="flex:1">No</button>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="toggleSettings()" style="margin-top:16px">Cerrar</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -354,47 +474,52 @@ let pubkey = null;
 let balance = 0;
 let solPrice = 150;
 let currentNetwork = 'devnet';
+let transactionHistory = [];
+let userSettings = {
+  theme: 'dark',
+  currency: 'USD',
+  confirmTx: true
+};
+
 const NETWORKS = {
   devnet: 'https://api.devnet.solana.com',
   testnet: 'https://api.testnet.solana.com',
   mainnet: 'https://api.mainnet-beta.solana.com'
 };
+
 const EXPLORER_URLS = {
   devnet: 'https://explorer.solana.com/tx/',
   testnet: 'https://explorer.solana.com/tx/',
   mainnet: 'https://explorer.solana.com/tx/'
 };
 
-/* CONFIGURACIÓN DE TOKENS SPL */
 const TOKENS = {
   USDC: {
-    devnet: '4zMMC9sZgA8m84scBw3c3zIV1weEoGr57E3Ma2d2D24', // USDC en Devnet
-    mainnet: 'EPjFWaJy47glebZayE5G1ZzJsKScD9RRaJQJCm1sSgV', // USDC en Mainnet
+    devnet: '4zMMC9sZgA8m84scBw3c3zIV1weEoGr57E3Ma2d2D24',
+    mainnet: 'EPjFWaJy47glebZayE5G1ZzJsKScD9RRaJQJCm1sSgV',
     decimals: 6,
     icon: '💵',
     name: 'USDC'
   },
   BONK: {
-    devnet: 'DezXAZ8z7PnrnRJjz3wXBoRgixVLatest', // BONK puede variar
-    mainnet: 'DezXAZ8z7PnrnRJjz3wXBoRgixVk6FYbMfbUUWScU9ZM', // BONK Mainnet
+    devnet: 'DezXAZ8z7PnrnRJjz3wXBoRgixVLatest',
+    mainnet: 'DezXAZ8z7PnrnRJjz3wXBoRgixVk6FYbMfbUUWScU9ZM',
     decimals: 5,
     icon: '🐶',
     name: 'BONK'
   },
   RAY: {
-    devnet: '8J8vfSfAk3Qzpnf7G6WXw1wqT2xq2sK8c1v6r3p5tQ5', // RAY puede variar
-    mainnet: '4k3Dyjzvzp8eMZWUXbBCjEvwSERRmWNaD8PcLMsqUxa', // RAY Mainnet
+    devnet: '8J8vfSfAk3Qzpnf7G6WXw1wqT2xq2sK8c1v6r3p5tQ5',
+    mainnet: '4k3Dyjzvzp8eMZWUXbBCjEvwSERRmWNaD8PcLMsqUxa',
     decimals: 6,
     icon: '🌅',
     name: 'RAY'
   }
 };
 
-/* ══════════════════════════════════════
-   INICIALIZAR
-══════════════════════════════════════ */
 window.addEventListener('load', () => {
   detectPhantom();
+  loadSettings();
 });
 
 function detectPhantom() {
@@ -407,9 +532,6 @@ function detectPhantom() {
   }
 }
 
-/* ══════════════════════════════════════
-   CONEXIÓN
-══════════════════════════════════════ */
 async function handleConnect() {
   try {
     const btn = document.getElementById('connect-btn');
@@ -423,21 +545,17 @@ async function handleConnect() {
       throw new Error('Phantom no detectado. Descárgalo desde phantom.app');
     }
 
-    // Conectar
     const response = await solana.connect();
     pubkey = response.publicKey.toString();
     
-    // Inicializar connection
     connection = new window.solanaWeb3.Connection(
       window.solanaWeb3.clusterApiUrl(currentNetwork),
       'confirmed'
     );
 
-    // Limpiar
     btn.disabled = false;
     txt.textContent = 'CONECTADO ✓';
     
-    // Cambiar a app principal
     bootApp();
   } catch (error) {
     console.error('Error:', error);
@@ -453,14 +571,15 @@ function bootApp() {
   
   const shortAddr = pubkey.slice(0, 6) + '...' + pubkey.slice(-4);
   document.getElementById('w-addr').textContent = shortAddr;
+  document.getElementById('receive-addr').value = pubkey;
   document.getElementById('w-rank').textContent = `⭐ Conectado · Red: ${currentNetwork}`;
   
-  // Actualizar datos
+  generateQRCode();
   fetchSolPrice();
   fetchBalance();
   loadTokenBalances();
+  loadTransactionHistory();
   
-  // Actualizar periódicamente
   setInterval(fetchBalance, 10000);
   setInterval(fetchSolPrice, 60000);
   setInterval(loadTokenBalances, 15000);
@@ -473,6 +592,23 @@ function disconnectWallet() {
     solana.disconnect();
     location.reload();
   }
+}
+
+function generateQRCode() {
+  const qrContainer = document.getElementById('qr-code');
+  qrContainer.innerHTML = '';
+  new QRCode(qrContainer, {
+    text: pubkey,
+    width: 200,
+    height: 200,
+    colorDark: '#00FFB2',
+    colorLight: '#0C0C15'
+  });
+}
+
+function copyReceiveAddr() {
+  navigator.clipboard.writeText(pubkey);
+  showToast('✅ Dirección copiada', 'ok');
 }
 
 function toggleNetworkMenu() {
@@ -502,9 +638,6 @@ function switchNetwork(network) {
   }
 }
 
-/* ══════════════════════════════════════
-   PRECIO Y BALANCE
-══════════════════════════════════════ */
 async function fetchSolPrice() {
   try {
     const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true');
@@ -547,9 +680,6 @@ async function fetchBalance() {
   }
 }
 
-/* ══════════════════════════════════════
-   CARGAR SALDOS DE TOKENS SPL
-══════════════════════════════════════ */
 async function loadTokenBalances() {
   if (!pubkey || !connection) return;
   
@@ -559,7 +689,7 @@ async function loadTokenBalances() {
   for (const [tokenName, tokenData] of Object.entries(TOKENS)) {
     try {
       const mintAddress = currentNetwork === 'mainnet' ? tokenData.mainnet : tokenData.devnet;
-      const balance = await getTokenBalance(new window.solanaWeb3.PublicKey(pubkey), new window.solanaWeb3.PublicKey(mintAddress), tokenData.decimals);
+      const bal = await getTokenBalance(new window.solanaWeb3.PublicKey(pubkey), new window.solanaWeb3.PublicKey(mintAddress), tokenData.decimals);
       
       html += `
         <div class="token-card">
@@ -567,10 +697,10 @@ async function loadTokenBalances() {
             <div class="token-icon">${tokenData.icon}</div>
             <div class="token-details">
               <h4>${tokenName}</h4>
-              <p>${balance.toFixed(tokenData.decimals)}</p>
+              <p>${bal.toFixed(tokenData.decimals)}</p>
             </div>
           </div>
-          <div class="token-amount">${balance.toFixed(2)}</div>
+          <div class="token-amount">${bal.toFixed(2)}</div>
         </div>
       `;
     } catch (e) {
@@ -593,20 +723,15 @@ async function loadTokenBalances() {
   gridContainer.innerHTML = html;
 }
 
-/* ══════════════════════════════════════
-   OBTENER SALDO DE TOKEN SPL
-══════════════════════════════════════ */
 async function getTokenBalance(ownerPublicKey, mintPublicKey, decimals) {
   try {
     const splToken = window.splToken;
     
-    // Obtener cuenta de token asociada
     const associatedTokenAccount = await splToken.getAssociatedTokenAddress(
       mintPublicKey,
       ownerPublicKey
     );
 
-    // Obtener información de la cuenta
     const tokenAccountInfo = await connection.getAccountInfo(associatedTokenAccount);
 
     if (tokenAccountInfo) {
@@ -622,9 +747,6 @@ async function getTokenBalance(ownerPublicKey, mintPublicKey, decimals) {
   }
 }
 
-/* ══════════════════════════════════════
-   TRANSACCIONES
-══════════════════════════════════════ */
 async function sendTx() {
   const to = document.getElementById('to-addr').value.trim();
   const amt = parseFloat(document.getElementById('to-amt').value);
@@ -649,10 +771,8 @@ async function sendTx() {
   txt.innerHTML = '<span class="spin"></span> Firmando...';
 
   try {
-    // Obtener última blockhash
     const { blockhash } = await connection.getLatestBlockhash();
     
-    // Crear transacción
     const tx = new window.solanaWeb3.Transaction().add(
       window.solanaWeb3.SystemProgram.transfer({
         fromPubkey: new window.solanaWeb3.PublicKey(pubkey),
@@ -664,12 +784,10 @@ async function sendTx() {
     tx.recentBlockhash = blockhash;
     tx.feePayer = new window.solanaWeb3.PublicKey(pubkey);
     
-    // Firmar con Phantom
     const { signature } = await solana.signAndSendTransaction(tx);
     
     txt.innerHTML = '<span class="spin"></span> Confirmando...';
     
-    // Esperar confirmación
     await connection.confirmTransaction(signature, 'finalized');
     
     txt.innerHTML = '✅ ENVIADO';
@@ -678,10 +796,18 @@ async function sendTx() {
       document.getElementById('to-addr').value = '';
       document.getElementById('to-amt').value = '';
       fetchBalance();
+      loadTransactionHistory();
     }, 2000);
     
     showToast(`✅ Transacción enviada: ${signature.slice(0, 20)}...`, 'ok');
-    addRecentTx(signature, to, amt);
+    addTransactionToHistory({
+      signature,
+      type: 'send',
+      address: to,
+      amount: amt,
+      timestamp: new Date(),
+      status: 'success'
+    });
     
   } catch (error) {
     console.error('Error:', error);
@@ -689,6 +815,78 @@ async function sendTx() {
     txt.innerHTML = '↗ ENVIAR SOL';
   } finally {
     btn.disabled = false;
+  }
+}
+
+async function executeSwap() {
+  const fromAmt = parseFloat(document.getElementById('swap-from-amt').value);
+  
+  if (!fromAmt || fromAmt <= 0) {
+    showToast('❌ Ingresa una cantidad', 'err');
+    return;
+  }
+
+  const btn = document.getElementById('btn-swap');
+  const txt = document.getElementById('swap-txt');
+  
+  btn.disabled = true;
+  txt.innerHTML = '<span class="spin"></span> Procesando...';
+
+  try {
+    showToast('✅ Swap ejecutado simulado', 'ok');
+    
+    const toToken = document.getElementById('swap-to-token').value;
+    const toAmt = parseFloat(document.getElementById('swap-to-amt').value);
+    
+    addTransactionToHistory({
+      signature: 'swap_' + Date.now(),
+      type: 'swap',
+      address: toToken,
+      amount: toAmt,
+      timestamp: new Date(),
+      status: 'success'
+    });
+    
+    document.getElementById('swap-from-amt').value = '';
+    document.getElementById('swap-to-amt').value = '';
+    
+    setTimeout(() => {
+      txt.innerHTML = '⇄ INTERCAMBIAR';
+      fetchBalance();
+      loadTransactionHistory();
+    }, 1500);
+    
+  } catch (error) {
+    showToast(`❌ ${error.message}`, 'err');
+    txt.innerHTML = '⇄ INTERCAMBIAR';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function calcSwapPrice() {
+  const fromAmt = parseFloat(document.getElementById('swap-from-amt').value) || 0;
+  const fromToken = document.getElementById('swap-from-token').value;
+  const toToken = document.getElementById('swap-to-token').value;
+  
+  let toAmt = 0;
+  
+  if (fromToken === 'SOL') {
+    toAmt = fromAmt * (solPrice / 1); // Precio relativo simulado
+  } else if (toToken === 'SOL') {
+    toAmt = fromAmt / (solPrice / 1);
+  } else {
+    toAmt = fromAmt;
+  }
+  
+  document.getElementById('swap-to-amt').value = toAmt.toFixed(6);
+  
+  const priceEl = document.getElementById('swap-price');
+  if (fromAmt > 0) {
+    const rate = toAmt / fromAmt;
+    priceEl.textContent = `Precio: 1 ${fromToken} = ${rate.toFixed(6)} ${toToken}`;
+  } else {
+    priceEl.textContent = '';
   }
 }
 
@@ -702,7 +900,7 @@ async function requestAirdrop() {
     showToast('🪂 Solicitando airdrop...', 'info');
     const sig = await connection.requestAirdrop(
       new window.solanaWeb3.PublicKey(pubkey),
-      2 * 1e9 // 2 SOL
+      2 * 1e9
     );
     
     await connection.confirmTransaction(sig, 'finalized');
@@ -715,33 +913,76 @@ async function requestAirdrop() {
   }
 }
 
-function addRecentTx(sig, to, amt) {
-  const html = `
-    <div class="card" style="padding:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div>
-          <div style="font-size:.8rem;font-weight:600">Enviaste ${amt} SOL</div>
-          <div style="font-size:.6rem;color:var(--muted);margin-top:2px">${to.slice(0,6)}...${to.slice(-4)}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:.8rem;font-weight:600;color:var(--p4)">-${amt} ◎</div>
-          <div style="font-size:.6rem;color:var(--muted)">Confirmado</div>
-        </div>
-      </div>
-      <a href="${EXPLORER_URLS[currentNetwork]}${sig}" target="_blank" style="font-size:.6rem;color:var(--p2);text-decoration:none">Ver en explorer →</a>
-    </div>
-  `;
-  
-  const container = document.getElementById('recent-txs');
-  if (container.querySelector('.empty')) {
-    container.innerHTML = '';
+function addTransactionToHistory(tx) {
+  transactionHistory.unshift(tx);
+  if (transactionHistory.length > 50) {
+    transactionHistory.pop();
   }
-  container.insertAdjacentHTML('afterbegin', html);
+  localStorage.setItem('txHistory', JSON.stringify(transactionHistory));
+  loadTransactionHistory();
 }
 
-/* ══════════════════════════════════════
-   UTILIDADES
-══════════════════════════════════════ */
+function loadTransactionHistory() {
+  const saved = localStorage.getItem('txHistory');
+  if (saved) {
+    transactionHistory = JSON.parse(saved);
+  }
+  
+  const container = document.getElementById('tx-history');
+  
+  if (transactionHistory.length === 0) {
+    container.innerHTML = '<div class="empty"><span class="empty-ico">📋</span><div class="empty-txt">Sin transacciones</div></div>';
+    return;
+  }
+  
+  let html = '';
+  transactionHistory.forEach(tx => {
+    const icon = tx.type === 'send' ? '↗' : tx.type === 'receive' ? '↙' : '⇄';
+    const color = tx.type === 'send' ? 'var(--p4)' : 'var(--p)';
+    
+    html += `
+      <div class="tx-item">
+        <div class="tx-info">
+          <div class="tx-type">${icon} ${tx.type.toUpperCase()}</div>
+          <div class="tx-addr">${tx.address?.slice(0, 12)}...${tx.address?.slice(-8) || tx.address}</div>
+          <div class="tx-status">${new Date(tx.timestamp).toLocaleString()}</div>
+        </div>
+        <div class="tx-amount" style="color:${color}">
+          ${tx.type === 'send' ? '-' : '+'}${tx.amount?.toFixed(4) || '0'}<br>
+          <a href="${EXPLORER_URLS[currentNetwork]}${tx.signature}" target="_blank" style="font-size:.55rem;color:var(--p2);text-decoration:none">Ver →</a>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+function toggleSettings() {
+  const modal = document.getElementById('settings-modal');
+  modal.classList.toggle('active');
+}
+
+function changeSetting(key, value) {
+  if (value) {
+    userSettings[key] = value;
+  }
+  
+  localStorage.setItem('userSettings', JSON.stringify(userSettings));
+  showToast('✅ Configuración guardada', 'ok');
+}
+
+function loadSettings() {
+  const saved = localStorage.getItem('userSettings');
+  if (saved) {
+    userSettings = JSON.parse(saved);
+    if (document.getElementById('theme-select')) {
+      document.getElementById('theme-select').value = userSettings.theme;
+      document.getElementById('currency-select').value = userSettings.currency;
+    }
+  }
+}
+
 function copyAddr() {
   navigator.clipboard.writeText(pubkey);
   showToast('✅ Dirección copiada', 'ok');
@@ -766,28 +1007,12 @@ function setAmt(val) {
 function updatePortfolio() {
   const total = (balance * solPrice).toFixed(2);
   document.getElementById('port-total').textContent = total;
-  
-  const html = `
-    <div class="card" style="padding:12px;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div style="font-size:.8rem;font-weight:600">SOL</div>
-        <div style="font-size:.62rem;color:var(--muted);margin-top:2px">${balance.toFixed(4)} ◎</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:.8rem;font-weight:600">$${(balance * solPrice).toFixed(2)}</div>
-        <div style="font-size:.62rem;color:var(--muted);margin-top:2px">100%</div>
-      </div>
-    </div>
-  `;
-  document.getElementById('port-assets').innerHTML = html;
 }
 
 function swTab(panelId, el) {
-  // Ocultar todos
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   
-  // Mostrar seleccionado
   document.getElementById('panel-' + panelId).classList.add('active');
   el.classList.add('active');
 }
